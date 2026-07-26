@@ -1,10 +1,22 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, Req, HttpCode, HttpStatus } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  Query,
+  Req,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { LearningService } from './learning.service';
 import { CreateCourseDto, UpdateCourseDto, QueryCourseDto } from './dto/course.dto';
 import { CreateModuleDto, UpdateModuleDto } from './dto/module.dto';
 import { CreateLessonDto, UpdateLessonDto } from './dto/lesson.dto';
-import { CreateQuizDto, UpdateQuizDto, SubmitQuizAttemptDto } from './dto/quiz.dto';
+import { CreateQuizDto, SubmitQuizAttemptDto } from './dto/quiz.dto';
 import { UpdateProgressDto } from './dto/progress.dto';
 import { FirebaseAuthGuard } from '../common/guards/firebase-auth.guard';
 import { UseGuards } from '@nestjs/common';

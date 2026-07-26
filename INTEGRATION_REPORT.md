@@ -197,6 +197,22 @@ AI Service Webcam:     Demo mode webcam frame working (conf=0.8664)
 | `apps/web/app/(dashboard)/translation/page.tsx` | MODIFIED    | Add AI service fallback                              |
 | `apps/ai-service/main.py`                       | MODIFIED    | Demo mode for health, model/info, predict, translate |
 | `apps/ai-service/schemas.py`                    | MODIFIED    | Add protected_namespaces to 4 models                 |
+| `apps/web/lib/firebase.ts`                      | REWRITTEN   | Conditional Firebase initialization                  |
+| `apps/web/providers/AuthProvider.tsx`            | REWRITTEN   | Skip Firebase when disabled                          |
+| `apps/web/stores/auth-store.ts`                 | REWRITTEN   | Demo auth when Firebase disabled                     |
+| `apps/web/components/auth/ProtectedRoute.tsx`    | REWRITTEN   | Fallback to Zustand auth                             |
+| `apps/web/lib/api.ts`                           | REWRITTEN   | Skip Firebase token when disabled                    |
+| `apps/web/.env.local`                           | MODIFIED    | Remove placeholder Firebase API key                  |
+
+### Issue 6: Firebase `api-key-not-valid` Error on Login/Register (2026-07-26)
+
+**Symptom:** Firebase error: `auth/api-key-not-valid. Please pass a valid API key.`
+
+**Root Cause:** `.env.local` contained `NEXT_PUBLIC_FIREBASE_API_KEY=demo-api-key` (non-empty placeholder). `firebase.ts` unconditionally called `initializeApp()` with this invalid key.
+
+**Fix:** Made Firebase conditional throughout the auth chain. When `NEXT_PUBLIC_FIREBASE_API_KEY` is empty/absent, Firebase is completely disabled and demo authentication is used.
+
+**Verification:** All 13 pages load (HTTP 200), 0 Firebase errors, 86/86 tests pass, TypeScript compiles cleanly.
 
 ---
 

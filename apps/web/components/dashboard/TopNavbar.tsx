@@ -7,6 +7,7 @@ import { Bell, Search, Menu, ChevronRight } from 'lucide-react';
 import { useUIStore } from '@/stores/ui-store';
 import { useAuthStore } from '@/stores/auth-store';
 import UserMenu from './UserMenu';
+import ThemeToggle from './ThemeToggle';
 
 export default function TopNavbar() {
   const pathname = usePathname();
@@ -16,7 +17,7 @@ export default function TopNavbar() {
   const pathSegments = pathname.split('/').filter(Boolean);
 
   return (
-    <header className="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 lg:px-6">
+    <header className="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 dark:border-gray-800 dark:bg-gray-900 lg:px-6">
       <div className="flex items-center gap-4">
         <button
           onClick={toggleMobileSidebar}
@@ -66,6 +67,8 @@ export default function TopNavbar() {
           <Bell className="h-5 w-5" />
           <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-red-500" />
         </button>
+
+        <ThemeToggle />
 
         <UserMenu />
       </div>

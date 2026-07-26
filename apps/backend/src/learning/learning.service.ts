@@ -1,9 +1,15 @@
-import { Injectable, Logger, NotFoundException, ConflictException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  ConflictException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { CreateCourseDto, UpdateCourseDto, QueryCourseDto } from './dto/course.dto';
 import { CreateModuleDto, UpdateModuleDto } from './dto/module.dto';
 import { CreateLessonDto, UpdateLessonDto } from './dto/lesson.dto';
-import { CreateQuizDto, UpdateQuizDto, SubmitQuizAttemptDto } from './dto/quiz.dto';
+import { CreateQuizDto, SubmitQuizAttemptDto } from './dto/quiz.dto';
 import { UpdateProgressDto } from './dto/progress.dto';
 import { randomBytes } from 'crypto';
 
@@ -45,7 +51,13 @@ export class LearningService {
     ]);
 
     return {
-      data: items.map((c) => ({ ...c, moduleCount: c._count.modules, quizCount: c._count.quizzes, enrollmentCount: c._count.enrollments, _count: undefined })),
+      data: items.map((c) => ({
+        ...c,
+        moduleCount: c._count.modules,
+        quizCount: c._count.quizzes,
+        enrollmentCount: c._count.enrollments,
+        _count: undefined,
+      })),
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     };
   }
@@ -64,7 +76,12 @@ export class LearningService {
   }
 
   async createCourse(dto: CreateCourseDto) {
-    const slug = dto.slug || dto.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const slug =
+      dto.slug ||
+      dto.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
     const existing = await this.prisma.course.findUnique({ where: { slug } });
     if (existing) throw new ConflictException('Course with this slug already exists');
 
@@ -170,7 +187,12 @@ export class LearningService {
     if (!course) throw new NotFoundException('Course not found');
 
     const module = await this.prisma.module.create({
-      data: { title: dto.title, description: dto.description, order: dto.order, courseId: dto.courseId },
+      data: {
+        title: dto.title,
+        description: dto.description,
+        order: dto.order,
+        courseId: dto.courseId,
+      },
     });
     this.logger.log(`Created module: ${module.title}`);
     return module;
@@ -233,7 +255,14 @@ export class LearningService {
 
     const lesson = await this.prisma.lesson.update({
       where: { id },
-      data: { title: dto.title, description: dto.description, videoUrl: dto.videoUrl, thumbnail: dto.thumbnail, duration: dto.duration, order: dto.order },
+      data: {
+        title: dto.title,
+        description: dto.description,
+        videoUrl: dto.videoUrl,
+        thumbnail: dto.thumbnail,
+        duration: dto.duration,
+        order: dto.order,
+      },
     });
     this.logger.log(`Updated lesson: ${lesson.title}`);
     return lesson;
@@ -315,7 +344,13 @@ export class LearningService {
           accuracy: prog?.accuracy || null,
         };
       });
-      return { id: mod.id, title: mod.title, description: mod.description, order: mod.order, lessons };
+      return {
+        id: mod.id,
+        title: mod.title,
+        description: mod.description,
+        order: mod.order,
+        lessons,
+      };
     });
 
     return {
@@ -344,7 +379,13 @@ export class LearningService {
         passingScore: dto.passingScore || 70,
         courseId: dto.courseId,
         questions: dto.questions
-          ? { create: dto.questions.map((q) => ({ text: q.text, order: q.order, answerOptions: { create: q.answerOptions } })) }
+          ? {
+              create: dto.questions.map((q) => ({
+                text: q.text,
+                order: q.order,
+                answerOptions: { create: q.answerOptions },
+              })),
+            }
           : undefined,
       },
       include: { questions: { include: { answerOptions: true } } },

@@ -68,4 +68,4 @@ HEALTHCHECK --interval=15s --timeout=10s --start-period=30s --retries=5 \
 USER signbridge
 
 # Run the application
-CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--log-level", "info"]
+CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--log-level", "info"]

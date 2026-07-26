@@ -22,8 +22,8 @@ function NavItemComponent({ item, depth = 0 }: { item: NavItem; depth?: number }
           onClick={() => setExpanded(!expanded)}
           className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
             isActive
-              ? 'bg-primary-50 text-primary-700'
-              : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+              ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400'
+              : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white'
           }`}
           aria-expanded={expanded}
         >
@@ -77,7 +77,7 @@ function NavItemComponent({ item, depth = 0 }: { item: NavItem; depth?: number }
 function NavGroupComponent({ group }: { group: NavGroup }) {
   return (
     <div>
-      <h3 className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-gray-500">
+      <h3 className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
         {group.label}
       </h3>
       <div className="space-y-1">
@@ -101,16 +101,16 @@ export default function Sidebar({ className = '' }: SidebarProps) {
 
   return (
     <aside
-      className={`flex flex-col border-r border-gray-200 bg-white transition-all duration-300 ${
+      className={`flex flex-col border-r border-gray-200 bg-white transition-all duration-300 dark:border-gray-800 dark:bg-gray-900 ${
         sidebarCollapsed ? 'w-16' : 'w-64'
       } ${className}`}
       aria-label="Sidebar navigation"
     >
-      <div className="flex h-16 items-center justify-between border-b border-gray-200 px-4">
+      <div className="flex h-16 items-center justify-between border-b border-gray-200 px-4 dark:border-gray-800">
         {!sidebarCollapsed && (
           <Link href="/dashboard" className="flex items-center gap-2">
             <HandMetal className="h-8 w-8 text-primary-600" />
-            <span className="text-xl font-bold text-gray-900">SignBridge</span>
+            <span className="text-xl font-bold text-gray-900 dark:text-white">SignBridge</span>
           </Link>
         )}
         <button
@@ -129,7 +129,7 @@ export default function Sidebar({ className = '' }: SidebarProps) {
               <Link
                 key={item.href}
                 href={item.href}
-                className="flex items-center justify-center rounded-lg p-2 text-gray-700 hover:bg-gray-100"
+                className="flex items-center justify-center rounded-lg p-2 text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
                 aria-label={item.label}
                 title={item.label}
               >
@@ -142,7 +142,7 @@ export default function Sidebar({ className = '' }: SidebarProps) {
             {navGroups.map((group) => (
               <NavGroupComponent key={group.label} group={group} />
             ))}
-            <div className="border-t border-gray-200 pt-4">
+            <div className="border-t border-gray-200 pt-4 dark:border-gray-800">
               <NavItemComponent item={helpNavigation} />
             </div>
           </div>

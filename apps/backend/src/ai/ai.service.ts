@@ -4,7 +4,6 @@ import { CreateTranslationSessionDto, TranslateTextDto } from './dto/translation
 import { CreatePracticeSessionDto, SubmitPredictionDto } from './dto/practice.dto';
 import { PredictGestureDto } from './dto/ai.dto';
 import { ConfigService } from '@nestjs/config';
-import { randomBytes } from 'crypto';
 
 @Injectable()
 export class AiService {
@@ -154,9 +153,10 @@ export class AiService {
       where: { practiceSessionId: id },
     });
 
-    const avgConfidence = predictions.length > 0
-      ? predictions.reduce((sum, p) => sum + p.confidence, 0) / predictions.length
-      : 0;
+    const avgConfidence =
+      predictions.length > 0
+        ? predictions.reduce((sum, p) => sum + p.confidence, 0) / predictions.length
+        : 0;
 
     const updated = await this.prisma.practiceSession.update({
       where: { id },
@@ -167,7 +167,9 @@ export class AiService {
       },
     });
 
-    this.logger.log(`Ended practice session: ${id} (${predictions.length} predictions, ${avgConfidence} avg confidence)`);
+    this.logger.log(
+      `Ended practice session: ${id} (${predictions.length} predictions, ${avgConfidence} avg confidence)`,
+    );
     return updated;
   }
 

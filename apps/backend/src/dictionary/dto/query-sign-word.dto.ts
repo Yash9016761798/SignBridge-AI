@@ -13,7 +13,10 @@ export class QuerySignWordDto {
   @IsOptional()
   categoryId?: string;
 
-  @ApiPropertyOptional({ description: 'Filter by difficulty level', enum: ['BEGINNER', 'INTERMEDIATE', 'ADVANCED'] })
+  @ApiPropertyOptional({
+    description: 'Filter by difficulty level',
+    enum: ['BEGINNER', 'INTERMEDIATE', 'ADVANCED'],
+  })
   @IsEnum(['BEGINNER', 'INTERMEDIATE', 'ADVANCED'] as const)
   @IsOptional()
   difficulty?: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';

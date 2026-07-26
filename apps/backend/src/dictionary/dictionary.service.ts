@@ -12,7 +12,17 @@ export class DictionaryService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findAllSignWords(query: QuerySignWordDto) {
-    const { search, categoryId, difficulty, letter, page = 1, limit = 20, sortBy = 'word', sortOrder = 'asc', userId } = query;
+    const {
+      search,
+      categoryId,
+      difficulty,
+      letter,
+      page = 1,
+      limit = 20,
+      sortBy = 'word',
+      sortOrder = 'asc',
+      userId,
+    } = query;
 
     const where: Record<string, unknown> = {};
 
@@ -49,7 +59,10 @@ export class DictionaryService {
       favorites: undefined,
     }));
 
-    return { data: itemsWithFavorite, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } };
+    return {
+      data: itemsWithFavorite,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    };
   }
 
   async findSignWordById(id: string, userId?: string) {
@@ -71,7 +84,14 @@ export class DictionaryService {
     if (!category) throw new NotFoundException('Category not found');
 
     const signWord = await this.prisma.signWord.create({
-      data: { word: dto.word, meaning: dto.meaning, categoryId: dto.categoryId, videoUrl: dto.videoUrl, imageUrl: dto.imageUrl, difficulty: dto.difficulty || 'BEGINNER' },
+      data: {
+        word: dto.word,
+        meaning: dto.meaning,
+        categoryId: dto.categoryId,
+        videoUrl: dto.videoUrl,
+        imageUrl: dto.imageUrl,
+        difficulty: dto.difficulty || 'BEGINNER',
+      },
       include: { category: true },
     });
     this.logger.log(`Created sign word: ${signWord.word}`);
@@ -89,7 +109,14 @@ export class DictionaryService {
 
     const signWord = await this.prisma.signWord.update({
       where: { id },
-      data: { word: dto.word, meaning: dto.meaning, categoryId: dto.categoryId, videoUrl: dto.videoUrl, imageUrl: dto.imageUrl, difficulty: dto.difficulty },
+      data: {
+        word: dto.word,
+        meaning: dto.meaning,
+        categoryId: dto.categoryId,
+        videoUrl: dto.videoUrl,
+        imageUrl: dto.imageUrl,
+        difficulty: dto.difficulty,
+      },
       include: { category: true },
     });
     this.logger.log(`Updated sign word: ${signWord.word}`);
@@ -114,7 +141,10 @@ export class DictionaryService {
   async findCategoryById(id: string) {
     const category = await this.prisma.signCategory.findUnique({
       where: { id },
-      include: { signs: { take: 20, orderBy: { word: 'asc' } }, _count: { select: { signs: true } } },
+      include: {
+        signs: { take: 20, orderBy: { word: 'asc' } },
+        _count: { select: { signs: true } },
+      },
     });
     if (!category) throw new NotFoundException('Category not found');
     return { ...category, signCount: category._count.signs, _count: undefined };
@@ -136,7 +166,9 @@ export class DictionaryService {
     if (!existing) throw new NotFoundException('Category not found');
 
     if (dto.name && dto.name !== existing.name) {
-      const duplicate = await this.prisma.signCategory.findFirst({ where: { name: dto.name, id: { not: id } } });
+      const duplicate = await this.prisma.signCategory.findFirst({
+        where: { name: dto.name, id: { not: id } },
+      });
       if (duplicate) throw new ConflictException('Category with this name already exists');
     }
 
@@ -149,9 +181,13 @@ export class DictionaryService {
   }
 
   async deleteCategory(id: string) {
-    const existing = await this.prisma.signCategory.findUnique({ where: { id }, include: { _count: { select: { signs: true } } } });
+    const existing = await this.prisma.signCategory.findUnique({
+      where: { id },
+      include: { _count: { select: { signs: true } } },
+    });
     if (!existing) throw new NotFoundException('Category not found');
-    if (existing._count.signs > 0) throw new ConflictException('Cannot delete category with associated signs');
+    if (existing._count.signs > 0)
+      throw new ConflictException('Cannot delete category with associated signs');
     await this.prisma.signCategory.delete({ where: { id } });
     this.logger.log(`Deleted category: ${id}`);
   }
@@ -160,7 +196,9 @@ export class DictionaryService {
     const signWord = await this.prisma.signWord.findUnique({ where: { id: signId } });
     if (!signWord) throw new NotFoundException('Sign word not found');
 
-    const existing = await this.prisma.favoriteSign.findUnique({ where: { userId_signId: { userId, signId } } });
+    const existing = await this.prisma.favoriteSign.findUnique({
+      where: { userId_signId: { userId, signId } },
+    });
 
     if (existing) {
       await this.prisma.favoriteSign.delete({ where: { id: existing.id } });

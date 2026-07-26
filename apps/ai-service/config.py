@@ -29,9 +29,11 @@ class Settings:
     NUM_BEAMS: int = 1
     TEMPERATURE: float = 1.0
 
-    CORS_ORIGINS: str = "*"
+    CORS_ORIGINS: str = "http://localhost:3000"
     MAX_BATCH_SIZE: int = 32
     REQUEST_TIMEOUT: float = 30.0
+    RATE_LIMIT_PER_MINUTE: int = 60
+    RATE_LIMIT_BURST: int = 10
 
     @classmethod
     def from_env(cls) -> 'Settings':
@@ -52,6 +54,8 @@ class Settings:
             CORS_ORIGINS=os.getenv("SIGNBRIDGE_CORS_ORIGINS", cls.CORS_ORIGINS),
             MAX_BATCH_SIZE=int(os.getenv("SIGNBRIDGE_MAX_BATCH_SIZE", str(cls.MAX_BATCH_SIZE))),
             REQUEST_TIMEOUT=float(os.getenv("SIGNBRIDGE_REQUEST_TIMEOUT", str(cls.REQUEST_TIMEOUT))),
+            RATE_LIMIT_PER_MINUTE=int(os.getenv("SIGNBRIDGE_RATE_LIMIT_PER_MINUTE", str(cls.RATE_LIMIT_PER_MINUTE))),
+            RATE_LIMIT_BURST=int(os.getenv("SIGNBRIDGE_RATE_LIMIT_BURST", str(cls.RATE_LIMIT_BURST))),
         )
 
     def resolve_checkpoint_path(self) -> Path:

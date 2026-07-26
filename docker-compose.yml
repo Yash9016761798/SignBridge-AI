@@ -69,8 +69,63 @@ services:
     networks:
       - signbridge-network
 
+  # ============================================================
+  # SignBridge Backend - NestJS API (optional, requires PostgreSQL)
+  # ============================================================
+  backend:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+      args:
+        - NODE_VERSION=18
+    container_name: signbridge-backend
+    restart: unless-stopped
+    ports:
+      - '${BACKEND_PORT:-3001}:3001'
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/signbridge_ai
+      - AI_SERVICE_URL=http://ai-service:8000
+      - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID:-}
+      - FIREBASE_CLIENT_EMAIL=${FIREBASE_CLIENT_EMAIL:-}
+      - FIREBASE_PRIVATE_KEY=${FIREBASE_PRIVATE_KEY:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - signbridge-network
+    profiles:
+      - full
+
+  # ============================================================
+  # PostgreSQL - Database for Backend (optional)
+  # ============================================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: signbridge-postgres
+    restart: unless-stopped
+    ports:
+      - '${POSTGRES_PORT:-5432}:5432'
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=signbridge_ai
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - signbridge-network
+    profiles:
+      - full
+
 volumes:
   ai-logs:
+  postgres-data:
 
 networks:
   signbridge-network:

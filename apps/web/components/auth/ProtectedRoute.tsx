@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { isFirebaseEnabled, auth } from '@/lib/firebase';
+import { useAuthStore } from '@/stores/auth-store';
 import LoadingScreen from './LoadingScreen';
 
 interface ProtectedRouteProps {
@@ -13,21 +13,37 @@ interface ProtectedRouteProps {
 
 export default function ProtectedRoute({ children, requiredRoles }: ProtectedRouteProps) {
   const router = useRouter();
+  const { isAuthenticated } = useAuthStore();
   const [loading, setLoading] = useState(true);
   const [authenticated, setAuthenticated] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setAuthenticated(true);
-      } else {
+    if (!isFirebaseEnabled) {
+      setAuthenticated(isAuthenticated);
+      setLoading(false);
+      if (!isAuthenticated) {
         router.push('/login');
       }
-      setLoading(false);
+      return;
+    }
+
+    let unsubscribe: (() => void) | undefined;
+
+    import('firebase/auth').then(({ onAuthStateChanged }) => {
+      unsubscribe = onAuthStateChanged(auth, (user: any) => {
+        if (user) {
+          setAuthenticated(true);
+        } else {
+          router.push('/login');
+        }
+        setLoading(false);
+      });
     });
 
-    return () => unsubscribe();
-  }, [router]);
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, [router, isAuthenticated]);
 
   if (loading) {
     return <LoadingScreen message="Checking authentication..." />;

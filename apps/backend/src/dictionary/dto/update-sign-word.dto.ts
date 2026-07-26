@@ -8,7 +8,10 @@ export class UpdateSignWordDto {
   @MaxLength(100)
   word?: string;
 
-  @ApiPropertyOptional({ description: 'Meaning/definition of the sign', example: 'A greeting gesture' })
+  @ApiPropertyOptional({
+    description: 'Meaning/definition of the sign',
+    example: 'A greeting gesture',
+  })
   @IsString()
   @IsOptional()
   @MaxLength(500)
@@ -29,7 +32,10 @@ export class UpdateSignWordDto {
   @IsOptional()
   imageUrl?: string;
 
-  @ApiPropertyOptional({ description: 'Difficulty level', enum: ['BEGINNER', 'INTERMEDIATE', 'ADVANCED'] })
+  @ApiPropertyOptional({
+    description: 'Difficulty level',
+    enum: ['BEGINNER', 'INTERMEDIATE', 'ADVANCED'],
+  })
   @IsEnum(['BEGINNER', 'INTERMEDIATE', 'ADVANCED'] as const)
   @IsOptional()
   difficulty?: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';

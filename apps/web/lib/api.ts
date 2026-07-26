@@ -10,12 +10,19 @@ export const apiClient = axios.create({
 });
 
 apiClient.interceptors.request.use(async (config) => {
-  const { getAuth } = await import('firebase/auth');
-  const auth = getAuth();
-  const user = auth.currentUser;
-  if (user) {
-    const token = await user.getIdToken();
-    config.headers.Authorization = `Bearer ${token}`;
+  try {
+    const { isFirebaseEnabled } = await import('@/lib/firebase');
+    if (!isFirebaseEnabled) return config;
+
+    const { getAuth } = await import('firebase/auth');
+    const authInstance = getAuth();
+    const user = authInstance.currentUser;
+    if (user) {
+      const token = await user.getIdToken();
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  } catch {
+    // Firebase not available, skip token injection
   }
   return config;
 });

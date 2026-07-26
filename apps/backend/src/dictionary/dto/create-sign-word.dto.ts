@@ -8,7 +8,10 @@ export class CreateSignWordDto {
   @MaxLength(100)
   word!: string;
 
-  @ApiPropertyOptional({ description: 'Meaning/definition of the sign', example: 'A greeting gesture' })
+  @ApiPropertyOptional({
+    description: 'Meaning/definition of the sign',
+    example: 'A greeting gesture',
+  })
   @IsString()
   @IsOptional()
   @MaxLength(500)
@@ -29,7 +32,11 @@ export class CreateSignWordDto {
   @IsOptional()
   imageUrl?: string;
 
-  @ApiPropertyOptional({ description: 'Difficulty level', enum: ['BEGINNER', 'INTERMEDIATE', 'ADVANCED'], default: 'BEGINNER' })
+  @ApiPropertyOptional({
+    description: 'Difficulty level',
+    enum: ['BEGINNER', 'INTERMEDIATE', 'ADVANCED'],
+    default: 'BEGINNER',
+  })
   @IsEnum(['BEGINNER', 'INTERMEDIATE', 'ADVANCED'] as const)
   @IsOptional()
   difficulty?: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
