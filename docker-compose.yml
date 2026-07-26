@@ -1,77 +1,77 @@
 version: '3.8'
 
 services:
-  # PostgreSQL Database
-  postgres:
-    image: postgres:16-alpine
-    container_name: signbridge-db
-    restart: unless-stopped
-    ports:
-      - '5432:5432'
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: signbridge_ai
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres']
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  # Backend API
-  backend:
-    build:
-      context: .
-      dockerfile: apps/backend/Dockerfile
-    container_name: signbridge-backend
-    restart: unless-stopped
-    ports:
-      - '3001:3001'
-    environment:
-      - NODE_ENV=production
-      - PORT=3001
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/signbridge_ai?schema=public
-      - CORS_ORIGIN=http://localhost:3000
-    depends_on:
-      postgres:
-        condition: service_healthy
-
-  # AI Service
+  # ============================================================
+  # SignBridge AI - Inference Service
+  # FastAPI + PyTorch PoseTransformer
+  # ============================================================
   ai-service:
     build:
       context: .
       dockerfile: apps/ai-service/Dockerfile
+      args:
+        - PYTHON_VERSION=3.11
     container_name: signbridge-ai
     restart: unless-stopped
     ports:
-      - '8000:8000'
+      - '${AI_PORT:-8000}:8000'
     environment:
-      - HOST=0.0.0.0
-      - PORT=8000
-      - DEBUG=false
-      - CORS_ORIGINS=["http://localhost:3000","http://localhost:3001"]
-      - BACKEND_URL=http://backend:3001
-    depends_on:
-      - backend
+      - SIGNBRIDGE_HOST=0.0.0.0
+      - SIGNBRIDGE_PORT=8000
+      - SIGNBRIDGE_DEBUG=${SIGNBRIDGE_DEBUG:-false}
+      - SIGNBRIDGE_LOG_LEVEL=${SIGNBRIDGE_LOG_LEVEL:-INFO}
+      - SIGNBRIDGE_MODEL_CHECKPOINT=${MODEL_CHECKPOINT:-experiments/representative/checkpoints/best.pt}
+      - SIGNBRIDGE_VOCAB_PATH=${VOCAB_PATH:-experiments/representative/vocabulary.json}
+      - SIGNBRIDGE_MODEL_VERSION=${MODEL_VERSION:-1.0.0}
+      - SIGNBRIDGE_CORS_ORIGINS=http://localhost:${WEB_PORT:-3000},http://localhost:3000
+      - SIGNBRIDGE_NUM_LANDMARKS=33
+      - SIGNBRIDGE_NUM_FEATURES=5
+      - SIGNBRIDGE_MAX_SEQ_LENGTH=30
+      - SIGNBRIDGE_DEMO_MODE=${DEMO_MODE:-false}
+    volumes:
+      - ./ai-training/experiments:/app/ai-training/experiments:ro
+      - ./ai-training/checkpoints:/app/ai-training/checkpoints:ro
+      - ./ai-training/tokenizer:/app/ai-training/tokenizer:ro
+      - ./ai-training/models:/app/ai-training/models:ro
+      - ./logs/ai-service:/app/logs
+    healthcheck:
+      test: ['CMD', 'python', '-c', 'import urllib.request; urllib.request.urlopen("http://localhost:8000/health")']
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - signbridge-network
 
-  # Web Frontend
+  # ============================================================
+  # SignBridge Web - Next.js Frontend
+  # ============================================================
   web:
     build:
       context: .
       dockerfile: apps/web/Dockerfile
+      args:
+        - NODE_VERSION=18
     container_name: signbridge-web
     restart: unless-stopped
     ports:
-      - '3000:3000'
+      - '${WEB_PORT:-3000}:3000'
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:3001
-      - NEXT_PUBLIC_AI_URL=http://localhost:8000
-      - NEXT_PUBLIC_APP_URL=http://localhost:3000
+      - NODE_ENV=production
+      - PORT=3000
+      - NEXT_PUBLIC_AI_SERVICE_URL=http://localhost:${AI_PORT:-8000}
+      - NEXT_PUBLIC_APP_NAME=SignBridge AI
+      - NEXT_PUBLIC_APP_ENV=production
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:3001/api/v1}
     depends_on:
-      - backend
-      - ai-service
+      ai-service:
+        condition: service_healthy
+    networks:
+      - signbridge-network
 
 volumes:
-  postgres_data:
+  ai-logs:
+
+networks:
+  signbridge-network:
+    driver: bridge

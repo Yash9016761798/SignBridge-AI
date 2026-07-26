@@ -107,3 +107,13 @@ content/
 # Python caches
 .pytest_cache/
 .mypy_cache/
+
+# Logs
+logs/**/*.log
+
+# Keep the log folder structure
+!logs/.gitkeep
+!logs/**/.gitkeep
+
+# TypeScript build info
+*.tsbuildinfo

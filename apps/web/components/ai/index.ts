@@ -1,2 +1,12 @@
 export { default as CameraPermission } from './CameraPermission';
+export { default as CameraView } from './CameraView';
+export { default as ConfidenceMeter } from './ConfidenceMeter';
+export { default as ConnectionStatus } from './ConnectionStatus';
+export { default as ConnectionMonitor } from './ConnectionMonitor';
+export { default as PerformanceDashboard } from './PerformanceDashboard';
+export { default as PredictionHistory } from './PredictionHistory';
 export { default as PredictionResultDisplay } from './PredictionResult';
+export { default as SessionControls } from './SessionControls';
+export { default as SettingsPanel } from './SettingsPanel';
+export { default as TranslationCard } from './TranslationCard';
+export { default as TranslationPanel } from './TranslationPanel';
