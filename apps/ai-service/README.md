@@ -25,28 +25,32 @@ docker run -p 8000:8000 signbridge-ai
 
 ## Environment Variables
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| SIGNBRIDGE_PORT | 8000 | Server port |
-| SIGNBRIDGE_DEBUG | false | Debug mode |
+| Variable                    | Default                                        | Description           |
+| --------------------------- | ---------------------------------------------- | --------------------- |
+| SIGNBRIDGE_PORT             | 8000                                           | Server port           |
+| SIGNBRIDGE_DEBUG            | false                                          | Debug mode            |
 | SIGNBRIDGE_MODEL_CHECKPOINT | experiments/representative/checkpoints/best.pt | Model checkpoint path |
-| SIGNBRIDGE_VOCAB_PATH | experiments/representative/vocabulary.json | Vocabulary path |
-| SIGNBRIDGE_MODEL_VERSION | 1.0.0 | Model version string |
-| SIGNBRIDGE_CORS_ORIGINS | * | Allowed CORS origins |
-| SIGNBRIDGE_LOG_LEVEL | INFO | Logging level |
+| SIGNBRIDGE_VOCAB_PATH       | experiments/representative/vocabulary.json     | Vocabulary path       |
+| SIGNBRIDGE_MODEL_VERSION    | 1.0.0                                          | Model version string  |
+| SIGNBRIDGE_CORS_ORIGINS     | *                                              | Allowed CORS origins  |
+| SIGNBRIDGE_LOG_LEVEL        | INFO                                           | Logging level         |
 
 ## API Endpoints
 
 ### GET /health
+
 Health check. Returns service status, model load state, and uptime.
 
 ### GET /model/info
+
 Model architecture details, parameter count, device info.
 
 ### POST /predict
+
 Translate a sequence of pose frames to text.
 
 **Request:**
+
 ```json
 {
   "pose_sequence": [[[x, y, z, v, ...], ...], ...],
@@ -56,6 +60,7 @@ Translate a sequence of pose frames to text.
 ```
 
 **Response:**
+
 ```json
 {
   "prediction": { "text": "Hello", "tokens": [1, 5, 2] },
@@ -66,9 +71,11 @@ Translate a sequence of pose frames to text.
 ```
 
 ### POST /translate
+
 Translate a single pose frame to text.
 
 ### POST /webcam/frame
+
 Process a webcam frame for real-time translation with session tracking.
 
 ## Architecture

@@ -9,9 +9,13 @@ All changes made during the integration verification pass on 2026-07-26.
 ### `apps/web/lib/pose-extraction.ts` (NEW)
 
 - **What changed:** New utility module for extracting pose landmarks from video frames
-- **Why:** The existing `useRealtimeTranslation.ts` extracted raw canvas pixel RGB data instead of pose landmarks. The AI model requires `(T, 33, 5)` shaped input (33 MediaPipe-style body landmarks × 5 features each). Without this fix, all prediction requests would fail with a shape mismatch error.
+- **Why:** The existing `useRealtimeTranslation.ts` extracted raw canvas pixel RGB data instead of
+  pose landmarks. The AI model requires `(T, 33, 5)` shaped input (33 MediaPipe-style body landmarks
+  × 5 features each). Without this fix, all prediction requests would fail with a shape mismatch
+  error.
 - **Teammates need to pull:** Yes
-- **Migration steps:** None. Import `extractPoseFromVideo` from `@/lib/pose-extraction` where needed.
+- **Migration steps:** None. Import `extractPoseFromVideo` from `@/lib/pose-extraction` where
+  needed.
 
 ---
 
@@ -19,22 +23,28 @@ All changes made during the integration verification pass on 2026-07-26.
 
 ### `apps/web/hooks/useRealtimeTranslation.ts`
 
-- **What changed:** Replaced raw pixel extraction (lines 129–144) with `extractPoseFromVideo()` call. Removed downsampling loop (lines 154–160). Removed duplicate `video` variable declaration.
-- **Why:** Raw pixel data (~307K values) was being sent as pose landmarks. The AI service preprocessor expects exactly 33 landmarks × 5 features = 165 values per frame.
+- **What changed:** Replaced raw pixel extraction (lines 129–144) with `extractPoseFromVideo()`
+  call. Removed downsampling loop (lines 154–160). Removed duplicate `video` variable declaration.
+- **Why:** Raw pixel data (~307K values) was being sent as pose landmarks. The AI service
+  preprocessor expects exactly 33 landmarks × 5 features = 165 values per frame.
 - **Teammates need to pull:** Yes
 - **Migration steps:** None. The hook API is unchanged.
 
 ### `apps/web/hooks/useAIInference.ts`
 
-- **What changed:** Modified `checkHealth` callback (line 68) to treat `status === 'demo'` as connected, not just `model_loaded`.
-- **Why:** In demo mode, `model_loaded` is `false` but the service is fully functional. Previously showed "degraded" status incorrectly.
+- **What changed:** Modified `checkHealth` callback (line 68) to treat `status === 'demo'` as
+  connected, not just `model_loaded`.
+- **Why:** In demo mode, `model_loaded` is `false` but the service is fully functional. Previously
+  showed "degraded" status incorrectly.
 - **Teammates need to pull:** Yes
 - **Migration steps:** None.
 
 ### `apps/web/app/(dashboard)/translation/page.tsx`
 
-- **What changed:** Added `translateViaAiService()` function that calls the AI service directly. Modified `handleTranslate` to try NestJS backend first, fallback to direct AI service call.
-- **Why:** The NestJS backend requires PostgreSQL and Firebase authentication, which are unavailable in standalone demo mode. This allows the translation page to function with just the AI service.
+- **What changed:** Added `translateViaAiService()` function that calls the AI service directly.
+  Modified `handleTranslate` to try NestJS backend first, fallback to direct AI service call.
+- **Why:** The NestJS backend requires PostgreSQL and Firebase authentication, which are unavailable
+  in standalone demo mode. This allows the translation page to function with just the AI service.
 - **Teammates need to pull:** Yes
 - **Migration steps:** None. Existing behavior preserved when NestJS backend is available.
 
@@ -49,14 +59,17 @@ All changes made during the integration verification pass on 2026-07-26.
   - Modified `/translate` to return demo prediction in demo mode
   - Modified `/webcam/frame` to return demo prediction in demo mode
   - Added `/demo/signs`, `/demo/sequence/{sign}`, `/demo/predict/{sign}` endpoints
-- **Why:** Several endpoints returned HTTP 503 in demo mode, making the service appear broken when running without a trained model.
+- **Why:** Several endpoints returned HTTP 503 in demo mode, making the service appear broken when
+  running without a trained model.
 - **Teammates need to pull:** Yes
 - **Migration steps:** Set `SIGNBRIDGE_DEMO_MODE=true` environment variable to enable demo mode.
 
 ### `apps/ai-service/schemas.py`
 
-- **What changed:** Added `model_config = ConfigDict(protected_namespaces=())` to `PredictionResult`, `TranslateResult`, `WebcamResult`, and `ErrorResponse` classes.
-- **Why:** Pydantic v2 emits warnings about `model_version` field conflicting with the `model_` protected namespace. These warnings polluted logs.
+- **What changed:** Added `model_config = ConfigDict(protected_namespaces=())` to
+  `PredictionResult`, `TranslateResult`, `WebcamResult`, and `ErrorResponse` classes.
+- **Why:** Pydantic v2 emits warnings about `model_version` field conflicting with the `model_`
+  protected namespace. These warnings polluted logs.
 - **Teammates need to pull:** Yes
 - **Migration steps:** None.
 
@@ -70,7 +83,8 @@ The following files were already correct and required no changes:
 - `apps/ai-service/demo.py` — Demo mode module (created in prior session)
 - `apps/ai-service/model_loader.py` — Model loading works correctly
 - `apps/ai-service/inference_engine.py` — Inference pipeline correct
-- `apps/ai-service/preprocessor.py` — Validates `(T, 33, 5)` shape (was the source of shape errors before fix)
+- `apps/ai-service/preprocessor.py` — Validates `(T, 33, 5)` shape (was the source of shape errors
+  before fix)
 - `apps/ai-service/text_decoder.py` — Token decoding works
 - `apps/web/lib/ai-inference-api.ts` — API client correct
 - `apps/web/hooks/useCamera.ts` — Camera access works

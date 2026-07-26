@@ -4,12 +4,12 @@ Complete guide for deploying the SignBridge AI translation system.
 
 ## Prerequisites
 
-| Tool | Version | Purpose |
-|------|---------|---------|
-| Docker | 20.10+ | Container runtime |
-| Docker Compose | 2.0+ | Service orchestration |
-| Python | 3.11+ | Verification scripts |
-| Node.js | 18+ | Local development only |
+| Tool           | Version | Purpose                |
+| -------------- | ------- | ---------------------- |
+| Docker         | 20.10+  | Container runtime      |
+| Docker Compose | 2.0+    | Service orchestration  |
+| Python         | 3.11+   | Verification scripts   |
+| Node.js        | 18+     | Local development only |
 
 ## Quick Start (Docker)
 
@@ -44,12 +44,12 @@ curl http://localhost:3000
 
 ## Service URLs
 
-| Service | URL | Description |
-|---------|-----|-------------|
-| Frontend | http://localhost:3000 | Web application |
-| AI Service | http://localhost:8000 | Inference API |
-| API Docs | http://localhost:8000/docs | Swagger UI |
-| Health | http://localhost:8000/health | Health check |
+| Service    | URL                              | Description          |
+| ---------- | -------------------------------- | -------------------- |
+| Frontend   | http://localhost:3000            | Web application      |
+| AI Service | http://localhost:8000            | Inference API        |
+| API Docs   | http://localhost:8000/docs       | Swagger UI           |
+| Health     | http://localhost:8000/health     | Health check         |
 | Demo Signs | http://localhost:8000/demo/signs | Available demo signs |
 
 ## Architecture
@@ -85,11 +85,11 @@ DEMO_MODE=true
 
 ### Demo Endpoints
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/demo/signs` | GET | List all demo signs |
-| `/demo/sequence/{sign}` | GET | Get pose sequence for a sign |
-| `/demo/predict/{sign}` | POST | Run prediction on demo sign |
+| Endpoint                | Method | Description                  |
+| ----------------------- | ------ | ---------------------------- |
+| `/demo/signs`           | GET    | List all demo signs          |
+| `/demo/sequence/{sign}` | GET    | Get pose sequence for a sign |
+| `/demo/predict/{sign}`  | POST   | Run prediction on demo sign  |
 
 ### Available Demo Signs
 
@@ -176,27 +176,27 @@ python scripts/verify_deployment.py [ai_url] [web_url]
 
 ### Health & Info
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/health` | Service health status |
-| GET | `/model/info` | Model information |
-| GET | `/docs` | Swagger documentation |
+| Method | Endpoint      | Description           |
+| ------ | ------------- | --------------------- |
+| GET    | `/health`     | Service health status |
+| GET    | `/model/info` | Model information     |
+| GET    | `/docs`       | Swagger documentation |
 
 ### Prediction
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/predict` | Predict text from pose sequence |
-| POST | `/translate` | Translate pose sequence to text |
-| POST | `/webcam/frame` | Process webcam frame |
+| Method | Endpoint        | Description                     |
+| ------ | --------------- | ------------------------------- |
+| POST   | `/predict`      | Predict text from pose sequence |
+| POST   | `/translate`    | Translate pose sequence to text |
+| POST   | `/webcam/frame` | Process webcam frame            |
 
 ### Demo Mode
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/demo/signs` | List available signs |
-| GET | `/demo/sequence/{sign}` | Get pose sequence |
-| POST | `/demo/predict/{sign}` | Predict demo sign |
+| Method | Endpoint                | Description          |
+| ------ | ----------------------- | -------------------- |
+| GET    | `/demo/signs`           | List available signs |
+| GET    | `/demo/sequence/{sign}` | Get pose sequence    |
+| POST   | `/demo/predict/{sign}`  | Predict demo sign    |
 
 ## Troubleshooting
 
@@ -253,7 +253,8 @@ SIGNBRIDGE_CORS_ORIGINS=http://localhost:3000,http://localhost:3001
 
 For NVIDIA GPU acceleration:
 
-1. Install [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html)
+1. Install
+   [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html)
 2. Update `docker-compose.yml`:
    ```yaml
    ai-service:
@@ -268,12 +269,12 @@ For NVIDIA GPU acceleration:
 
 ### Production Recommendations
 
-| Setting | Development | Production |
-|---------|-------------|------------|
-| Workers | 1 | 2-4 |
-| Batch size | 1 | 4-8 |
-| Model | CPU | GPU |
-| Cache | Disabled | Enabled |
+| Setting    | Development | Production |
+| ---------- | ----------- | ---------- |
+| Workers    | 1           | 2-4        |
+| Batch size | 1           | 4-8        |
+| Model      | CPU         | GPU        |
+| Cache      | Disabled    | Enabled    |
 
 ## Manual Deployment (Without Docker)
 
@@ -331,14 +332,14 @@ npm start
 
 ## Model Information
 
-| Property | Value |
-|----------|-------|
-| Architecture | PoseTransformer |
-| Parameters | 90,450 |
-| Vocabulary | 978 tokens |
-| Max Sequence | 30 tokens |
-| Input | 33 landmarks x 5 features |
-| Framework | PyTorch |
+| Property     | Value                     |
+| ------------ | ------------------------- |
+| Architecture | PoseTransformer           |
+| Parameters   | 90,450                    |
+| Vocabulary   | 978 tokens                |
+| Max Sequence | 30 tokens                 |
+| Input        | 33 landmarks x 5 features |
+| Framework    | PyTorch                   |
 
 ## Security Notes
 
@@ -351,6 +352,7 @@ npm start
 ## Support
 
 For issues or questions:
+
 1. Check logs: `docker compose logs -f`
 2. Run health check: `./scripts/health_check.sh`
 3. Verify deployment: `python scripts/verify_deployment.py`

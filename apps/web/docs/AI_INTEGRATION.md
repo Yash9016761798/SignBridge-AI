@@ -1,6 +1,7 @@
 # AI Frontend Integration
 
-This document describes how the Next.js frontend communicates with the FastAPI AI inference service for sign language translation.
+This document describes how the Next.js frontend communicates with the FastAPI AI inference service
+for sign language translation.
 
 ## Architecture
 
@@ -39,24 +40,24 @@ This document describes how the Next.js frontend communicates with the FastAPI A
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `lib/ai-inference-api.ts` | HTTP client for the FastAPI AI service |
-| `hooks/useCamera.ts` | WebRTC camera access and frame capture |
-| `hooks/useAIInference.ts` | Health checks, prediction, connection state |
-| `hooks/index.ts` | Hook barrel exports |
-| `components/ai/CameraView.tsx` | Live camera feed with controls |
-| `components/ai/TranslationCard.tsx` | Displays translation result |
-| `components/ai/ConfidenceMeter.tsx` | Visual confidence bar |
-| `components/ai/PredictionHistory.tsx` | Scrollable prediction log |
-| `components/ai/ConnectionStatus.tsx` | AI service health badge |
-| `components/ai/index.ts` | Component barrel exports |
-| `__tests__/` | Unit and integration tests |
+| File                                  | Purpose                                     |
+| ------------------------------------- | ------------------------------------------- |
+| `lib/ai-inference-api.ts`             | HTTP client for the FastAPI AI service      |
+| `hooks/useCamera.ts`                  | WebRTC camera access and frame capture      |
+| `hooks/useAIInference.ts`             | Health checks, prediction, connection state |
+| `hooks/index.ts`                      | Hook barrel exports                         |
+| `components/ai/CameraView.tsx`        | Live camera feed with controls              |
+| `components/ai/TranslationCard.tsx`   | Displays translation result                 |
+| `components/ai/ConfidenceMeter.tsx`   | Visual confidence bar                       |
+| `components/ai/PredictionHistory.tsx` | Scrollable prediction log                   |
+| `components/ai/ConnectionStatus.tsx`  | AI service health badge                     |
+| `components/ai/index.ts`              | Component barrel exports                    |
+| `__tests__/`                          | Unit and integration tests                  |
 
 ## Environment Variables
 
-| Variable | Default | Description |
-|----------|---------|-------------|
+| Variable                     | Default                 | Description                               |
+| ---------------------------- | ----------------------- | ----------------------------------------- |
 | `NEXT_PUBLIC_AI_SERVICE_URL` | `http://localhost:8000` | Base URL of the FastAPI inference service |
 
 ## API Client
@@ -112,12 +113,7 @@ const {
 ## Component Usage
 
 ```tsx
-import {
-  CameraView,
-  TranslationCard,
-  ConnectionStatus,
-  PredictionHistory,
-} from '@/components/ai';
+import { CameraView, TranslationCard, ConnectionStatus, PredictionHistory } from '@/components/ai';
 
 function TranslatePage() {
   const camera = useCamera({ autoStart: true });
@@ -142,13 +138,13 @@ function TranslatePage() {
 
 ## Error Handling
 
-| Error Type | HTTP Status | UI Behavior |
-|------------|-------------|-------------|
-| Network offline | 0 | ConnectionStatus shows "Offline", retry button |
-| Service down | 503 | ConnectionStatus shows "Degraded" |
-| Timeout | 408 | Toast notification, error state |
-| Validation | 422 | Error detail shown in UI |
-| Model not loaded | 503 | ConnectionStatus shows "Degraded" |
+| Error Type       | HTTP Status | UI Behavior                                    |
+| ---------------- | ----------- | ---------------------------------------------- |
+| Network offline  | 0           | ConnectionStatus shows "Offline", retry button |
+| Service down     | 503         | ConnectionStatus shows "Degraded"              |
+| Timeout          | 408         | Toast notification, error state                |
+| Validation       | 422         | Error detail shown in UI                       |
+| Model not loaded | 503         | ConnectionStatus shows "Degraded"              |
 
 ## Tests
 
@@ -161,6 +157,7 @@ pnpm jest
 ```
 
 Tests cover:
+
 - API client request/response handling
 - ConfidenceMeter rendering for all confidence levels
 - TranslationCard loading, empty, and result states

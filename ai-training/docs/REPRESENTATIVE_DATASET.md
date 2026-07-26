@@ -1,11 +1,12 @@
 # Representative Dataset Documentation
+
 SignBridge AI — Phase 16
 
 ## Overview
 
-A stratified subset of the Exploration-Lab/iSign dataset, sized for
-demonstration without requiring the full 127K samples. Designed to preserve
-sentence length distribution, vocabulary diversity, and frequency patterns.
+A stratified subset of the Exploration-Lab/iSign dataset, sized for demonstration without requiring
+the full 127K samples. Designed to preserve sentence length distribution, vocabulary diversity, and
+frequency patterns.
 
 ## Target Size
 
@@ -20,13 +21,13 @@ sentence length distribution, vocabulary diversity, and frequency patterns.
 
 Binned into five groups based on word count:
 
-| Bin | Word Count | Purpose |
-|-----|------------|---------|
-| Short | 1–5 | Common greetings, simple phrases |
-| Medium-Short | 6–10 | Simple sentences |
-| Medium | 11–15 | Standard ISL sentences |
-| Medium-Long | 16–20 | Complex sentences |
-| Long | 21–50 | Rare, verbose expressions |
+| Bin          | Word Count | Purpose                          |
+| ------------ | ---------- | -------------------------------- |
+| Short        | 1–5        | Common greetings, simple phrases |
+| Medium-Short | 6–10       | Simple sentences                 |
+| Medium       | 11–15      | Standard ISL sentences           |
+| Medium-Long  | 16–20      | Complex sentences                |
+| Long         | 21–50      | Rare, verbose expressions        |
 
 ### Secondary Stratification: Word Count
 
@@ -40,12 +41,12 @@ Ensures each bin has proportional representation proportional to the full datase
 
 ## Files
 
-| File | Description |
-|------|-------------|
-| `train.csv` | Training split (uid, text) |
-| `validation.csv` | Validation split (uid, text) |
-| `test.csv` | Test split (uid, text) |
-| `metadata.json` | Statistics, vocabulary, distributions |
+| File             | Description                           |
+| ---------------- | ------------------------------------- |
+| `train.csv`      | Training split (uid, text)            |
+| `validation.csv` | Validation split (uid, text)          |
+| `test.csv`       | Test split (uid, text)                |
+| `metadata.json`  | Statistics, vocabulary, distributions |
 
 ## Usage
 
@@ -81,18 +82,16 @@ python scripts/verify_representative_pipeline.py
 
 ## Design Decisions
 
-1. **Stratified over random**: Preserves the distribution of sentence lengths
-   and vocabulary usage, producing a dataset that behaves like the full corpus.
+1. **Stratified over random**: Preserves the distribution of sentence lengths and vocabulary usage,
+   producing a dataset that behaves like the full corpus.
 
-2. **80/10/10 split**: Standard train/val/test ratio. Validation for early
-   stopping, test for final unbiased evaluation.
+2. **80/10/10 split**: Standard train/val/test ratio. Validation for early stopping, test for final
+   unbiased evaluation.
 
-3. **Mock poses during training**: Since we do not have extracted poses on the
-   local machine, mock pose data is used for training. This is acceptable
-   because:
+3. **Mock poses during training**: Since we do not have extracted poses on the local machine, mock
+   pose data is used for training. This is acceptable because:
    - The PoseTransformer architecture is validated on 500 mock samples
    - The training pipeline (optimizer, scheduler, checkpointing) is the focus
    - Real poses will be used when running on Colab with extracted data
 
-4. **Configurable**: All parameters in YAML. Adjust target_size, ratios, and
-   bin sizes as needed.
+4. **Configurable**: All parameters in YAML. Adjust target_size, ratios, and bin sizes as needed.

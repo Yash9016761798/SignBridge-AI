@@ -1,20 +1,21 @@
 # Representative Evaluation Documentation
+
 SignBridge AI — Phase 16
 
 ## Overview
 
-Evaluates the trained model on the test set. Computes standard NLP metrics,
-generates predictions CSV, produces plots, and writes a final report.
+Evaluates the trained model on the test set. Computes standard NLP metrics, generates predictions
+CSV, produces plots, and writes a final report.
 
 ## Metrics
 
-| Metric | Description | Range |
-|--------|-------------|-------|
-| **BLEU** | Bilingual Evaluation Understudy (n-gram overlap) | 0–1 (higher better) |
-| **WER** | Word Error Rate (edit distance / ref length) | 0–∞ (lower better) |
-| **CER** | Character Error Rate (edit distance / ref chars) | 0–∞ (lower better) |
-| **ROUGE-L** | Longest Common Subsequence F1 | 0–1 (higher better) |
-| **Exact Match** | Fraction of predictions exactly matching reference | 0–1 |
+| Metric          | Description                                        | Range               |
+| --------------- | -------------------------------------------------- | ------------------- |
+| **BLEU**        | Bilingual Evaluation Understudy (n-gram overlap)   | 0–1 (higher better) |
+| **WER**         | Word Error Rate (edit distance / ref length)       | 0–∞ (lower better)  |
+| **CER**         | Character Error Rate (edit distance / ref chars)   | 0–∞ (lower better)  |
+| **ROUGE-L**     | Longest Common Subsequence F1                      | 0–1 (higher better) |
+| **Exact Match** | Fraction of predictions exactly matching reference | 0–1                 |
 
 ### BLEU (1-gram to 4-gram)
 
@@ -47,29 +48,29 @@ F1 = 2 * P * R / (P + R)
 
 ## Files
 
-| File | Description |
-|------|-------------|
-| `predictions.csv` | Per-sample predictions with metrics |
-| `evaluation_metrics.json` | Aggregate metrics |
-| `plots/training_loss.png` | Train vs val loss |
-| `plots/validation_loss.png` | Validation loss |
-| `plots/accuracy.png` | Train vs val accuracy |
-| `plots/bleu.png` | BLEU scores |
-| `plots/wer.png` | WER scores |
-| `plots/cer.png` | CER scores |
-| `plots/learning_rate.png` | LR schedule |
-| `report.md` | Full evaluation report |
+| File                        | Description                         |
+| --------------------------- | ----------------------------------- |
+| `predictions.csv`           | Per-sample predictions with metrics |
+| `evaluation_metrics.json`   | Aggregate metrics                   |
+| `plots/training_loss.png`   | Train vs val loss                   |
+| `plots/validation_loss.png` | Validation loss                     |
+| `plots/accuracy.png`        | Train vs val accuracy               |
+| `plots/bleu.png`            | BLEU scores                         |
+| `plots/wer.png`             | WER scores                          |
+| `plots/cer.png`             | CER scores                          |
+| `plots/learning_rate.png`   | LR schedule                         |
+| `report.md`                 | Full evaluation report              |
 
 ## predictions.csv Schema
 
-| Column | Type | Description |
-|--------|------|-------------|
-| uid | string | Unique video/sample identifier |
-| ground_truth | string | Reference sentence |
-| prediction | string | Model prediction |
-| bleu | float | Sample-level BLEU |
-| wer | float | Sample-level WER |
-| cer | float | Sample-level CER |
+| Column       | Type   | Description                    |
+| ------------ | ------ | ------------------------------ |
+| uid          | string | Unique video/sample identifier |
+| ground_truth | string | Reference sentence             |
+| prediction   | string | Model prediction               |
+| bleu         | float  | Sample-level BLEU              |
+| wer          | float  | Sample-level WER               |
+| cer          | float  | Sample-level CER               |
 
 ## Usage
 
@@ -106,18 +107,18 @@ The `report.md` includes:
 
 On the representative dataset with mock poses:
 
-| Metric | Random | Trained (Expected) |
-|--------|--------|-------------------|
-| BLEU | ~0.01 | ~0.05–0.15 |
-| WER | ~1.5 | ~1.0–1.3 |
-| CER | ~2.0 | ~1.2–1.8 |
-| Exact Match | 0.0 | ~0.01–0.05 |
+| Metric      | Random | Trained (Expected) |
+| ----------- | ------ | ------------------ |
+| BLEU        | ~0.01  | ~0.05–0.15         |
+| WER         | ~1.5   | ~1.0–1.3           |
+| CER         | ~2.0   | ~1.2–1.8           |
+| Exact Match | 0.0    | ~0.01–0.05         |
 
-Note: With mock poses (random noise), the model cannot learn meaningful
-pose-text alignment. These metrics reflect the training infrastructure
-working correctly. Real metrics will improve with actual pose data.
+Note: With mock poses (random noise), the model cannot learn meaningful pose-text alignment. These
+metrics reflect the training infrastructure working correctly. Real metrics will improve with actual
+pose data.
 
 ## Plots
 
-All plots are saved at 150 DPI in `experiments/representative/plots/`.
-Generated using matplotlib with Agg backend (no display required).
+All plots are saved at 150 DPI in `experiments/representative/plots/`. Generated using matplotlib
+with Agg backend (no display required).
