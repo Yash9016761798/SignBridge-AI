@@ -1,0 +1,66 @@
+base_config:
+  bos_token_id: 1
+  d_ff: 256
+  d_model: 128
+  eos_token_id: 2
+  max_epochs: 10
+  max_pose_length: 32
+  max_text_length: 20
+  mixed_precision: false
+  num_decoder_layers: 3
+  num_encoder_layers: 3
+  num_features: 5
+  num_heads: 4
+  num_landmarks: 33
+  num_samples: 500
+  pad_token_id: 0
+  patience: 5
+  pose_length: 32
+  seed: 42
+  test_split: 0.1
+  text_length: 20
+  train_split: 0.8
+  val_split: 0.1
+  vocab_size: 1000
+output:
+  base_dir: ./experiments
+  plots_dir: ./experiments/comparison_plots
+  report_path: docs/HYPERPARAMETER_REPORT.md
+  weights_dir: ./weights
+search:
+  max_experiments: 5
+  seed: 42
+  strategy: random
+search_space:
+  batch_size:
+  - 4
+  - 8
+  - 16
+  dropout:
+  - 0.1
+  - 0.2
+  - 0.3
+  gradient_clip:
+  - 0.5
+  - 1.0
+  - 2.0
+  label_smoothing:
+  - 0.0
+  - 0.05
+  - 0.1
+  learning_rate:
+  - 1e-5
+  - 5e-5
+  - 1e-4
+  - 3e-4
+  optimizer:
+  - adam
+  - adamw
+  scheduler:
+  - cosineannealing
+  - onecyclelr
+  - reducelronplateau
+  weight_decay:
+  - 0
+  - 0.01
+  - 0.05

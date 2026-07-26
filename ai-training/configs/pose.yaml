@@ -1,0 +1,106 @@
+# Pose Processing Pipeline Configuration
+# SignBridge AI
+
+# =============================================================================
+# VALIDATION
+# =============================================================================
+validation:
+  max_nan_ratio: 0.3
+  min_frames: 1
+  max_frames: 1000
+  min_landmarks: 1
+  max_landmarks: 200
+  coord_range: [-10.0, 10.0]
+
+# =============================================================================
+# NORMALIZATION
+# =============================================================================
+normalization:
+  center: true
+  scale: true
+  shoulder_center: false
+  wrist_center: false
+  confidence_threshold: 0.5
+  interpolate_missing: true
+  target_range: [-1.0, 1.0]
+
+# =============================================================================
+# SEQUENCE
+# =============================================================================
+sequence:
+  max_length: 64
+  padding: 'post'
+  truncation: 'post'
+  num_features: 5
+  dtype: 'float32'
+
+# =============================================================================
+# AUGMENTATION
+# =============================================================================
+augmentation:
+  enabled: false
+  rotation_range: 15.0
+  translation_range: 0.1
+  scale_range: [0.9, 1.1]
+  noise_std: 0.01
+  flip_horizontal: false
+  time_stretch_range: [0.8, 1.2]
+  frame_drop_prob: 0.0
+  random_seed: 42
+
+# =============================================================================
+# MOCK GENERATOR
+# =============================================================================
+mock_generator:
+  num_landmarks: 33
+  num_frames: 30
+  missing_prob: 0.05
+  confidence_range: [0.5, 1.0]
+  random_seed: 42
+
+# =============================================================================
+# VISUALIZATION
+# =============================================================================
+visualization:
+  width: 640
+  height: 480
+  dpi: 150
+  save_format: 'png'
+
+# =============================================================================
+# LANDMARK INDICES (MediaPipe Pose)
+# =============================================================================
+landmarks:
+  nose: 0
+  left_eye_inner: 1
+  left_eye: 2
+  left_eye_outer: 3
+  right_eye_inner: 4
+  right_eye: 5
+  right_eye_outer: 6
+  left_ear: 7
+  right_ear: 8
+  mouth_left: 9
+  mouth_right: 10
+  left_shoulder: 11
+  right_shoulder: 12
+  left_elbow: 13
+  right_elbow: 14
+  left_wrist: 15
+  right_wrist: 16
+  left_pinky: 17
+  right_pinky: 18
+  left_index: 19
+  right_index: 20
+  left_thumb: 21
+  right_thumb: 22
+  left_hip: 23
+  right_hip: 24
+  left_knee: 25
+  right_knee: 26
+  left_ankle: 27
+  right_ankle: 28
+  left_heel: 29
+  right_heel: 30
+  left_foot_index: 31
+  right_foot_index: 32

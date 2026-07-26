@@ -1,0 +1,12 @@
+{
+  "lowercase": true,
+  "remove_punctuation": false,
+  "keep_sentence_punctuation": true,
+  "vocab_min_freq": 2,
+  "vocab_max_size": 50000,
+  "max_length": 50,
+  "padding": "post",
+  "truncation": "post",
+  "add_bos": true,
+  "add_eos": true
+}

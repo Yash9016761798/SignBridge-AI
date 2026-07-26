@@ -1,0 +1,78 @@
+# Vocabulary Configuration for SignBridge AI
+# NLP Pipeline for Indian Sign Language Translation
+
+# =============================================================================
+# VOCABULARY BUILDING
+# =============================================================================
+
+vocabulary:
+  # Minimum word frequency to include in vocabulary
+  min_freq: 2
+  
+  # Maximum vocabulary size (including special tokens)
+  max_size: 50000
+  
+  # Add special tokens automatically
+  add_special_tokens: true
+
+# =============================================================================
+# SPECIAL TOKENS
+# =============================================================================
+
+special_tokens:
+  # Padding token (index 0)
+  '<pad>': 0
+  
+  # Beginning of sequence token (index 1)
+  '<bos>': 1
+  
+  # End of sequence token (index 2)
+  '<eos>': 2
+  
+  # Unknown token (index 3)
+  '<unk>': 3
+
+# =============================================================================
+# DATA SOURCE
+# =============================================================================
+
+data:
+  # Path to training CSV
+  csv_path: 'C:/Users/Gaurav Gopal Gosavi/.cache/huggingface/hub/datasets--Exploration-Lab--iSign/snapshots/e4ee6c5f0d9dfcbc74205e3f1388ce94da26c298/iSign_v1.1.csv'
+  
+  # Column name containing text
+  text_column: 'text'
+  
+  # Column name containing unique IDs
+  uid_column: 'uid'
+
+# =============================================================================
+# OUTPUT
+# =============================================================================
+
+output:
+  # Directory to save vocabulary files
+  save_dir: './tokenizer'
+  
+  # Vocabulary file name
+  vocab_file: 'vocab.json'
+  
+  # Statistics file name
+  stats_file: 'vocab_stats.json'
+
+# =============================================================================
+# FILTERING
+# =============================================================================
+
+filtering:
+  # Remove words shorter than this length
+  min_word_length: 1
+  
+  # Remove words longer than this length
+  max_word_length: 50
+  
+  # Keep only alphabetic words (remove numbers/symbols)
+  alphabetic_only: false
+  
+  # Words to always exclude (stopwords, etc.)
+  exclude_words: []

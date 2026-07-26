@@ -1,0 +1,21 @@
+# SignBridge AI
+
+# Backend
+/apps/backend/ @signbridge/backend-team
+
+# Frontend
+/apps/web/ @signbridge/frontend-team
+
+# Mobile
+/apps/mobile/ @signbridge/mobile-team
+
+# AI Service
+/apps/ai-service/ @signbridge/ai-team
+
+# DevOps
+/docker-compose.yml @signbridge/devops
+/.github/workflows/ @signbridge/devops
+
+# Documentation
+/docs/ @signbridge/docs
+/MASTER_PROMPT/ @signbridge/architects

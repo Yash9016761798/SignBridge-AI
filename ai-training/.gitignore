@@ -1,0 +1,59 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Models (large files)
+models/checkpoints/*
+models/exported/*
+models/logs/*
+!models/checkpoints/.gitkeep
+!models/exported/.gitkeep
+!models/logs/.gitkeep
+
+# Datasets (large files)
+datasets/*
+!datasets/README.md
+!datasets/sample/
+
+# Experiments
+experiments/*
+!experiments/.gitkeep
+
+# Config overrides (local settings)
+configs/local.yaml
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+*.env
+
+# Logs
+*.log
+
+# Checkpoints
+*.ckpt
+*.pt
+*.pth
+*.h5
+*.pb
+*.onnx

@@ -1,0 +1,68 @@
+# Unified Dataset Configuration
+# SignBridge AI
+
+# =============================================================================
+# DATA SOURCE
+# =============================================================================
+data:
+  csv_path: 'C:/Users/Gaurav Gopal Gosavi/.cache/huggingface/hub/datasets--Exploration-Lab--iSign/snapshots/e4ee6c5f0d9dfcbc74205e3f1388ce94da26c298/iSign_v1.1.csv'
+  pose_dir: './datasets/dev/poses'
+  text_column: 'text'
+  uid_column: 'uid'
+
+# =============================================================================
+# TOKENIZER
+# =============================================================================
+tokenizer:
+  vocab_path: './tokenizer/vocab.json'
+  max_text_length: 50
+  pad_token_id: 0
+  bos_token_id: 1
+  eos_token_id: 2
+  unk_token_id: 3
+
+# =============================================================================
+# POSE
+# =============================================================================
+pose:
+  max_length: 64
+  num_features: 5
+  normalization:
+    center: true
+    scale: true
+    confidence_threshold: 0.5
+    interpolate_missing: true
+
+# =============================================================================
+# DATALOADER
+# =============================================================================
+dataloader:
+  batch_size: 16
+  shuffle: true
+  num_workers: 0
+  seed: 42
+  prefetch: 0
+
+# =============================================================================
+# SPLITS
+# =============================================================================
+splits:
+  train: 0.8
+  val: 0.1
+  test: 0.1
+  random_seed: 42
+
+# =============================================================================
+# COLLATE
+# =============================================================================
+collate:
+  dynamic_padding: true
+  pad_token_id: 0
+
+# =============================================================================
+# OUTPUT
+# =============================================================================
+output:
+  save_dir: './experiments'
+  statistics_file: 'dataset_statistics.json'
+  sample_batch_file: 'sample_batch.json'

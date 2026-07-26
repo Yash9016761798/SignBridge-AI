@@ -1,0 +1,121 @@
+import { Controller, Get, Post, Body, Param, Req, HttpCode, HttpStatus } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { AiService } from './ai.service';
+import { CreateTranslationSessionDto, TranslateTextDto } from './dto/translation.dto';
+import { CreatePracticeSessionDto, SubmitPredictionDto } from './dto/practice.dto';
+import { PredictGestureDto } from './dto/ai.dto';
+import { FirebaseAuthGuard } from '../common/guards/firebase-auth.guard';
+import { UseGuards } from '@nestjs/common';
+
+@ApiTags('AI & Translation')
+@Controller()
+export class AiController {
+  constructor(private readonly aiService: AiService) {}
+
+  // ===========================================================================
+  // TRANSLATION
+  // ===========================================================================
+
+  @Post('translation/session')
+  @UseGuards(FirebaseAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Create a new translation session' })
+  @ApiResponse({ status: 201, description: 'Translation session created' })
+  async createTranslationSession(@Req() req: any, @Body() dto: CreateTranslationSessionDto) {
+    return this.aiService.createTranslationSession(req.user.id, dto);
+  }
+
+  @Get('translation/session/:id')
+  @UseGuards(FirebaseAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get translation session with history' })
+  @ApiResponse({ status: 200, description: 'Translation session details' })
+  async getTranslationSession(@Param('id') id: string) {
+    return this.aiService.getTranslationSession(id);
+  }
+
+  @Post('translation/translate')
+  @UseGuards(FirebaseAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Translate text to ISL (creates session if none provided)' })
+  @ApiResponse({ status: 200, description: 'Translation result' })
+  async translateText(@Req() req: any, @Body() dto: TranslateTextDto) {
+    return this.aiService.translateText(req.user.id, dto);
+  }
+
+  @Get('translation/history')
+  @UseGuards(FirebaseAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get user translation history' })
+  async getTranslationHistory(@Req() req: any) {
+    return this.aiService.getUserTranslationHistory(req.user.id);
+  }
+
+  // ===========================================================================
+  // PRACTICE
+  // ===========================================================================
+
+  @Post('practice/session')
+  @UseGuards(FirebaseAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Create a new practice session' })
+  @ApiResponse({ status: 201, description: 'Practice session created' })
+  async createPracticeSession(@Req() req: any, @Body() dto: CreatePracticeSessionDto) {
+    return this.aiService.createPracticeSession(req.user.id, dto);
+  }
+
+  @Get('practice/session/:id')
+  @UseGuards(FirebaseAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get practice session with predictions' })
+  async getPracticeSession(@Param('id') id: string) {
+    return this.aiService.getPracticeSession(id);
+  }
+
+  @Post('practice/predict')
+  @UseGuards(FirebaseAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Submit a prediction for a practice session' })
+  async submitPrediction(@Req() req: any, @Body() dto: SubmitPredictionDto) {
+    return this.aiService.submitPrediction(req.user.id, dto);
+  }
+
+  @Post('practice/session/:id/end')
+  @UseGuards(FirebaseAuthGuard)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'End a practice session' })
+  async endPracticeSession(
+    @Param('id') id: string,
+    @Body() body: { accuracy?: number; feedback?: string },
+  ) {
+    return this.aiService.endPracticeSession(id, body.accuracy, body.feedback);
+  }
+
+  @Get('practice/history')
+  @UseGuards(FirebaseAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get user practice history' })
+  async getPracticeHistory(@Req() req: any) {
+    return this.aiService.getUserPracticeHistory(req.user.id);
+  }
+
+  // ===========================================================================
+  // AI PREDICTION (STUB)
+  // ===========================================================================
+
+  @Post('ai/predict')
+  @UseGuards(FirebaseAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Make a gesture prediction (stub - mock response)' })
+  @ApiResponse({ status: 200, description: 'Mock prediction result' })
+  async predict(@Req() req: any, @Body() dto: PredictGestureDto) {
+    return this.aiService.predict(req.user.id, dto);
+  }
+
+  @Get('ai/health')
+  @ApiOperation({ summary: 'Check AI service health' })
+  async getAiHealth() {
+    return this.aiService.getAiHealth();
+  }
+}
