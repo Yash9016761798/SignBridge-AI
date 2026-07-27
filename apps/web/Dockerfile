@@ -41,8 +41,6 @@ RUN adduser -S nextjs -G nodejs
 COPY --from=builder /app/apps/web/.next/standalone ./
 COPY --from=builder /app/apps/web/.next/static ./apps/web/.next/static
 
-# Copy public if it exists
-COPY --from=builder /app/apps/web/public ./apps/web/public
 
 USER nextjs
 
