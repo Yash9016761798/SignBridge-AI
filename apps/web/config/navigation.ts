@@ -18,7 +18,8 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 
-export type UserRole = 'LEARNER' | 'INSTRUCTOR' | 'TEACHER' | 'HOSPITAL' | 'NGO' | 'GOVERNMENT' | 'ADMIN';
+export type UserRole =
+  'LEARNER' | 'INSTRUCTOR' | 'TEACHER' | 'HOSPITAL' | 'NGO' | 'GOVERNMENT' | 'ADMIN';
 
 export interface NavItem {
   label: string;
@@ -58,16 +59,14 @@ const teacherNavigation: NavGroup[] = [
     label: 'Main',
     items: [
       { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-      { label: 'My Courses', href: '/courses', icon: BookOpen },
+      { label: 'My Courses', href: '/my-courses', icon: BookOpen },
       { label: 'Students', href: '/students', icon: Users },
       { label: 'Analytics', href: '/analytics', icon: BarChart3 },
     ],
   },
   {
     label: 'Management',
-    items: [
-      { label: 'Settings', href: '/settings', icon: Settings },
-    ],
+    items: [{ label: 'Settings', href: '/settings', icon: Settings }],
   },
 ];
 
@@ -83,9 +82,7 @@ const hospitalNavigation: NavGroup[] = [
   },
   {
     label: 'Management',
-    items: [
-      { label: 'Settings', href: '/settings', icon: Settings },
-    ],
+    items: [{ label: 'Settings', href: '/settings', icon: Settings }],
   },
 ];
 
@@ -101,9 +98,7 @@ const ngoNavigation: NavGroup[] = [
   },
   {
     label: 'Management',
-    items: [
-      { label: 'Settings', href: '/settings', icon: Settings },
-    ],
+    items: [{ label: 'Settings', href: '/settings', icon: Settings }],
   },
 ];
 
@@ -119,9 +114,7 @@ const governmentNavigation: NavGroup[] = [
   },
   {
     label: 'Management',
-    items: [
-      { label: 'Settings', href: '/settings', icon: Settings },
-    ],
+    items: [{ label: 'Settings', href: '/settings', icon: Settings }],
   },
 ];
 

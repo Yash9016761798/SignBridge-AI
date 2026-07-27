@@ -3,6 +3,7 @@
 import React from 'react';
 import { Sun, Moon, Monitor } from 'lucide-react';
 import { useTheme } from '@/providers/ThemeProvider';
+import { motion } from 'framer-motion';
 
 export default function ThemeToggle() {
   const { theme, setTheme } = useTheme();
@@ -14,20 +15,26 @@ export default function ThemeToggle() {
   ];
 
   return (
-    <div className="flex items-center gap-1 rounded-lg border border-gray-200 bg-gray-50 p-1 dark:border-gray-700 dark:bg-gray-800">
+    <div className="flex items-center gap-0.5 rounded-xl border border-surface-200 bg-surface-50 p-1 dark:border-surface-700 dark:bg-surface-800">
       {options.map((opt) => (
         <button
           key={opt.value}
           onClick={() => setTheme(opt.value)}
-          className={`flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors ${
+          className={`relative flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors ${
             theme === opt.value
-              ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-700 dark:text-white'
-              : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+              ? 'text-surface-900 dark:text-white'
+              : 'text-surface-400 hover:text-surface-600 dark:text-surface-500 dark:hover:text-surface-300'
           }`}
           aria-label={`${opt.label} mode`}
         >
-          <opt.icon className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">{opt.label}</span>
+          {theme === opt.value && (
+            <motion.div
+              layoutId="theme-toggle"
+              className="absolute inset-0 rounded-lg bg-white shadow-sm dark:bg-surface-700"
+              transition={{ type: 'spring', bounce: 0.2, duration: 0.4 }}
+            />
+          )}
+          <opt.icon className="relative z-10 h-3.5 w-3.5" />
         </button>
       ))}
     </div>

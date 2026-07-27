@@ -100,6 +100,9 @@ rate_limit_store: dict[str, list[datetime]] = defaultdict(list)
 
 @app.middleware("http")
 async def rate_limit_middleware(request: Request, call_next):
+    if request.url.path in ("/health", "/readiness", "/liveness", "/docs", "/redoc", "/openapi.json"):
+        return await call_next(request)
+
     client_ip = request.client.host if request.client else "unknown"
     now = datetime.now()
     window = now - timedelta(minutes=1)

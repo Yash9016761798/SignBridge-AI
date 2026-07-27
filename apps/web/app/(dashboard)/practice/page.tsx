@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import PageHeader from '@/components/dashboard/PageHeader';
 import { CameraPermission, PredictionResultDisplay } from '@/components/ai';
 import { aiApi } from '@/lib/ai-api';
 import type { PracticeSession, PredictionResult } from '@/types/ai';
-import { Video, Square, Clock, Target, BarChart } from 'lucide-react';
+import { Video, Square, Clock, Target, BarChart, Sparkles } from 'lucide-react';
 
 export default function PracticePage() {
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
@@ -13,7 +14,17 @@ export default function PracticePage() {
   const [loading, setLoading] = useState(false);
   const [prediction, setPrediction] = useState<PredictionResult | null>(null);
   const [targetGesture] = useState(() => {
-    const gestures = ['Hello', 'Thank You', 'Yes', 'No', 'Please', 'Help', 'Water', 'Mother', 'Father'];
+    const gestures = [
+      'Hello',
+      'Thank You',
+      'Yes',
+      'No',
+      'Please',
+      'Help',
+      'Water',
+      'Mother',
+      'Father',
+    ];
     return gestures[Math.floor(Math.random() * gestures.length)];
   });
   const [predictionCount, setPredictionCount] = useState(0);
@@ -73,6 +84,7 @@ export default function PracticePage() {
       <PageHeader
         title="AI Practice"
         description="Practice ISL signs with AI-powered feedback"
+        icon={Target}
       />
 
       {!cameraStream ? (
@@ -80,43 +92,83 @@ export default function PracticePage() {
       ) : (
         <div className="space-y-6">
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <div className="space-y-4">
-              <div className="relative aspect-video overflow-hidden rounded-xl bg-gray-900">
-                <video ref={videoRef} autoPlay playsInline muted className="h-full w-full object-cover" />
+            {/* Camera Panel */}
+            <motion.div
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="space-y-4"
+            >
+              <div className="relative aspect-video overflow-hidden rounded-2xl bg-surface-900 shadow-elevated">
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className="h-full w-full object-cover"
+                />
                 {session && (
-                  <div className="absolute top-3 left-3 rounded-full bg-red-500 px-3 py-1 text-xs font-medium text-white flex items-center gap-1.5">
-                    <span className="h-2 w-2 rounded-full bg-white animate-pulse" /> LIVE
+                  <div className="absolute left-3 top-3 flex items-center gap-2 rounded-full bg-danger-500 px-3 py-1.5 text-xs font-semibold text-white shadow-lg">
+                    <span className="h-2 w-2 animate-pulse rounded-full bg-white" />
+                    LIVE
                   </div>
                 )}
+                {/* Camera Overlay */}
+                <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/10" />
               </div>
 
               <div className="flex gap-3">
                 {!session ? (
-                  <button onClick={startSession} disabled={loading} className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-primary-600 px-6 py-3 text-sm font-medium text-white hover:bg-primary-700 disabled:opacity-50">
-                    <Video className="h-4 w-4" />{loading ? 'Starting...' : 'Start Practice'}
+                  <button
+                    onClick={startSession}
+                    disabled={loading}
+                    className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary-500 to-primary-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-primary-500/25 transition-all hover:from-primary-600 hover:to-primary-700 hover:shadow-xl disabled:opacity-50"
+                  >
+                    <Video className="h-4 w-4" />
+                    {loading ? 'Starting...' : 'Start Practice'}
                   </button>
                 ) : (
                   <>
-                    <button onClick={captureAndPredict} className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-green-600 px-6 py-3 text-sm font-medium text-white hover:bg-green-700">
-                      <Target className="h-4 w-4" /> Capture & Predict
+                    <button
+                      onClick={captureAndPredict}
+                      className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-accent-500 to-accent-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-accent-500/25 transition-all hover:from-accent-600 hover:to-accent-700 hover:shadow-xl"
+                    >
+                      <Target className="h-4 w-4" />
+                      Capture & Predict
                     </button>
-                    <button onClick={endSession} className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 px-6 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50">
-                      <Square className="h-4 w-4" /> End
+                    <button
+                      onClick={endSession}
+                      className="inline-flex items-center justify-center gap-2 rounded-xl border border-surface-200 bg-white px-6 py-3 text-sm font-medium text-surface-700 transition-all hover:bg-surface-50 hover:border-surface-300 dark:border-surface-700 dark:bg-surface-800 dark:text-surface-300 dark:hover:bg-surface-700"
+                    >
+                      <Square className="h-4 w-4" />
+                      End
                     </button>
                   </>
                 )}
               </div>
-            </div>
+            </motion.div>
 
-            <div className="space-y-4">
+            {/* Results Panel */}
+            <motion.div
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="space-y-4"
+            >
               {session && (
-                <div className="rounded-xl border border-gray-200 bg-white p-4">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-2">Practice Target</h3>
-                  <p className="text-2xl font-bold text-primary-600">{targetGesture}</p>
-                  <p className="mt-1 text-xs text-gray-500">Try signing this gesture</p>
-                  <div className="mt-3 flex items-center gap-4 text-xs text-gray-400">
-                    <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" />Session active</span>
-                    <span className="flex items-center gap-1"><BarChart className="h-3.5 w-3.5" />{predictionCount} predictions</span>
+                <div className="rounded-2xl border border-surface-200 bg-white p-6 shadow-card dark:border-surface-800 dark:bg-surface-900">
+                  <h3 className="mb-3 text-sm font-semibold text-surface-900 dark:text-white">
+                    Practice Target
+                  </h3>
+                  <p className="text-3xl font-bold text-primary-500">{targetGesture}</p>
+                  <p className="mt-1 text-sm text-surface-500">Try signing this gesture</p>
+                  <div className="mt-4 flex items-center gap-4 text-xs text-surface-400">
+                    <span className="flex items-center gap-1.5">
+                      <Clock className="h-3.5 w-3.5" />
+                      Session active
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <BarChart className="h-3.5 w-3.5" />
+                      {predictionCount} predictions
+                    </span>
                   </div>
                 </div>
               )}
@@ -126,13 +178,19 @@ export default function PracticePage() {
               )}
 
               {!session && !prediction && (
-                <div className="rounded-xl border border-gray-200 bg-white p-8 text-center">
-                  <Video className="mx-auto h-12 w-12 text-gray-300" />
-                  <h3 className="mt-4 text-lg font-semibold text-gray-900">Ready to Practice</h3>
-                  <p className="mt-2 text-sm text-gray-500">Start a session to begin practicing ISL signs with AI feedback.</p>
+                <div className="flex min-h-[300px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-surface-200 bg-white p-8 text-center dark:border-surface-700 dark:bg-surface-900">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-surface-100 dark:bg-surface-800">
+                    <Sparkles className="h-8 w-8 text-surface-400" />
+                  </div>
+                  <h3 className="mt-4 text-lg font-semibold text-surface-900 dark:text-white">
+                    Ready to Practice
+                  </h3>
+                  <p className="mt-2 max-w-sm text-sm text-surface-500">
+                    Start a session to begin practicing ISL signs with AI feedback.
+                  </p>
                 </div>
               )}
-            </div>
+            </motion.div>
           </div>
         </div>
       )}

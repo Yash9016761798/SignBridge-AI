@@ -5,43 +5,35 @@ import type { LucideIcon } from 'lucide-react';
 
 interface DashboardCardProps {
   title: string;
-  description?: string;
   icon?: LucideIcon;
+  action?: React.ReactNode;
   children: React.ReactNode;
   className?: string;
-  onClick?: () => void;
 }
 
 export default function DashboardCard({
   title,
-  description,
   icon: Icon,
+  action,
   children,
   className = '',
-  onClick,
 }: DashboardCardProps) {
   return (
     <div
-      className={`rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md ${
-        onClick ? 'cursor-pointer' : ''
-      } ${className}`}
-      onClick={onClick}
-      role={onClick ? 'button' : undefined}
-      tabIndex={onClick ? 0 : undefined}
-      onKeyDown={onClick ? (e) => e.key === 'Enter' && onClick() : undefined}
+      className={`rounded-2xl border border-surface-200 bg-white shadow-card dark:border-surface-800 dark:bg-surface-900 ${className}`}
     >
-      <div className="mb-4 flex items-center gap-3">
-        {Icon && (
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-50">
-            <Icon className="h-5 w-5 text-primary-600" />
-          </div>
-        )}
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-          {description && <p className="text-sm text-gray-500">{description}</p>}
+      <div className="flex items-center justify-between border-b border-surface-100 px-6 py-4 dark:border-surface-800">
+        <div className="flex items-center gap-3">
+          {Icon && (
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-surface-100 dark:bg-surface-800">
+              <Icon className="h-4 w-4 text-surface-500" />
+            </div>
+          )}
+          <h3 className="text-sm font-semibold text-surface-900 dark:text-white">{title}</h3>
         </div>
+        {action}
       </div>
-      {children}
+      <div className="p-6">{children}</div>
     </div>
   );
 }
