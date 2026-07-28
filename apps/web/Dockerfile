@@ -22,6 +22,12 @@ ENV NEXT_TELEMETRY_DISABLED=1
 # Build
 RUN pnpm --filter @signbridge/web build
 
+# Debug: Check build output
+RUN echo "========== .next ==========" && \
+    ls -la /app/apps/web/.next && \
+    echo "========== standalone ==========" && \
+    ls -la /app/apps/web/.next/standalone || true
+
 # ------------------------------------------------------------
 # Runner
 # ------------------------------------------------------------
@@ -40,7 +46,6 @@ RUN adduser -S nextjs -G nodejs
 # Copy standalone build
 COPY --from=builder /app/apps/web/.next/standalone ./
 COPY --from=builder /app/apps/web/.next/static ./apps/web/.next/static
-
 
 USER nextjs
 
