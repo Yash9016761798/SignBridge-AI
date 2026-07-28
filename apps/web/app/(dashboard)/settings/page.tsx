@@ -14,10 +14,9 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  const [displayName, setDisplayName] = useState(
-    user ? `${user.firstName} ${user.lastName}` : 'Demo User',
-  );
-  const [email, setEmail] = useState(user?.email || 'demo@signbridge.ai');
+  const [firstName, setFirstName] = useState(user?.firstName || '');
+  const [lastName, setLastName] = useState(user?.lastName || '');
+  const [email, setEmail] = useState(user?.email || '');
   const [notifications, setNotifications] = useState({
     email: true,
     push: false,
@@ -60,18 +59,18 @@ export default function SettingsPage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`group flex items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-medium transition-all ${
+              className={`group flex items-center gap-3 rounded-[14px] px-4 py-3 text-left text-sm font-medium transition-all ${
                 activeTab === tab.id
-                  ? 'bg-primary-50 text-primary-700 shadow-sm dark:bg-primary-950/50 dark:text-primary-400'
+                  ? 'bg-gradient-brand-soft text-primary-700 shadow-sm dark:text-primary-400'
                   : 'text-surface-600 hover:bg-surface-100 hover:text-surface-900 dark:text-surface-400 dark:hover:bg-surface-800 dark:hover:text-surface-200'
               }`}
             >
               <tab.icon
-                className={`h-5 w-5 ${activeTab === tab.id ? 'text-primary-500' : 'text-surface-400 group-hover:text-surface-600'}`}
+                className={`h-5 w-5 ${activeTab === tab.id ? 'text-primary-500' : 'text-surface-500 group-hover:text-surface-700 dark:text-surface-400 dark:group-hover:text-surface-300'}`}
               />
               <div>
-                <div>{tab.label}</div>
-                <div className="text-xs text-surface-400 dark:text-surface-500">
+                <div className="font-semibold">{tab.label}</div>
+                <div className="text-xs text-surface-500 dark:text-surface-400">
                   {tab.description}
                 </div>
               </div>
@@ -82,50 +81,64 @@ export default function SettingsPage() {
         {/* Tab Content */}
         <motion.div
           key={activeTab}
-          initial={{ opacity: 0, x: 10 }}
+          initial={{ opacity: 0, x: 12 }}
           animate={{ opacity: 1, x: 0 }}
-          className="flex-1 rounded-2xl border border-surface-200 bg-white p-6 shadow-card dark:border-surface-800 dark:bg-surface-900"
+          transition={{ duration: 0.4 }}
+          className="flex-1 rounded-card bg-white p-6 shadow-card dark:bg-surface-900"
         >
           {activeTab === 'profile' && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-lg font-semibold text-surface-900 dark:text-white">
+                <h2 className="text-lg font-bold text-surface-900 dark:text-white">
                   Profile Settings
                 </h2>
                 <p className="mt-1 text-sm text-surface-500">Update your personal information</p>
               </div>
               <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-300">
-                    Display Name
-                  </label>
-                  <input
-                    type="text"
-                    value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
-                    className="mt-1.5 block w-full rounded-xl border border-surface-200 bg-white px-4 py-2.5 text-sm text-surface-900 shadow-sm transition-all focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-surface-700 dark:bg-surface-800 dark:text-white"
-                  />
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div>
+                    <label className="block text-sm font-semibold text-surface-700 dark:text-surface-300">
+                      First Name
+                    </label>
+                    <input
+                      type="text"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      className="mt-2 block w-full input-field text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-surface-700 dark:text-surface-300">
+                      Last Name
+                    </label>
+                    <input
+                      type="text"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      className="mt-2 block w-full input-field text-sm"
+                    />
+                  </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-300">
+                  <label className="block text-sm font-semibold text-surface-700 dark:text-surface-300">
                     Email
                   </label>
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="mt-1.5 block w-full rounded-xl border border-surface-200 bg-white px-4 py-2.5 text-sm text-surface-900 shadow-sm transition-all focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-surface-700 dark:bg-surface-800 dark:text-white"
+                    className="mt-2 block w-full input-field text-sm"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-300">
+                  <label className="block text-sm font-semibold text-surface-700 dark:text-surface-300">
                     Role
                   </label>
                   <input
                     type="text"
                     value={user?.role || 'LEARNER'}
                     disabled
-                    className="mt-1.5 block w-full rounded-xl border border-surface-200 bg-surface-50 px-4 py-2.5 text-sm text-surface-500 dark:border-surface-700 dark:bg-surface-800"
+                    className="mt-2 block w-full input-field text-sm bg-surface-50 text-surface-500 cursor-not-allowed"
                   />
                 </div>
               </div>
@@ -135,12 +148,12 @@ export default function SettingsPage() {
           {activeTab === 'notifications' && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-lg font-semibold text-surface-900 dark:text-white">
+                <h2 className="text-lg font-bold text-surface-900 dark:text-white">
                   Notification Preferences
                 </h2>
                 <p className="mt-1 text-sm text-surface-500">Choose how you want to be notified</p>
               </div>
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {Object.entries({
                   email: 'Email notifications',
                   push: 'Push notifications',
@@ -149,13 +162,13 @@ export default function SettingsPage() {
                 }).map(([key, label]) => (
                   <label
                     key={key}
-                    className="flex items-center justify-between rounded-xl border border-surface-200 p-4 transition-colors hover:border-surface-300 dark:border-surface-700 dark:hover:border-surface-600"
+                    className="flex items-center justify-between rounded-[16px] border border-surface-200 p-4 transition-colors hover:border-surface-300 cursor-pointer dark:border-surface-700 dark:hover:border-surface-600"
                   >
                     <div>
-                      <span className="text-sm font-medium text-surface-900 dark:text-white">
+                      <span className="text-sm font-semibold text-surface-900 dark:text-white">
                         {label}
                       </span>
-                      <p className="text-xs text-surface-500">
+                      <p className="text-xs text-surface-500 mt-0.5">
                         Receive {label.toLowerCase()} for your account
                       </p>
                     </div>
@@ -169,7 +182,7 @@ export default function SettingsPage() {
                       }
                       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                         notifications[key as keyof typeof notifications]
-                          ? 'bg-primary-500'
+                          ? 'gradient-bg'
                           : 'bg-surface-200 dark:bg-surface-700'
                       }`}
                       role="switch"
@@ -192,7 +205,7 @@ export default function SettingsPage() {
           {activeTab === 'security' && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-lg font-semibold text-surface-900 dark:text-white">
+                <h2 className="text-lg font-bold text-surface-900 dark:text-white">
                   Security Settings
                 </h2>
                 <p className="mt-1 text-sm text-surface-500">Manage your account security</p>
@@ -200,8 +213,8 @@ export default function SettingsPage() {
               <p className="text-sm text-surface-600 dark:text-surface-400">
                 Security settings are managed through your authentication provider.
               </p>
-              <div className="rounded-xl border border-warning-200 bg-warning-50 p-4 dark:border-warning-800 dark:bg-warning-950/50">
-                <p className="text-sm text-warning-700 dark:text-warning-400">
+              <div className="rounded-[16px] bg-warning-50 p-4 border border-warning-100 dark:bg-warning-500/10 dark:border-warning-800">
+                <p className="text-sm font-medium text-surface-700 dark:text-surface-300">
                   {user?.firebaseUid
                     ? 'Your account is secured with Firebase Authentication.'
                     : 'You are using demo authentication. Configure Firebase for production security.'}
@@ -215,7 +228,7 @@ export default function SettingsPage() {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary-500 to-primary-600 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary-500/25 transition-all hover:from-primary-600 hover:to-primary-700 hover:shadow-xl disabled:opacity-50"
+              className="btn-primary inline-flex items-center gap-2 text-sm disabled:opacity-50"
             >
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
               {saving ? 'Saving...' : 'Save Changes'}
@@ -224,7 +237,7 @@ export default function SettingsPage() {
               <motion.span
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="flex items-center gap-1.5 text-sm font-medium text-success-600"
+                className="flex items-center gap-1.5 text-sm font-semibold text-success-600"
               >
                 <CheckCircle2 className="h-4 w-4" />
                 Settings saved successfully!

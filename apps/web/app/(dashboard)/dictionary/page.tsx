@@ -9,7 +9,7 @@ import Pagination from '@/components/dashboard/Pagination';
 import SkeletonLoader from '@/components/dashboard/SkeletonLoader';
 import { SignCard, AlphabetFilter, CategoryBrowser } from '@/components/dictionary';
 import { dictionaryApi } from '@/lib/dictionary-api';
-import { BookMarked, LayoutGrid, List, SlidersHorizontal } from 'lucide-react';
+import { BookMarked, LayoutGrid, List } from 'lucide-react';
 import type {
   SignWordListItem,
   SignCategory,
@@ -98,24 +98,24 @@ export default function DictionaryPage() {
           <select
             value={selectedDifficulty}
             onChange={(e) => setSelectedDifficulty(e.target.value as SignDifficulty | '')}
-            className="rounded-xl border border-surface-200 bg-white px-4 py-2.5 text-sm text-surface-700 transition-all focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-surface-700 dark:bg-surface-800 dark:text-surface-300"
+            className="input-field text-sm"
           >
             <option value="">All Difficulties</option>
             <option value="BEGINNER">Beginner</option>
             <option value="INTERMEDIATE">Intermediate</option>
             <option value="ADVANCED">Advanced</option>
           </select>
-          <div className="flex overflow-hidden rounded-xl border border-surface-200 dark:border-surface-700">
+          <div className="flex overflow-hidden rounded-[14px] border border-surface-200 dark:border-surface-700">
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-2.5 transition-colors ${viewMode === 'grid' ? 'bg-primary-500 text-white' : 'bg-white text-surface-500 hover:bg-surface-50 dark:bg-surface-800 dark:hover:bg-surface-700'}`}
+              className={`p-2.5 transition-colors ${viewMode === 'grid' ? 'gradient-bg text-surface-900' : 'bg-white text-surface-500 hover:bg-surface-50 dark:bg-surface-800 dark:hover:bg-surface-700'}`}
               aria-label="Grid view"
             >
               <LayoutGrid className="h-4 w-4" />
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`p-2.5 transition-colors ${viewMode === 'list' ? 'bg-primary-500 text-white' : 'bg-white text-surface-500 hover:bg-surface-50 dark:bg-surface-800 dark:hover:bg-surface-700'}`}
+              className={`p-2.5 transition-colors ${viewMode === 'list' ? 'gradient-bg text-surface-900' : 'bg-white text-surface-500 hover:bg-surface-50 dark:bg-surface-800 dark:hover:bg-surface-700'}`}
               aria-label="List view"
             >
               <List className="h-4 w-4" />
@@ -139,7 +139,7 @@ export default function DictionaryPage() {
       />
 
       {/* Results Count */}
-      <div className="text-sm font-medium text-surface-500">
+      <div className="text-sm font-bold text-surface-500">
         {pagination.total} sign{pagination.total !== 1 ? 's' : ''} found
       </div>
 
@@ -147,7 +147,7 @@ export default function DictionaryPage() {
       {loading ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {Array.from({ length: 8 }).map((_, i) => (
-            <SkeletonLoader key={i} className="h-64 rounded-2xl" />
+            <SkeletonLoader key={i} className="h-64 rounded-card" />
           ))}
         </div>
       ) : signs.length === 0 ? (

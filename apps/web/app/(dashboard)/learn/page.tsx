@@ -62,7 +62,7 @@ export default function LearnPage() {
         <select
           value={difficulty}
           onChange={(e) => setDifficulty(e.target.value)}
-          className="rounded-xl border border-surface-200 bg-white px-4 py-2.5 text-sm text-surface-700 transition-all focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-surface-700 dark:bg-surface-800 dark:text-surface-300"
+          className="input-field text-sm"
         >
           <option value="">All Levels</option>
           <option value="BEGINNER">Beginner</option>
@@ -75,7 +75,7 @@ export default function LearnPage() {
       {loading ? (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <SkeletonLoader key={i} className="h-72 rounded-2xl" />
+            <SkeletonLoader key={i} className="h-72 rounded-card" />
           ))}
         </div>
       ) : courses.length === 0 ? (
@@ -89,17 +89,17 @@ export default function LearnPage() {
           {courses.map((course, i) => (
             <motion.div
               key={course.id}
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
             >
               <Link
                 href={`/learn/${course.id}`}
-                className="group block overflow-hidden rounded-2xl border border-surface-200 bg-white shadow-card transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1 dark:border-surface-800 dark:bg-surface-900"
+                className="group block overflow-hidden rounded-card bg-white shadow-card transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1 dark:bg-surface-900"
               >
-                <div className="relative aspect-video bg-gradient-to-br from-primary-50 to-secondary-50 dark:from-primary-950/50 dark:to-secondary-950/50">
+                <div className="relative aspect-video bg-gradient-brand-soft">
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/80 shadow-lg transition-transform group-hover:scale-110 dark:bg-surface-900/80">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/80 shadow-lg transition-transform group-hover:scale-110">
                       <Play className="h-6 w-6 text-primary-500 ml-0.5" />
                     </div>
                   </div>
@@ -108,7 +108,7 @@ export default function LearnPage() {
                   </div>
                 </div>
                 <div className="p-5">
-                  <h3 className="text-base font-semibold text-surface-900 group-hover:text-primary-500 transition-colors dark:text-white">
+                  <h3 className="text-base font-bold text-surface-900 group-hover:text-primary-600 transition-colors dark:text-white">
                     {course.title}
                   </h3>
                   {course.description && (
@@ -116,7 +116,7 @@ export default function LearnPage() {
                       {course.description}
                     </p>
                   )}
-                  <div className="mt-4 flex items-center gap-4 text-xs text-surface-400">
+                  <div className="mt-4 flex items-center gap-4 text-xs text-surface-500 font-medium">
                     <span className="flex items-center gap-1">
                       <BarChart className="h-3.5 w-3.5" />
                       {course.moduleCount} modules

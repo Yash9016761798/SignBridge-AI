@@ -4,7 +4,8 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, HandMetal, PanelLeftClose, PanelLeft, Sparkles } from 'lucide-react';
+import { ChevronDown, PanelLeftClose, PanelLeft, Sparkles } from 'lucide-react';
+import Logo from '@/components/brand/Logo';
 import { useUIStore } from '@/stores/ui-store';
 import { useAuthStore } from '@/stores/auth-store';
 import {
@@ -26,15 +27,17 @@ function NavItemComponent({ item, collapsed = false }: { item: NavItem; collapse
       <div>
         <button
           onClick={() => setExpanded(!expanded)}
-          className={`group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
+          className={`group flex w-full items-center gap-3 rounded-[14px] px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
             isActive
-              ? 'bg-primary-50 text-primary-700 shadow-sm dark:bg-primary-950/50 dark:text-primary-400'
-              : 'text-surface-600 hover:bg-surface-100 hover:text-surface-900 dark:text-surface-400 dark:hover:bg-surface-800 dark:hover:text-surface-200'
+              ? 'bg-gradient-brand-soft text-white'
+              : 'text-surface-400 hover:bg-white/[0.06] hover:text-surface-200'
           }`}
           aria-expanded={expanded}
         >
           <item.icon
-            className={`h-5 w-5 flex-shrink-0 transition-colors ${isActive ? 'text-primary-500' : 'text-surface-400 group-hover:text-surface-600 dark:group-hover:text-surface-300'}`}
+            className={`h-[18px] w-[18px] flex-shrink-0 transition-colors ${
+              isActive ? 'text-primary-500' : 'text-surface-400 group-hover:text-surface-300'
+            }`}
           />
           {!collapsed && (
             <>
@@ -54,7 +57,7 @@ function NavItemComponent({ item, collapsed = false }: { item: NavItem; collapse
               transition={{ duration: 0.2, ease: 'easeInOut' }}
               className="overflow-hidden"
             >
-              <div className="ml-4 mt-1 space-y-0.5 border-l-2 border-surface-200 pl-3 dark:border-surface-700">
+              <div className="ml-4 mt-1 space-y-0.5 border-l-2 border-surface-700/50 pl-3">
                 {item.children!.map((child) => (
                   <NavItemComponent key={child.href} item={child} />
                 ))}
@@ -69,25 +72,30 @@ function NavItemComponent({ item, collapsed = false }: { item: NavItem; collapse
   return (
     <Link
       href={item.href}
-      className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
+      className={`group relative flex items-center gap-3 rounded-[14px] px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
         isActive
-          ? 'bg-primary-50 text-primary-700 shadow-sm dark:bg-primary-950/50 dark:text-primary-400'
-          : 'text-surface-600 hover:bg-surface-100 hover:text-surface-900 dark:text-surface-400 dark:hover:bg-surface-800 dark:hover:text-surface-200'
+          ? 'bg-gradient-brand-soft text-white'
+          : 'text-surface-400 hover:bg-white/[0.06] hover:text-surface-200'
       }`}
       aria-current={isActive ? 'page' : undefined}
     >
+      {isActive && (
+        <motion.div
+          layoutId="sidebar-active"
+          className="absolute inset-0 rounded-[14px] bg-gradient-brand-soft"
+          transition={{ type: 'spring', bounce: 0.15, duration: 0.5 }}
+        />
+      )}
       <item.icon
-        className={`h-5 w-5 flex-shrink-0 transition-colors ${
-          isActive
-            ? 'text-primary-500'
-            : 'text-surface-400 group-hover:text-surface-600 dark:group-hover:text-surface-300'
+        className={`relative z-10 h-[18px] w-[18px] flex-shrink-0 transition-colors ${
+          isActive ? 'text-primary-500' : 'text-surface-400 group-hover:text-surface-300'
         }`}
       />
       {!collapsed && (
         <>
-          <span className="flex-1">{item.label}</span>
+          <span className="relative z-10 flex-1">{item.label}</span>
           {item.badge && (
-            <span className="rounded-full bg-primary-100 px-2 py-0.5 text-2xs font-semibold text-primary-700 dark:bg-primary-900/50 dark:text-primary-300">
+            <span className="relative z-10 rounded-full bg-gradient-brand px-2 py-0.5 text-2xs font-bold text-surface-900">
               {item.badge}
             </span>
           )}
@@ -110,7 +118,7 @@ function NavGroupComponent({ group, collapsed = false }: { group: NavGroup; coll
 
   return (
     <div>
-      <h3 className="mb-2 px-3 text-2xs font-semibold uppercase tracking-wider text-surface-400 dark:text-surface-500">
+      <h3 className="mb-2 px-3 text-[10px] font-bold uppercase tracking-[0.15em] text-surface-400">
         {group.label}
       </h3>
       <div className="space-y-0.5">
@@ -134,35 +142,33 @@ export default function Sidebar({ className = '' }: SidebarProps) {
 
   return (
     <aside
-      className={`flex flex-col border-r border-surface-200 bg-white transition-all duration-300 ease-in-out dark:border-surface-800 dark:bg-surface-900 ${
+      className={`flex flex-col bg-surface-950 transition-all duration-300 ease-in-out ${
         sidebarCollapsed ? 'w-[72px]' : 'w-64'
       } ${className}`}
       aria-label="Sidebar navigation"
     >
       {/* Logo */}
-      <div className="flex h-16 items-center justify-between border-b border-surface-200 px-4 dark:border-surface-800">
+      <div
+        className={`flex h-16 items-center border-b border-white/[0.06] px-4 ${sidebarCollapsed ? 'justify-center' : 'justify-between'}`}
+      >
         {!sidebarCollapsed ? (
-          <Link href="/dashboard" className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl gradient-bg shadow-glow">
-              <HandMetal className="h-5 w-5 text-white" />
-            </div>
+          <Link href="/dashboard" className="flex items-center gap-3">
+            <Logo size="md" priority />
             <div className="flex flex-col">
-              <span className="text-base font-bold text-surface-900 dark:text-white">
-                SignBridge
+              <span className="text-[15px] font-bold text-white tracking-tight">SignBridge</span>
+              <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-surface-400">
+                AI Platform
               </span>
-              <span className="text-2xs font-medium text-surface-400">AI Platform</span>
             </div>
           </Link>
         ) : (
-          <Link href="/dashboard" className="mx-auto flex items-center justify-center">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl gradient-bg shadow-glow">
-              <HandMetal className="h-5 w-5 text-white" />
-            </div>
+          <Link href="/dashboard" className="flex items-center justify-center">
+            <Logo size="md" priority />
           </Link>
         )}
         <button
           onClick={toggleSidebar}
-          className={`rounded-lg p-2 text-surface-400 transition-colors hover:bg-surface-100 hover:text-surface-600 dark:hover:bg-surface-800 dark:hover:text-surface-300 ${
+          className={`rounded-[10px] p-2 text-surface-400 transition-colors hover:bg-white/[0.06] hover:text-surface-300 ${
             sidebarCollapsed ? 'mx-auto mt-2' : ''
           }`}
           aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
@@ -185,11 +191,11 @@ export default function Sidebar({ className = '' }: SidebarProps) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="flex items-center justify-center rounded-xl p-2.5 text-surface-500 transition-all hover:bg-surface-100 hover:text-surface-900 dark:text-surface-400 dark:hover:bg-surface-800 dark:hover:text-surface-200"
+                  className="flex items-center justify-center rounded-[14px] p-2.5 text-surface-400 transition-all hover:bg-white/[0.06] hover:text-surface-200"
                   aria-label={item.label}
                   title={item.label}
                 >
-                  <item.icon className="h-5 w-5" />
+                  <item.icon className="h-[18px] w-[18px]" />
                 </Link>
               ))}
           </div>
@@ -198,7 +204,7 @@ export default function Sidebar({ className = '' }: SidebarProps) {
             {navGroups.map((group) => (
               <NavGroupComponent key={group.label} group={group} />
             ))}
-            <div className="border-t border-surface-200 pt-4 dark:border-surface-800">
+            <div className="border-t border-white/[0.06] pt-4">
               <NavItemComponent item={helpNavigation} />
             </div>
           </div>
@@ -207,17 +213,19 @@ export default function Sidebar({ className = '' }: SidebarProps) {
 
       {/* Upgrade Banner */}
       {!sidebarCollapsed && (
-        <div className="border-t border-surface-200 p-4 dark:border-surface-800">
-          <div className="rounded-xl bg-gradient-to-br from-primary-500/10 to-secondary-500/10 p-4 dark:from-primary-500/5 dark:to-secondary-500/5">
-            <div className="flex items-center gap-2 mb-2">
-              <Sparkles className="h-4 w-4 text-primary-500" />
-              <span className="text-sm font-semibold text-surface-900 dark:text-white">
-                Upgrade to Pro
-              </span>
+        <div className="p-4">
+          <div className="rounded-card bg-gradient-brand p-4 relative overflow-hidden">
+            <div className="absolute -right-4 -top-4 h-16 w-16 rounded-full bg-white/10 blur-xl" />
+            <div className="absolute -bottom-4 -left-4 h-16 w-16 rounded-full bg-secondary-400/20 blur-xl" />
+            <div className="relative z-10">
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles className="h-4 w-4 text-surface-900" />
+                <span className="text-sm font-bold text-surface-900">Upgrade to Pro</span>
+              </div>
+              <p className="text-xs font-medium text-surface-800/70">
+                Unlock advanced features and unlimited translations.
+              </p>
             </div>
-            <p className="text-xs text-surface-500 dark:text-surface-400">
-              Unlock advanced features and unlimited translations.
-            </p>
           </div>
         </div>
       )}

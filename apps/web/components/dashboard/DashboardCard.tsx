@@ -19,17 +19,15 @@ export default function DashboardCard({
   className = '',
 }: DashboardCardProps) {
   return (
-    <div
-      className={`rounded-2xl border border-surface-200 bg-white shadow-card dark:border-surface-800 dark:bg-surface-900 ${className}`}
-    >
+    <div className={`rounded-card bg-white shadow-card dark:bg-surface-900 ${className}`}>
       <div className="flex items-center justify-between border-b border-surface-100 px-6 py-4 dark:border-surface-800">
         <div className="flex items-center gap-3">
           {Icon && (
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-surface-100 dark:bg-surface-800">
-              <Icon className="h-4 w-4 text-surface-500" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-[12px] bg-gradient-brand-soft">
+              <Icon className="h-4 w-4 text-primary-600" />
             </div>
           )}
-          <h3 className="text-sm font-semibold text-surface-900 dark:text-white">{title}</h3>
+          <h3 className="text-sm font-bold text-surface-900 dark:text-white">{title}</h3>
         </div>
         {action}
       </div>

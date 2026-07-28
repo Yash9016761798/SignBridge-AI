@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { HandMetal, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
+import Logo from '@/components/brand/Logo';
 
 interface LoadingScreenProps {
   message?: string;
@@ -9,14 +10,16 @@ interface LoadingScreenProps {
 
 export default function LoadingScreen({ message = 'Loading...' }: LoadingScreenProps) {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
+    <div className="flex min-h-screen items-center justify-center bg-surface-50 dark:bg-[#0D0D0D]">
       <div className="text-center">
         <div className="flex justify-center mb-4">
-          <HandMetal className="h-12 w-12 text-primary-600 animate-pulse" />
+          <div className="animate-pulse">
+            <Logo size="xl" priority />
+          </div>
         </div>
         <div className="flex items-center justify-center gap-2">
           <Loader2 className="h-5 w-5 animate-spin text-primary-600" />
-          <span className="text-gray-600">{message}</span>
+          <span className="text-surface-600 dark:text-surface-400">{message}</span>
         </div>
       </div>
     </div>

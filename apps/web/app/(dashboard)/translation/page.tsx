@@ -75,12 +75,13 @@ export default function TranslationPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Input Panel */}
         <motion.div
-          initial={{ opacity: 0, x: -10 }}
+          initial={{ opacity: 0, x: -12 }}
           animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
           className="space-y-4"
         >
-          <div className="rounded-2xl border border-surface-200 bg-white p-6 shadow-card dark:border-surface-800 dark:bg-surface-900">
-            <label className="mb-3 block text-sm font-semibold text-surface-900 dark:text-white">
+          <div className="rounded-card bg-white p-6 shadow-card dark:bg-surface-900">
+            <label className="mb-3 block text-sm font-bold text-surface-900 dark:text-white">
               English Text
             </label>
             <textarea
@@ -89,14 +90,14 @@ export default function TranslationPage() {
               onKeyDown={handleKeyDown}
               placeholder="Type text to translate to ISL..."
               rows={6}
-              className="w-full resize-none rounded-xl border border-surface-200 bg-surface-50 px-4 py-3 text-sm text-surface-900 placeholder:text-surface-400 transition-all focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-surface-700 dark:bg-surface-800 dark:text-white dark:placeholder:text-surface-500"
+              className="w-full resize-none input-field text-sm"
             />
             <div className="mt-3 flex items-center justify-between">
-              <span className="text-xs text-surface-400">{inputText.length}/5000</span>
+              <span className="text-xs text-surface-500 font-medium">{inputText.length}/5000</span>
               <button
                 onClick={handleTranslate}
                 disabled={translating || !inputText.trim()}
-                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary-500 to-primary-600 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary-500/25 transition-all hover:from-primary-600 hover:to-primary-700 hover:shadow-xl disabled:opacity-50"
+                className="btn-primary inline-flex items-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
                 {translating ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -108,8 +109,8 @@ export default function TranslationPage() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-surface-200 bg-surface-50 p-4 dark:border-surface-700 dark:bg-surface-800/50">
-            <p className="text-xs text-surface-500">
+          <div className="rounded-[16px] bg-surface-50 p-4 dark:bg-surface-800/50">
+            <p className="text-xs text-surface-500 font-medium">
               <strong>Note:</strong> Translation connects to the SignBridge AI service. When the
               full backend is unavailable, a demo response is shown.
             </p>
@@ -118,19 +119,20 @@ export default function TranslationPage() {
 
         {/* Output Panel */}
         <motion.div
-          initial={{ opacity: 0, x: 10 }}
+          initial={{ opacity: 0, x: 12 }}
           animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
           className="space-y-4"
         >
           {result ? (
-            <div className="rounded-2xl border border-surface-200 bg-white p-6 shadow-card dark:border-surface-800 dark:bg-surface-900">
+            <div className="rounded-card bg-white p-6 shadow-card dark:bg-surface-900">
               <div className="mb-4 flex items-center justify-between">
-                <label className="text-sm font-semibold text-surface-900 dark:text-white">
+                <label className="text-sm font-bold text-surface-900 dark:text-white">
                   ISL Translation
                 </label>
                 <button
                   onClick={handleCopy}
-                  className="rounded-lg p-2 text-surface-400 transition-colors hover:bg-surface-100 hover:text-surface-600 dark:hover:bg-surface-800"
+                  className="rounded-[12px] p-2 text-surface-500 transition-colors hover:bg-surface-100 hover:text-surface-700 dark:text-surface-400 dark:hover:bg-surface-800"
                   title="Copy"
                 >
                   {copied ? (
@@ -140,10 +142,10 @@ export default function TranslationPage() {
                   )}
                 </button>
               </div>
-              <div className="min-h-[120px] rounded-xl bg-surface-50 p-4 text-sm text-surface-900 dark:bg-surface-800 dark:text-white">
+              <div className="min-h-[120px] rounded-[16px] bg-surface-50 p-4 text-sm text-surface-900 dark:bg-surface-800 dark:text-white font-medium">
                 {result.translation.outputText}
               </div>
-              <div className="mt-4 flex items-center gap-4 text-xs text-surface-400">
+              <div className="mt-4 flex items-center gap-4 text-xs text-surface-500 font-medium">
                 <span className="flex items-center gap-1">
                   <Sparkles className="h-3 w-3" />
                   Confidence: {Math.round(result.translation.confidence * 100)}%
@@ -154,19 +156,19 @@ export default function TranslationPage() {
 
               {result.translation.signs.length > 0 && (
                 <div className="mt-6">
-                  <p className="mb-3 text-xs font-semibold text-surface-500 uppercase tracking-wider">
+                  <p className="mb-3 text-xs font-bold text-surface-500 uppercase tracking-wider">
                     Sign Breakdown
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {result.translation.signs.map((sign, i) => (
                       <div
                         key={i}
-                        className="rounded-xl border border-surface-200 bg-surface-50 px-4 py-3 text-center transition-all hover:border-primary-200 hover:bg-primary-50 dark:border-surface-700 dark:bg-surface-800 dark:hover:border-primary-800"
+                        className="rounded-[14px] border border-surface-200 bg-surface-50 px-4 py-3 text-center transition-all hover:border-primary-200 hover:bg-gradient-brand-soft dark:border-surface-700 dark:bg-surface-800"
                       >
-                        <p className="text-sm font-semibold text-surface-900 dark:text-white">
+                        <p className="text-sm font-bold text-surface-900 dark:text-white">
                           {sign.word}
                         </p>
-                        <p className="text-xs text-surface-400">{sign.duration}s</p>
+                        <p className="text-xs text-surface-500 mt-0.5">{sign.duration}s</p>
                       </div>
                     ))}
                   </div>
@@ -174,11 +176,11 @@ export default function TranslationPage() {
               )}
             </div>
           ) : (
-            <div className="flex min-h-[400px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-surface-200 bg-white p-8 text-center dark:border-surface-700 dark:bg-surface-900">
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-surface-100 dark:bg-surface-800">
-                <Languages className="h-8 w-8 text-surface-400" />
+            <div className="flex min-h-[400px] flex-col items-center justify-center rounded-card border-2 border-dashed border-surface-200 bg-white p-8 text-center dark:border-surface-700 dark:bg-surface-900">
+              <div className="flex h-16 w-16 items-center justify-center rounded-[18px] bg-gradient-brand-soft">
+                <Languages className="h-8 w-8 text-primary-500" />
               </div>
-              <h3 className="mt-4 text-lg font-semibold text-surface-900 dark:text-white">
+              <h3 className="mt-4 text-lg font-bold text-surface-900 dark:text-white">
                 Translation Output
               </h3>
               <p className="mt-2 max-w-sm text-sm text-surface-500">

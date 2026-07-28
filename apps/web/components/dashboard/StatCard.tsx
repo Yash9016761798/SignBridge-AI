@@ -27,41 +27,41 @@ export default function StatCard({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`group rounded-2xl border border-surface-200 bg-white p-6 shadow-card transition-all duration-300 hover:shadow-card-hover hover:-translate-y-0.5 dark:border-surface-800 dark:bg-surface-900 ${className}`}
+      className={`group rounded-card bg-white p-6 shadow-card transition-all duration-300 hover:shadow-card-hover hover:-translate-y-0.5 dark:bg-surface-900 ${className}`}
     >
       <div className="flex items-start justify-between">
-        <div className="space-y-1">
-          <p className="text-sm font-medium text-surface-500 dark:text-surface-400">{title}</p>
+        <div className="space-y-1.5">
+          <p className="text-sm font-medium text-surface-500">{title}</p>
           <p className="text-3xl font-bold tracking-tight text-surface-900 dark:text-white">
             {value}
           </p>
         </div>
         {Icon && (
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-50 transition-colors group-hover:bg-primary-100 dark:bg-primary-950/50 dark:group-hover:bg-primary-900/50">
-            <Icon className="h-6 w-6 text-primary-500" />
+          <div className="flex h-12 w-12 items-center justify-center rounded-[16px] bg-gradient-brand-soft transition-colors group-hover:bg-gradient-brand-medium">
+            <Icon className="h-6 w-6 text-primary-600" />
           </div>
         )}
       </div>
       {change !== undefined && (
         <div className="mt-4 flex items-center gap-1.5">
           {isPositive ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-success-50 px-2 py-0.5 text-xs font-semibold text-success-600 dark:bg-success-500/10">
+            <span className="inline-flex items-center gap-1 rounded-full bg-success-50 px-2.5 py-0.5 text-xs font-bold text-surface-700">
               <TrendingUp className="h-3 w-3" />+{change}%
             </span>
           ) : isNegative ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-danger-50 px-2 py-0.5 text-xs font-semibold text-danger-600 dark:bg-danger-500/10">
+            <span className="inline-flex items-center gap-1 rounded-full bg-danger-50 px-2.5 py-0.5 text-xs font-bold text-danger-600">
               <TrendingDown className="h-3 w-3" />
               {change}%
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1 rounded-full bg-surface-100 px-2 py-0.5 text-xs font-semibold text-surface-500 dark:bg-surface-800">
+            <span className="inline-flex items-center gap-1 rounded-full bg-surface-100 px-2.5 py-0.5 text-xs font-bold text-surface-500">
               <Minus className="h-3 w-3" />
               0%
             </span>
           )}
-          <span className="text-xs text-surface-400 dark:text-surface-500">{changeLabel}</span>
+          <span className="text-xs text-surface-500 dark:text-surface-400">{changeLabel}</span>
         </div>
       )}
     </motion.div>

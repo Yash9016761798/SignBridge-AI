@@ -7,7 +7,7 @@ import SkeletonLoader from '@/components/dashboard/SkeletonLoader';
 import DifficultyBadge from '@/components/dictionary/DifficultyBadge';
 import { learningApi } from '@/lib/learning-api';
 import type { Certificate } from '@/types/learning';
-import { Award, ExternalLink, Copy, Check } from 'lucide-react';
+import { Award, Copy, Check } from 'lucide-react';
 
 export default function CertificatesPage() {
   const [certificates, setCertificates] = useState<Certificate[]>([]);
@@ -15,7 +15,8 @@ export default function CertificatesPage() {
   const [copied, setCopied] = useState<string | null>(null);
 
   useEffect(() => {
-    learningApi.getMyCertificates()
+    learningApi
+      .getMyCertificates()
       .then(setCertificates)
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -30,9 +31,11 @@ export default function CertificatesPage() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <SkeletonLoader className="h-8 w-48" />
+        <SkeletonLoader className="h-10 w-48" />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 3 }).map((_, i) => <SkeletonLoader key={i} className="h-48 rounded-xl" />)}
+          {Array.from({ length: 3 }).map((_, i) => (
+            <SkeletonLoader key={i} className="h-56 rounded-card" />
+          ))}
         </div>
       </div>
     );
@@ -40,7 +43,11 @@ export default function CertificatesPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="My Certificates" description="View and verify your course completion certificates" />
+      <PageHeader
+        title="My Certificates"
+        description="View and verify your course completion certificates"
+        icon={Award}
+      />
 
       {certificates.length === 0 ? (
         <EmptyState
@@ -51,19 +58,37 @@ export default function CertificatesPage() {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {certificates.map((cert) => (
-            <div key={cert.id} className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+            <div
+              key={cert.id}
+              className="rounded-card border border-surface-200 bg-white p-5 shadow-card transition-shadow hover:shadow-lg dark:border-surface-700 dark:bg-surface-900"
+            >
               <div className="flex items-start justify-between">
-                <Award className="h-8 w-8 text-yellow-500" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-[14px] bg-secondary-50 dark:bg-secondary-500/10">
+                  <Award className="h-6 w-6 text-secondary-600 dark:text-secondary-400" />
+                </div>
                 <DifficultyBadge difficulty={cert.course.difficulty} />
               </div>
-              <h3 className="mt-3 font-semibold text-gray-900">{cert.course.title}</h3>
-              <p className="mt-1 text-xs text-gray-500">
+              <h3 className="mt-3 font-semibold text-surface-900 dark:text-white">
+                {cert.course.title}
+              </h3>
+              <p className="mt-1 text-xs text-surface-500">
                 Issued {new Date(cert.issuedDate).toLocaleDateString()}
               </p>
               <div className="mt-4 flex items-center gap-2">
-                <code className="flex-1 truncate rounded bg-gray-50 px-2 py-1 text-xs text-gray-600">{cert.verificationCode}</code>
-                <button onClick={() => handleCopyCode(cert.verificationCode)} className="rounded p-1 text-gray-400 hover:text-gray-600" title="Copy verification code">
-                  {copied === cert.verificationCode ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                <code className="flex-1 truncate rounded-[10px] bg-surface-50 px-2.5 py-1.5 font-mono text-xs text-surface-600 dark:bg-surface-800 dark:text-surface-400">
+                  {cert.verificationCode}
+                </code>
+                <button
+                  onClick={() => handleCopyCode(cert.verificationCode)}
+                  className="rounded-[10px] p-1.5 text-surface-400 transition-colors hover:bg-surface-100 hover:text-surface-600 dark:hover:bg-surface-800 dark:hover:text-surface-300"
+                  title="Copy verification code"
+                  aria-label="Copy verification code"
+                >
+                  {copied === cert.verificationCode ? (
+                    <Check className="h-4 w-4 text-success-500" />
+                  ) : (
+                    <Copy className="h-4 w-4" />
+                  )}
                 </button>
               </div>
             </div>

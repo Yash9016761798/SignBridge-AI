@@ -47,15 +47,15 @@ export default function LoginForm() {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       {/* Error Alert */}
       {error && (
-        <div className="rounded-xl border border-danger-200 bg-danger-50 p-4 text-sm text-danger-600 dark:border-danger-800 dark:bg-danger-950/50 dark:text-danger-400">
+        <div className="rounded-[16px] border border-danger-100 bg-danger-50 p-4 text-sm font-medium text-danger-600">
           {error}
         </div>
       )}
 
       {/* Success Alert */}
       {showSuccess && (
-        <div className="flex items-center gap-2 rounded-xl border border-success-200 bg-success-50 p-4 text-sm text-success-600 dark:border-success-800 dark:bg-success-950/50 dark:text-success-400">
-          <CheckCircle2 className="h-4 w-4" />
+        <div className="flex items-center gap-2.5 rounded-[16px] border border-success-100 bg-success-50 p-4 text-sm font-medium text-surface-700">
+          <CheckCircle2 className="h-4 w-4 text-success-500" />
           Login successful! Redirecting...
         </div>
       )}
@@ -64,27 +64,29 @@ export default function LoginForm() {
       <div>
         <label
           htmlFor="email"
-          className="block text-sm font-medium text-surface-700 dark:text-surface-300"
+          className="block text-sm font-semibold text-surface-700 dark:text-surface-300"
         >
           Email address
         </label>
-        <div className="relative mt-1.5">
-          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
-            <Mail className="h-4 w-4 text-surface-400" />
+        <div className="relative mt-2">
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+            <Mail className="h-[18px] w-[18px] text-surface-400" />
           </div>
           <input
             {...register('email')}
             type="email"
             autoComplete="email"
             placeholder="you@example.com"
-            className={`block w-full rounded-xl border bg-white py-2.5 pl-10 pr-4 text-sm text-surface-900 shadow-sm transition-all placeholder:text-surface-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-surface-700 dark:bg-surface-800 dark:text-white dark:placeholder:text-surface-500 ${
+            className={`block w-full input-field py-3 pl-11 pr-4 text-sm placeholder:text-surface-500 ${
               errors.email
-                ? 'border-danger-500 focus:border-danger-500 focus:ring-danger-500/20'
-                : 'border-surface-200 hover:border-surface-300'
+                ? 'border-danger-500 focus:border-danger-500 focus:ring-danger-500/10'
+                : ''
             }`}
           />
         </div>
-        {errors.email && <p className="mt-1.5 text-xs text-danger-500">{errors.email.message}</p>}
+        {errors.email && (
+          <p className="mt-2 text-xs font-medium text-danger-500">{errors.email.message}</p>
+        )}
       </div>
 
       {/* Password Field */}
@@ -99,16 +101,13 @@ export default function LoginForm() {
 
       {/* Remember & Forgot */}
       <div className="flex items-center justify-between">
-        <label className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            className="h-4 w-4 rounded border-surface-300 text-primary-500 focus:ring-primary-500 dark:border-surface-600"
-          />
-          <span className="text-sm text-surface-600 dark:text-surface-400">Remember me</span>
+        <label className="flex items-center gap-2.5 cursor-pointer">
+          <input type="checkbox" className="checkbox-custom h-[16px] w-[16px] rounded-[6px]" />
+          <span className="text-sm text-surface-600">Remember me</span>
         </label>
         <Link
           href="/forgot-password"
-          className="text-sm font-medium text-primary-500 hover:text-primary-600 transition-colors"
+          className="text-sm font-semibold text-primary-600 hover:text-primary-700 transition-colors"
         >
           Forgot password?
         </Link>
@@ -118,7 +117,7 @@ export default function LoginForm() {
       <button
         type="submit"
         disabled={isLoading}
-        className="flex w-full justify-center rounded-xl bg-gradient-to-r from-primary-500 to-primary-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary-500/25 transition-all hover:from-primary-600 hover:to-primary-700 hover:shadow-xl hover:shadow-primary-500/30 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:focus:ring-offset-surface-900"
+        className="btn-primary flex w-full items-center justify-center text-sm"
       >
         {isLoading ? (
           <>
@@ -133,10 +132,10 @@ export default function LoginForm() {
       {/* Divider */}
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-surface-200 dark:border-surface-700" />
+          <div className="w-full border-t border-surface-200" />
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="bg-white px-3 text-surface-400 dark:bg-surface-900">
+          <span className="bg-white px-3 text-surface-500 dark:bg-surface-900 dark:text-surface-400 font-medium">
             or continue with
           </span>
         </div>
@@ -146,7 +145,7 @@ export default function LoginForm() {
       <div className="grid grid-cols-2 gap-3">
         <button
           type="button"
-          className="flex items-center justify-center gap-2 rounded-xl border border-surface-200 bg-white px-4 py-2.5 text-sm font-medium text-surface-700 transition-all hover:bg-surface-50 hover:border-surface-300 dark:border-surface-700 dark:bg-surface-800 dark:text-surface-300 dark:hover:bg-surface-700"
+          className="btn-secondary flex items-center justify-center gap-2.5 text-sm py-3"
         >
           <svg className="h-5 w-5" viewBox="0 0 24 24">
             <path
@@ -170,7 +169,7 @@ export default function LoginForm() {
         </button>
         <button
           type="button"
-          className="flex items-center justify-center gap-2 rounded-xl border border-surface-200 bg-white px-4 py-2.5 text-sm font-medium text-surface-700 transition-all hover:bg-surface-50 hover:border-surface-300 dark:border-surface-700 dark:bg-surface-800 dark:text-surface-300 dark:hover:bg-surface-700"
+          className="btn-secondary flex items-center justify-center gap-2.5 text-sm py-3"
         >
           <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
             <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />

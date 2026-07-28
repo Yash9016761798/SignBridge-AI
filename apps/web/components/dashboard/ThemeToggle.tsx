@@ -1,26 +1,25 @@
 'use client';
 
 import React from 'react';
-import { Sun, Moon, Monitor } from 'lucide-react';
+import { Sun, Moon } from 'lucide-react';
 import { useTheme } from '@/providers/ThemeProvider';
 import { motion } from 'framer-motion';
 
 export default function ThemeToggle() {
   const { theme, setTheme } = useTheme();
 
-  const options: { value: typeof theme; icon: React.ElementType; label: string }[] = [
+  const options: { value: 'light' | 'dark'; icon: React.ElementType; label: string }[] = [
     { value: 'light', icon: Sun, label: 'Light' },
     { value: 'dark', icon: Moon, label: 'Dark' },
-    { value: 'system', icon: Monitor, label: 'System' },
   ];
 
   return (
-    <div className="flex items-center gap-0.5 rounded-xl border border-surface-200 bg-surface-50 p-1 dark:border-surface-700 dark:bg-surface-800">
+    <div className="flex items-center gap-0.5 rounded-[14px] border border-surface-200 bg-surface-50 p-1 dark:border-surface-700 dark:bg-surface-800">
       {options.map((opt) => (
         <button
           key={opt.value}
           onClick={() => setTheme(opt.value)}
-          className={`relative flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors ${
+          className={`relative flex items-center gap-1.5 rounded-[10px] px-2.5 py-1.5 text-xs font-medium transition-colors ${
             theme === opt.value
               ? 'text-surface-900 dark:text-white'
               : 'text-surface-400 hover:text-surface-600 dark:text-surface-500 dark:hover:text-surface-300'
@@ -30,7 +29,7 @@ export default function ThemeToggle() {
           {theme === opt.value && (
             <motion.div
               layoutId="theme-toggle"
-              className="absolute inset-0 rounded-lg bg-white shadow-sm dark:bg-surface-700"
+              className="absolute inset-0 rounded-[10px] bg-white shadow-sm dark:bg-surface-700"
               transition={{ type: 'spring', bounce: 0.2, duration: 0.4 }}
             />
           )}
