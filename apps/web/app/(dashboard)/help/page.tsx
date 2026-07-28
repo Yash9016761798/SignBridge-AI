@@ -109,9 +109,11 @@ export default function HelpPage() {
                   className="rounded-[16px] border border-surface-200 dark:border-surface-700"
                 >
                   <button
+                    key={i}
                     onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                    className="flex w-full items-center justify-between p-4 text-left"
+                    className="flex w-full items-center justify-between min-h-[44px] p-4 text-left"
                     aria-expanded={openFaq === i}
+                    aria-controls={`faq-answer-${i}`}
                   >
                     <span className="text-sm font-semibold text-surface-900 dark:text-white">
                       {faq.question}
@@ -120,13 +122,16 @@ export default function HelpPage() {
                       className={`h-4 w-4 flex-shrink-0 text-surface-400 transition-transform ${
                         openFaq === i ? 'rotate-180' : ''
                       }`}
+                      aria-hidden="true"
                     />
                   </button>
                   {openFaq === i && (
                     <motion.div
+                      id={`faq-answer-${i}`}
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: 'auto', opacity: 1 }}
                       className="overflow-hidden"
+                      role="region"
                     >
                       <p className="px-4 pb-4 text-sm text-surface-600 dark:text-surface-400">
                         {faq.answer}
@@ -170,9 +175,9 @@ export default function HelpPage() {
                       <button
                         key={type}
                         onClick={() => setFeedbackType(type)}
-                        className={`rounded-[12px] px-3 py-1.5 text-xs font-medium transition-colors ${
+                        className={`min-h-[44px] rounded-[12px] px-3 py-1.5 text-xs font-medium transition-colors ${
                           feedbackType === type
-                            ? 'bg-gradient-brand-soft text-primary-700 dark:text-primary-400'
+                            ? 'bg-info-100 text-info-700 dark:bg-info-500/15 dark:text-info-400'
                             : 'bg-surface-100 text-surface-600 hover:bg-surface-200 dark:bg-surface-800 dark:text-surface-400 dark:hover:bg-surface-700'
                         }`}
                       >
@@ -200,7 +205,7 @@ export default function HelpPage() {
                 <button
                   onClick={handleSendFeedback}
                   disabled={sending || !feedback.trim()}
-                  className="btn-primary inline-flex items-center gap-2 text-sm disabled:opacity-50"
+                  className="btn-sky inline-flex items-center gap-2 text-sm disabled:opacity-50"
                 >
                   {sending ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -230,7 +235,7 @@ export default function HelpPage() {
                   href={link.href}
                   className="group flex items-center gap-3 rounded-[14px] p-3 transition-colors hover:bg-surface-50 dark:hover:bg-surface-800"
                 >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-surface-100 text-surface-500 transition-colors group-hover:bg-gradient-brand-soft group-hover:text-primary-600 dark:bg-surface-800 dark:text-surface-400">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-surface-100 text-surface-500 transition-colors group-hover:bg-info-50 group-hover:text-info-600 dark:bg-surface-800 dark:text-surface-400 dark:group-hover:bg-info-500/10 dark:group-hover:text-info-400">
                     <link.icon className="h-5 w-5" />
                   </div>
                   <div className="flex-1">
@@ -284,7 +289,7 @@ export default function HelpPage() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            className="rounded-card bg-gradient-brand p-6 relative overflow-hidden"
+            className="rounded-card bg-info-500 p-6 relative overflow-hidden"
           >
             <div className="absolute -right-4 -top-4 h-16 w-16 rounded-full bg-white/10 blur-xl" />
             <div className="relative z-10">

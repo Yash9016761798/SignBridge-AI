@@ -81,16 +81,21 @@ export default function TranslationPage() {
           className="space-y-4"
         >
           <div className="rounded-card bg-white p-6 shadow-card dark:bg-surface-900">
-            <label className="mb-3 block text-sm font-bold text-surface-900 dark:text-white">
+            <label
+              htmlFor="translation-input"
+              className="mb-3 block text-sm font-bold text-surface-900 dark:text-white"
+            >
               English Text
             </label>
             <textarea
+              id="translation-input"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Type text to translate to ISL..."
               rows={6}
               className="w-full resize-none input-field text-sm"
+              aria-describedby="translation-note"
             />
             <div className="mt-3 flex items-center justify-between">
               <span className="text-xs text-surface-500 font-medium">{inputText.length}/5000</span>
@@ -109,7 +114,10 @@ export default function TranslationPage() {
             </div>
           </div>
 
-          <div className="rounded-[16px] bg-surface-50 p-4 dark:bg-surface-800/50">
+          <div
+            className="rounded-[16px] bg-surface-50 p-4 dark:bg-surface-800/50"
+            id="translation-note"
+          >
             <p className="text-xs text-surface-500 font-medium">
               <strong>Note:</strong> Translation connects to the SignBridge AI service. When the
               full backend is unavailable, a demo response is shown.
@@ -132,8 +140,9 @@ export default function TranslationPage() {
                 </label>
                 <button
                   onClick={handleCopy}
-                  className="rounded-[12px] p-2 text-surface-500 transition-colors hover:bg-surface-100 hover:text-surface-700 dark:text-surface-400 dark:hover:bg-surface-800"
-                  title="Copy"
+                  className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-[12px] p-2 text-surface-500 transition-colors hover:bg-surface-100 hover:text-surface-700 dark:text-surface-400 dark:hover:bg-surface-800"
+                  title="Copy translation"
+                  aria-label="Copy translation to clipboard"
                 >
                   {copied ? (
                     <Check className="h-4 w-4 text-success-500" />
@@ -163,7 +172,7 @@ export default function TranslationPage() {
                     {result.translation.signs.map((sign, i) => (
                       <div
                         key={i}
-                        className="rounded-[14px] border border-surface-200 bg-surface-50 px-4 py-3 text-center transition-all hover:border-primary-200 hover:bg-gradient-brand-soft dark:border-surface-700 dark:bg-surface-800"
+                        className="rounded-[14px] border border-surface-200 bg-surface-50 px-4 py-3 text-center transition-all hover:border-info-200 hover:bg-gradient-sky-soft dark:border-surface-700 dark:bg-surface-800"
                       >
                         <p className="text-sm font-bold text-surface-900 dark:text-white">
                           {sign.word}
@@ -177,8 +186,8 @@ export default function TranslationPage() {
             </div>
           ) : (
             <div className="flex min-h-[400px] flex-col items-center justify-center rounded-card border-2 border-dashed border-surface-200 bg-white p-8 text-center dark:border-surface-700 dark:bg-surface-900">
-              <div className="flex h-16 w-16 items-center justify-center rounded-[18px] bg-gradient-brand-soft">
-                <Languages className="h-8 w-8 text-primary-500" />
+              <div className="flex h-16 w-16 items-center justify-center rounded-[18px] bg-gradient-sky-soft">
+                <Languages className="h-8 w-8 text-info-500" />
               </div>
               <h3 className="mt-4 text-lg font-bold text-surface-900 dark:text-white">
                 Translation Output

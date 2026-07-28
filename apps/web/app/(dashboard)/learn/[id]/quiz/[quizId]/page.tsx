@@ -17,7 +17,8 @@ export default function QuizPage({ params }: { params: Promise<{ id: string; qui
   const [startTime] = useState(Date.now());
 
   useEffect(() => {
-    learningApi.getQuizById(quizId)
+    learningApi
+      .getQuizById(quizId)
       .then(setQuiz)
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -44,7 +45,9 @@ export default function QuizPage({ params }: { params: Promise<{ id: string; qui
     return (
       <div className="space-y-6">
         <SkeletonLoader className="h-8 w-48" />
-        {Array.from({ length: 3 }).map((_, i) => <SkeletonLoader key={i} className="h-40 rounded-xl" />)}
+        {Array.from({ length: 3 }).map((_, i) => (
+          <SkeletonLoader key={i} className="h-40 rounded-card" />
+        ))}
       </div>
     );
   }
@@ -52,8 +55,10 @@ export default function QuizPage({ params }: { params: Promise<{ id: string; qui
   if (!quiz) {
     return (
       <div className="flex flex-col items-center justify-center py-24">
-        <h2 className="text-xl font-semibold text-gray-900">Quiz not found</h2>
-        <Link href={`/learn/${id}`} className="mt-6 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700">Back to Course</Link>
+        <h2 className="text-xl font-semibold text-surface-900 dark:text-white">Quiz not found</h2>
+        <Link href={`/learn/${id}`} className="mt-6 btn-mint text-sm">
+          Back to Course
+        </Link>
       </div>
     );
   }
@@ -61,31 +66,43 @@ export default function QuizPage({ params }: { params: Promise<{ id: string; qui
   if (result) {
     return (
       <div className="space-y-6">
-        <Link href={`/learn/${id}`} className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700">
+        <Link
+          href={`/learn/${id}`}
+          className="inline-flex items-center gap-2 text-sm text-surface-500 hover:text-surface-700 dark:hover:text-surface-300 transition-colors"
+        >
           <ArrowLeft className="h-4 w-4" /> Back to Course
         </Link>
-        <div className="rounded-xl border border-gray-200 bg-white p-8 text-center">
+        <div className="rounded-card border border-surface-200 bg-white p-8 text-center dark:border-surface-700 dark:bg-surface-900">
           {result.passed ? (
-            <CheckCircle className="mx-auto h-16 w-16 text-green-500" />
+            <CheckCircle className="mx-auto h-16 w-16 text-success-500" />
           ) : (
-            <XCircle className="mx-auto h-16 w-16 text-red-500" />
+            <XCircle className="mx-auto h-16 w-16 text-danger-500" />
           )}
-          <h1 className="mt-4 text-2xl font-bold text-gray-900">
+          <h1 className="mt-4 text-2xl font-bold text-surface-900 dark:text-white">
             {result.passed ? 'Congratulations!' : 'Keep Practicing!'}
           </h1>
-          <p className="mt-2 text-gray-600">
-            You scored <span className="font-semibold">{result.score}%</span> ({result.correctAnswers}/{result.totalQuestions} correct)
+          <p className="mt-2 text-surface-600 dark:text-surface-400">
+            You scored <span className="font-semibold">{result.score}%</span> (
+            {result.correctAnswers}/{result.totalQuestions} correct)
           </p>
-          <p className="mt-1 text-sm text-gray-500">Passing score: {result.passingScore}%</p>
+          <p className="mt-1 text-sm text-surface-500">Passing score: {result.passingScore}%</p>
           {result.timeTaken && (
-            <p className="mt-1 text-sm text-gray-500">Time: {Math.floor(result.timeTaken / 60)}m {result.timeTaken % 60}s</p>
+            <p className="mt-1 text-sm text-surface-500">
+              Time: {Math.floor(result.timeTaken / 60)}m {result.timeTaken % 60}s
+            </p>
           )}
           <div className="mt-8 flex justify-center gap-3">
-            <Link href={`/learn/${id}`} className="rounded-lg bg-primary-600 px-6 py-2.5 text-sm font-medium text-white hover:bg-primary-700">
+            <Link href={`/learn/${id}`} className="btn-mint text-sm px-6 py-2.5">
               Back to Course
             </Link>
             {!result.passed && (
-              <button onClick={() => { setResult(null); setAnswers({}); }} className="rounded-lg border border-gray-300 px-6 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50">
+              <button
+                onClick={() => {
+                  setResult(null);
+                  setAnswers({});
+                }}
+                className="btn-secondary text-sm px-6 py-2.5"
+              >
                 Try Again
               </button>
             )}
@@ -97,15 +114,25 @@ export default function QuizPage({ params }: { params: Promise<{ id: string; qui
 
   return (
     <div className="space-y-6">
-      <Link href={`/learn/${id}`} className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700">
+      <Link
+        href={`/learn/${id}`}
+        className="inline-flex items-center gap-2 text-sm text-surface-500 hover:text-surface-700 dark:hover:text-surface-300 transition-colors"
+      >
         <ArrowLeft className="h-4 w-4" /> Back to Course
       </Link>
 
-      <div className="rounded-xl border border-gray-200 bg-white p-6">
-        <h1 className="text-2xl font-bold text-gray-900">{quiz.title}</h1>
-        {quiz.description && <p className="mt-2 text-gray-600">{quiz.description}</p>}
-        <div className="mt-3 flex items-center gap-4 text-sm text-gray-500">
-          {quiz.timeLimit && <span className="flex items-center gap-1"><Clock className="h-4 w-4" />{quiz.timeLimit} min</span>}
+      <div className="rounded-card border border-surface-200 bg-white p-6 dark:border-surface-700 dark:bg-surface-900">
+        <h1 className="text-2xl font-bold text-surface-900 dark:text-white">{quiz.title}</h1>
+        {quiz.description && (
+          <p className="mt-2 text-surface-600 dark:text-surface-400">{quiz.description}</p>
+        )}
+        <div className="mt-3 flex items-center gap-4 text-sm text-surface-500">
+          {quiz.timeLimit && (
+            <span className="flex items-center gap-1">
+              <Clock className="h-4 w-4" />
+              {quiz.timeLimit} min
+            </span>
+          )}
           <span>{quiz.questions.length} questions</span>
           <span>Pass: {quiz.passingScore}%</span>
         </div>
@@ -113,19 +140,22 @@ export default function QuizPage({ params }: { params: Promise<{ id: string; qui
 
       <div className="space-y-4">
         {quiz.questions.map((question, qIdx) => (
-          <div key={question.id} className="rounded-xl border border-gray-200 bg-white p-6">
-            <p className="text-sm font-medium text-gray-900">
-              <span className="text-primary-600">Q{qIdx + 1}.</span> {question.text}
+          <div
+            key={question.id}
+            className="rounded-card border border-surface-200 bg-white p-6 dark:border-surface-700 dark:bg-surface-900"
+          >
+            <p className="text-sm font-medium text-surface-900 dark:text-white">
+              <span className="text-success-600">Q{qIdx + 1}.</span> {question.text}
             </p>
             <div className="mt-4 space-y-2">
               {question.answerOptions.map((option) => (
                 <button
                   key={option.id}
                   onClick={() => handleAnswer(question.id, option.id)}
-                  className={`w-full rounded-lg border px-4 py-3 text-left text-sm transition-colors ${
+                  className={`w-full rounded-[14px] border px-4 py-3 text-left text-sm transition-colors ${
                     answers[question.id] === option.id
-                      ? 'border-primary-500 bg-primary-50 text-primary-700'
-                      : 'border-gray-200 text-gray-700 hover:bg-gray-50'
+                      ? 'border-success-500 bg-success-50 text-success-700 dark:bg-success-500/10 dark:text-success-400'
+                      : 'border-surface-200 text-surface-700 hover:bg-surface-50 dark:border-surface-700 dark:text-surface-300 dark:hover:bg-surface-800'
                   }`}
                 >
                   {option.text}
@@ -140,7 +170,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string; qui
         <button
           onClick={handleSubmit}
           disabled={submitting || Object.keys(answers).length < quiz.questions.length}
-          className="rounded-lg bg-primary-600 px-8 py-3 text-sm font-medium text-white hover:bg-primary-700 disabled:opacity-50"
+          className="btn-mint px-8 py-3 text-sm disabled:opacity-50"
         >
           {submitting ? 'Submitting...' : 'Submit Quiz'}
         </button>

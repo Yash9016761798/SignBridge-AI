@@ -98,7 +98,8 @@ export default function DictionaryPage() {
           <select
             value={selectedDifficulty}
             onChange={(e) => setSelectedDifficulty(e.target.value as SignDifficulty | '')}
-            className="input-field text-sm"
+            className="input-field text-sm min-h-[44px]"
+            aria-label="Filter by difficulty"
           >
             <option value="">All Difficulties</option>
             <option value="BEGINNER">Beginner</option>
@@ -108,15 +109,17 @@ export default function DictionaryPage() {
           <div className="flex overflow-hidden rounded-[14px] border border-surface-200 dark:border-surface-700">
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-2.5 transition-colors ${viewMode === 'grid' ? 'gradient-bg text-surface-900' : 'bg-white text-surface-500 hover:bg-surface-50 dark:bg-surface-800 dark:hover:bg-surface-700'}`}
+              className={`min-h-[44px] min-w-[44px] flex items-center justify-center p-2.5 transition-colors ${viewMode === 'grid' ? 'bg-info-500 text-surface-900' : 'bg-white text-surface-500 hover:bg-surface-50 dark:bg-surface-800 dark:hover:bg-surface-700'}`}
               aria-label="Grid view"
+              aria-pressed={viewMode === 'grid'}
             >
               <LayoutGrid className="h-4 w-4" />
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`p-2.5 transition-colors ${viewMode === 'list' ? 'gradient-bg text-surface-900' : 'bg-white text-surface-500 hover:bg-surface-50 dark:bg-surface-800 dark:hover:bg-surface-700'}`}
+              className={`min-h-[44px] min-w-[44px] flex items-center justify-center p-2.5 transition-colors ${viewMode === 'list' ? 'bg-info-500 text-surface-900' : 'bg-white text-surface-500 hover:bg-surface-50 dark:bg-surface-800 dark:hover:bg-surface-700'}`}
               aria-label="List view"
+              aria-pressed={viewMode === 'list'}
             >
               <List className="h-4 w-4" />
             </button>

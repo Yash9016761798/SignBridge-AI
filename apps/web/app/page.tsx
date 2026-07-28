@@ -86,7 +86,7 @@ export default function Home() {
               <>
                 <Link
                   href="/login"
-                  className="text-sm font-semibold text-surface-600 hover:text-surface-900 transition-colors px-4 py-2.5"
+                  className="text-sm font-semibold text-surface-600 hover:text-surface-900 transition-colors px-4 py-2.5 min-h-[44px] flex items-center"
                 >
                   Sign in
                 </Link>
@@ -297,13 +297,22 @@ export default function Home() {
               <span className="text-sm font-bold text-surface-900">SignBridge AI</span>
             </div>
             <div className="flex items-center gap-6 text-sm text-surface-500">
-              <Link href="/login" className="hover:text-surface-900 transition-colors">
+              <Link
+                href="/login"
+                className="min-h-[44px] flex items-center hover:text-surface-900 transition-colors"
+              >
                 Sign in
               </Link>
-              <Link href="/register" className="hover:text-surface-900 transition-colors">
+              <Link
+                href="/register"
+                className="min-h-[44px] flex items-center hover:text-surface-900 transition-colors"
+              >
                 Register
               </Link>
-              <Link href="/learn" className="hover:text-surface-900 transition-colors">
+              <Link
+                href="/learn"
+                className="min-h-[44px] flex items-center hover:text-surface-900 transition-colors"
+              >
                 Features
               </Link>
             </div>

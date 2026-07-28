@@ -104,6 +104,9 @@ const config: Config = {
         glow: '0 0 30px rgba(233, 168, 201, 0.2)',
         'glow-lg': '0 0 50px rgba(233, 168, 201, 0.3)',
         'glow-yellow': '0 0 30px rgba(246, 211, 101, 0.2)',
+        'glow-green': '0 0 30px rgba(184, 230, 195, 0.25)',
+        'glow-blue': '0 0 30px rgba(169, 214, 245, 0.25)',
+        'glow-amber': '0 0 30px rgba(247, 200, 115, 0.25)',
         soft: '0 2px 20px -4px rgba(0, 0, 0, 0.05), 0 8px 16px -4px rgba(0, 0, 0, 0.03)',
         'soft-lg': '0 8px 40px -8px rgba(0, 0, 0, 0.08)',
         card: '0 1px 3px rgba(0,0,0,0.02), 0 4px 12px rgba(0,0,0,0.03)',
@@ -181,6 +184,25 @@ const config: Config = {
           'linear-gradient(135deg, rgba(233,168,201,0.08) 0%, rgba(246,211,101,0.08) 100%)',
         'gradient-brand-medium':
           'linear-gradient(135deg, rgba(233,168,201,0.15) 0%, rgba(246,211,101,0.15) 100%)',
+        /* Module-specific gradients */
+        'gradient-mint': 'linear-gradient(135deg, #B8E6C3 0%, #F6D365 100%)',
+        'gradient-mint-soft':
+          'linear-gradient(135deg, rgba(184,230,195,0.10) 0%, rgba(246,211,101,0.08) 100%)',
+        'gradient-mint-medium':
+          'linear-gradient(135deg, rgba(184,230,195,0.18) 0%, rgba(246,211,101,0.12) 100%)',
+        'gradient-amber': 'linear-gradient(135deg, #F7C873 0%, #E9A8C9 100%)',
+        'gradient-amber-soft':
+          'linear-gradient(135deg, rgba(247,200,115,0.10) 0%, rgba(233,168,201,0.08) 100%)',
+        'gradient-amber-medium':
+          'linear-gradient(135deg, rgba(247,200,115,0.18) 0%, rgba(233,168,201,0.12) 100%)',
+        'gradient-sky': 'linear-gradient(135deg, #A9D6F5 0%, #E9A8C9 100%)',
+        'gradient-sky-soft':
+          'linear-gradient(135deg, rgba(169,214,245,0.10) 0%, rgba(233,168,201,0.06) 100%)',
+        'gradient-sky-medium':
+          'linear-gradient(135deg, rgba(169,214,245,0.18) 0%, rgba(233,168,201,0.10) 100%)',
+        'gradient-yellow-mint': 'linear-gradient(135deg, #F6D365 0%, #B8E6C3 100%)',
+        'gradient-yellow-mint-soft':
+          'linear-gradient(135deg, rgba(246,211,101,0.10) 0%, rgba(184,230,195,0.08) 100%)',
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
       },

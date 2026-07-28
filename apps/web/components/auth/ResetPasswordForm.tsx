@@ -9,13 +9,15 @@ import { Loader2, CheckCircle } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth-store';
 import PasswordField from './PasswordField';
 
-const resetPasswordSchema = z.object({
-  password: z.string().min(8, 'Password must be at least 8 characters'),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ['confirmPassword'],
-});
+const resetPasswordSchema = z
+  .object({
+    password: z.string().min(8, 'Password must be at least 8 characters'),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ['confirmPassword'],
+  });
 
 type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
 
@@ -53,7 +55,7 @@ export default function ResetPasswordForm() {
   if (!token) {
     return (
       <div className="text-center">
-        <p className="text-sm text-red-600">
+        <p className="text-sm text-danger-600 dark:text-danger-400">
           Invalid or missing reset token. Please request a new password reset link.
         </p>
       </div>
@@ -63,9 +65,11 @@ export default function ResetPasswordForm() {
   if (showSuccess) {
     return (
       <div className="text-center">
-        <CheckCircle className="mx-auto h-12 w-12 text-green-500" />
-        <h3 className="mt-4 text-lg font-semibold text-gray-900">Password reset successful</h3>
-        <p className="mt-2 text-sm text-gray-600">
+        <CheckCircle className="mx-auto h-12 w-12 text-success-500" />
+        <h3 className="mt-4 text-lg font-semibold text-surface-900 dark:text-white">
+          Password reset successful
+        </h3>
+        <p className="mt-2 text-sm text-surface-600 dark:text-surface-400">
           Your password has been successfully reset. Redirecting to login...
         </p>
       </div>
@@ -75,7 +79,7 @@ export default function ResetPasswordForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       {error && (
-        <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
+        <div className="rounded-[14px] bg-danger-50 p-3 text-sm text-danger-600 dark:bg-danger-500/10 dark:text-danger-400">
           {error}
         </div>
       )}
@@ -101,7 +105,7 @@ export default function ResetPasswordForm() {
       <button
         type="submit"
         disabled={isLoading}
-        className="flex w-full justify-center rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        className="flex w-full justify-center rounded-[14px] bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {isLoading ? (
           <>

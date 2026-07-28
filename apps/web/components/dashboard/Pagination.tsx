@@ -20,7 +20,7 @@ export default function Pagination({
 
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
   const visiblePages = pages.filter(
-    (p) => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 2
+    (p) => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 2,
   );
 
   return (
@@ -28,7 +28,7 @@ export default function Pagination({
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+        className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-[10px] p-2 text-surface-500 transition-colors hover:bg-surface-100 hover:text-surface-700 disabled:cursor-not-allowed disabled:opacity-50 dark:hover:bg-surface-800 dark:hover:text-surface-300"
         aria-label="Previous page"
       >
         <ChevronLeft className="h-4 w-4" />
@@ -41,16 +41,19 @@ export default function Pagination({
         return (
           <React.Fragment key={page}>
             {showEllipsis && (
-              <span className="px-2 text-sm text-gray-400">...</span>
+              <span className="px-1 text-sm text-surface-400 hidden sm:inline" aria-hidden="true">
+                ...
+              </span>
             )}
             <button
               onClick={() => onPageChange(page)}
-              className={`min-w-[36px] rounded-lg px-3 py-1.5 text-sm font-medium ${
+              className={`min-h-[44px] min-w-[44px] rounded-[10px] px-3 py-1.5 text-sm font-medium transition-colors ${
                 currentPage === page
-                  ? 'bg-primary-600 text-white'
-                  : 'text-gray-700 hover:bg-gray-100'
+                  ? 'bg-primary-500 text-white'
+                  : 'text-surface-600 hover:bg-surface-100 dark:text-surface-400 dark:hover:bg-surface-800'
               }`}
               aria-current={currentPage === page ? 'page' : undefined}
+              aria-label={`Page ${page}`}
             >
               {page}
             </button>
@@ -61,7 +64,7 @@ export default function Pagination({
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+        className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-[10px] p-2 text-surface-500 transition-colors hover:bg-surface-100 hover:text-surface-700 disabled:cursor-not-allowed disabled:opacity-50 dark:hover:bg-surface-800 dark:hover:text-surface-300"
         aria-label="Next page"
       >
         <ChevronRight className="h-4 w-4" />

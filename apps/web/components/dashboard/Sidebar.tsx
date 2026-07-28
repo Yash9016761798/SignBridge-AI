@@ -27,7 +27,7 @@ function NavItemComponent({ item, collapsed = false }: { item: NavItem; collapse
       <div>
         <button
           onClick={() => setExpanded(!expanded)}
-          className={`group flex w-full items-center gap-3 rounded-[14px] px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
+          className={`group flex w-full items-center gap-3 rounded-[14px] px-3 py-2.5 min-h-[44px] text-sm font-medium transition-all duration-200 ${
             isActive
               ? 'bg-gradient-brand-soft text-white'
               : 'text-surface-400 hover:bg-white/[0.06] hover:text-surface-200'
@@ -72,7 +72,7 @@ function NavItemComponent({ item, collapsed = false }: { item: NavItem; collapse
   return (
     <Link
       href={item.href}
-      className={`group relative flex items-center gap-3 rounded-[14px] px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
+      className={`group relative flex items-center gap-3 rounded-[14px] px-3 py-2.5 min-h-[44px] text-sm font-medium transition-all duration-200 ${
         isActive
           ? 'bg-gradient-brand-soft text-white'
           : 'text-surface-400 hover:bg-white/[0.06] hover:text-surface-200'
@@ -168,7 +168,7 @@ export default function Sidebar({ className = '' }: SidebarProps) {
         )}
         <button
           onClick={toggleSidebar}
-          className={`rounded-[10px] p-2 text-surface-400 transition-colors hover:bg-white/[0.06] hover:text-surface-300 ${
+          className={`min-h-[44px] min-w-[44px] flex items-center justify-center rounded-[10px] p-2 text-surface-400 transition-colors hover:bg-white/[0.06] hover:text-surface-300 ${
             sidebarCollapsed ? 'mx-auto mt-2' : ''
           }`}
           aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
@@ -191,7 +191,7 @@ export default function Sidebar({ className = '' }: SidebarProps) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="flex items-center justify-center rounded-[14px] p-2.5 text-surface-400 transition-all hover:bg-white/[0.06] hover:text-surface-200"
+                  className="flex items-center justify-center rounded-[14px] min-h-[44px] min-w-[44px] p-2.5 text-surface-400 transition-all hover:bg-white/[0.06] hover:text-surface-200"
                   aria-label={item.label}
                   title={item.label}
                 >

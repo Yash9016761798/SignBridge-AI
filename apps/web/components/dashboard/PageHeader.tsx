@@ -23,11 +23,11 @@ export default function PageHeader({
     <motion.div
       initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`flex items-start justify-between ${className}`}
+      className={`flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between ${className}`}
     >
       <div className="flex items-center gap-4">
         {Icon && (
-          <div className="flex h-12 w-12 items-center justify-center rounded-[16px] bg-gradient-brand-soft">
+          <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-[16px] bg-gradient-brand-soft">
             <Icon className="h-6 w-6 text-primary-600" />
           </div>
         )}
@@ -38,7 +38,7 @@ export default function PageHeader({
           {description && <p className="mt-1 text-sm text-surface-500">{description}</p>}
         </div>
       </div>
-      {action}
+      {action && <div className="flex-shrink-0">{action}</div>}
     </motion.div>
   );
 }

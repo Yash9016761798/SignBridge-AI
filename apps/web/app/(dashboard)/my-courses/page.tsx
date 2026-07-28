@@ -15,7 +15,8 @@ export default function MyCoursesPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    learningApi.getMyEnrollments()
+    learningApi
+      .getMyEnrollments()
       .then(setEnrollments)
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -26,7 +27,9 @@ export default function MyCoursesPage() {
       <div className="space-y-6">
         <SkeletonLoader className="h-8 w-48" />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 3 }).map((_, i) => <SkeletonLoader key={i} className="h-48 rounded-xl" />)}
+          {Array.from({ length: 3 }).map((_, i) => (
+            <SkeletonLoader key={i} className="h-48 rounded-card" />
+          ))}
         </div>
       </div>
     );
@@ -34,15 +37,20 @@ export default function MyCoursesPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="My Courses" description="Continue learning where you left off" />
+      <PageHeader
+        title="My Courses"
+        description="Continue learning where you left off"
+        icon={BookOpen}
+      />
 
       {enrollments.length === 0 ? (
         <EmptyState
           icon={BookOpen}
           title="No courses yet"
           description="Enroll in a course to start your ISL learning journey."
+          accentColor="mint"
           action={
-            <Link href="/learn" className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700">
+            <Link href="/learn" className="btn-mint text-sm">
               Browse Courses
             </Link>
           }
@@ -50,21 +58,31 @@ export default function MyCoursesPage() {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {enrollments.map((enrollment) => (
-            <Link key={enrollment.id} href={`/learn/${enrollment.courseId}`} className="group rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all hover:shadow-md">
+            <Link
+              key={enrollment.id}
+              href={`/learn/${enrollment.courseId}`}
+              className="group rounded-card border border-surface-200 bg-white p-5 shadow-card transition-all hover:shadow-card-hover dark:border-surface-700 dark:bg-surface-900"
+            >
               <div className="flex items-start justify-between">
-                <h3 className="font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">{enrollment.course.title}</h3>
+                <h3 className="font-semibold text-surface-900 group-hover:text-success-600 transition-colors dark:text-white dark:group-hover:text-success-500">
+                  {enrollment.course.title}
+                </h3>
                 <DifficultyBadge difficulty={enrollment.course.difficulty} />
               </div>
-              <p className="mt-2 text-xs text-gray-500">
+              <p className="mt-2 text-xs text-surface-500">
                 Enrolled {new Date(enrollment.enrolledAt).toLocaleDateString()}
               </p>
               <div className="mt-4 flex items-center justify-between">
-                <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                  enrollment.status === 'COMPLETED' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
-                }`}>
+                <span
+                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                    enrollment.status === 'COMPLETED'
+                      ? 'bg-success-50 text-success-600 dark:bg-success-500/10 dark:text-success-500'
+                      : 'bg-info-50 text-info-600 dark:bg-info-500/10 dark:text-info-400'
+                  }`}
+                >
                   {enrollment.status}
                 </span>
-                <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-primary-500 transition-colors" />
+                <ArrowRight className="h-4 w-4 text-surface-400 group-hover:text-success-500 transition-colors" />
               </div>
             </Link>
           ))}

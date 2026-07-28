@@ -10,15 +10,19 @@ interface AlphabetFilterProps {
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
-export default function AlphabetFilter({ selectedLetter, onLetterSelect, stats = {} }: AlphabetFilterProps) {
+export default function AlphabetFilter({
+  selectedLetter,
+  onLetterSelect,
+  stats = {},
+}: AlphabetFilterProps) {
   return (
     <div className="flex flex-wrap gap-1.5">
       <button
         onClick={() => onLetterSelect('')}
-        className={`h-9 min-w-[36px] rounded-lg px-2 text-sm font-medium transition-colors ${
+        className={`h-9 min-w-[36px] rounded-[10px] px-2 text-sm font-medium transition-colors ${
           selectedLetter === ''
-            ? 'bg-primary-600 text-white'
-            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            ? 'bg-info-500 text-surface-900'
+            : 'bg-surface-100 text-surface-700 hover:bg-surface-200 dark:bg-surface-800 dark:text-surface-300 dark:hover:bg-surface-700'
         }`}
       >
         All
@@ -29,21 +33,29 @@ export default function AlphabetFilter({ selectedLetter, onLetterSelect, stats =
           <button
             key={letter}
             onClick={() => onLetterSelect(selectedLetter === letter ? '' : letter)}
-            className={`relative h-9 min-w-[36px] rounded-lg px-2 text-sm font-medium transition-colors ${
+            className={`relative h-9 min-w-[36px] rounded-[10px] px-2 text-sm font-medium transition-colors ${
               selectedLetter === letter
-                ? 'bg-primary-600 text-white'
+                ? 'bg-info-500 text-surface-900'
                 : count > 0
-                ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                : 'bg-gray-50 text-gray-300 cursor-not-allowed'
+                  ? 'bg-surface-100 text-surface-700 hover:bg-surface-200 dark:bg-surface-800 dark:text-surface-300 dark:hover:bg-surface-700'
+                  : 'bg-surface-50 text-surface-300 cursor-not-allowed dark:bg-surface-800/50 dark:text-surface-600'
             }`}
             disabled={count === 0}
-            title={count > 0 ? `${count} signs starting with ${letter}` : `No signs starting with ${letter}`}
+            title={
+              count > 0
+                ? `${count} signs starting with ${letter}`
+                : `No signs starting with ${letter}`
+            }
           >
             {letter}
             {count > 0 && (
-              <span className={`absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold ${
-                selectedLetter === letter ? 'bg-white text-primary-600' : 'bg-primary-100 text-primary-700'
-              }`}>
+              <span
+                className={`absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold ${
+                  selectedLetter === letter
+                    ? 'bg-white text-info-600'
+                    : 'bg-info-100 text-info-600 dark:bg-info-500/15 dark:text-info-400'
+                }`}
+              >
                 {count}
               </span>
             )}

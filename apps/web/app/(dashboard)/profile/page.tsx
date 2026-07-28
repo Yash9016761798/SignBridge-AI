@@ -37,15 +37,20 @@ export default function ProfilePage() {
       label: 'Courses Enrolled',
       value: '0',
       icon: BookOpen,
-      color: 'bg-gradient-brand-soft text-primary-600',
+      color: 'bg-danger-50 text-danger-500 dark:bg-danger-500/10 dark:text-danger-400',
     },
     {
       label: 'Practice Sessions',
       value: '0',
       icon: Video,
-      color: 'bg-success-50 text-success-500',
+      color: 'bg-success-50 text-success-500 dark:bg-success-500/10 dark:text-success-400',
     },
-    { label: 'Certificates', value: '0', icon: Award, color: 'bg-secondary-50 text-secondary-600' },
+    {
+      label: 'Certificates',
+      value: '0',
+      icon: Award,
+      color: 'bg-warning-50 text-warning-600 dark:bg-warning-500/10 dark:text-warning-500',
+    },
   ];
 
   const handleAvatarClick = () => {
@@ -105,7 +110,7 @@ export default function ProfilePage() {
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="btn-primary inline-flex items-center gap-2 text-sm disabled:opacity-50"
+                className="btn-danger inline-flex items-center gap-2 text-sm disabled:opacity-50"
               >
                 {saving ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -118,7 +123,7 @@ export default function ProfilePage() {
           ) : (
             <button
               onClick={() => setEditing(true)}
-              className="btn-primary inline-flex items-center gap-2 text-sm"
+              className="btn-danger inline-flex items-center gap-2 text-sm"
             >
               <User className="h-4 w-4" />
               Edit Profile
@@ -145,12 +150,12 @@ export default function ProfilePage() {
           animate={{ opacity: 1, y: 0 }}
           className="lg:col-span-1"
         >
-          <div className="rounded-card bg-white p-6 text-center shadow-card dark:bg-surface-900">
+          <div className="card-accent-pink rounded-card bg-white p-6 text-center shadow-card dark:bg-surface-900">
             {/* Avatar */}
             <div className="relative mx-auto">
               <button
                 onClick={handleAvatarClick}
-                className="group relative mx-auto flex h-24 w-24 items-center justify-center overflow-hidden rounded-full gradient-bg shadow-glow transition-all hover:shadow-lg"
+                className="group relative mx-auto flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-danger-500 shadow-glow transition-all hover:shadow-lg"
                 aria-label="Change profile picture"
               >
                 {avatarPreview ? (
@@ -181,7 +186,7 @@ export default function ProfilePage() {
             <h2 className="mt-4 text-xl font-bold text-surface-900 dark:text-white">
               {user ? `${user.firstName} ${user.lastName}` : 'User'}
             </h2>
-            <p className="mt-1 text-sm font-semibold gradient-text">{user?.role || 'LEARNER'}</p>
+            <p className="mt-1 text-sm font-semibold text-danger-500">{user?.role || 'LEARNER'}</p>
 
             {/* Info */}
             <div className="mt-6 space-y-2.5 text-left">

@@ -60,7 +60,7 @@ export default function CertificatesPage() {
           {certificates.map((cert) => (
             <div
               key={cert.id}
-              className="rounded-card border border-surface-200 bg-white p-5 shadow-card transition-shadow hover:shadow-lg dark:border-surface-700 dark:bg-surface-900"
+              className="rounded-card border border-surface-200 bg-white p-5 shadow-card transition-shadow hover:shadow-lg card-accent-yellow dark:border-surface-700 dark:bg-surface-900"
             >
               <div className="flex items-start justify-between">
                 <div className="flex h-12 w-12 items-center justify-center rounded-[14px] bg-secondary-50 dark:bg-secondary-500/10">
@@ -80,9 +80,9 @@ export default function CertificatesPage() {
                 </code>
                 <button
                   onClick={() => handleCopyCode(cert.verificationCode)}
-                  className="rounded-[10px] p-1.5 text-surface-400 transition-colors hover:bg-surface-100 hover:text-surface-600 dark:hover:bg-surface-800 dark:hover:text-surface-300"
+                  className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-[10px] p-1.5 text-surface-400 transition-colors hover:bg-surface-100 hover:text-surface-600 dark:hover:bg-surface-800 dark:hover:text-surface-300"
                   title="Copy verification code"
-                  aria-label="Copy verification code"
+                  aria-label={`Copy verification code ${cert.verificationCode}`}
                 >
                   {copied === cert.verificationCode ? (
                     <Check className="h-4 w-4 text-success-500" />

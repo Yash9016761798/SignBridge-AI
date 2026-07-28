@@ -113,7 +113,7 @@ body {
   }
 
   /* ============================================
-     GRADIENTS
+     GRADIENTS — Module-Specific
      ============================================ */
   .gradient-text {
     background: linear-gradient(135deg, #E9A8C9 0%, #F6D365 100%);
@@ -138,6 +138,86 @@ body {
     background: linear-gradient(135deg, rgba(233, 168, 201, 0.12) 0%, rgba(246, 211, 101, 0.12) 100%);
   }
 
+  /* Mint Green — Learn ISL */
+  .gradient-mint {
+    background: linear-gradient(135deg, #B8E6C3 0%, #F6D365 100%);
+  }
+
+  .gradient-mint-soft {
+    background: linear-gradient(135deg, rgba(184,230,195,0.10) 0%, rgba(246,211,101,0.08) 100%);
+  }
+
+  .dark .gradient-mint-soft {
+    background: linear-gradient(135deg, rgba(184,230,195,0.14) 0%, rgba(246,211,101,0.10) 100%);
+  }
+
+  .gradient-mint-text {
+    background: linear-gradient(135deg, #86d49a 0%, #B8E6C3 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Amber — AI Practice */
+  .gradient-amber {
+    background: linear-gradient(135deg, #F7C873 0%, #E9A8C9 100%);
+  }
+
+  .gradient-amber-soft {
+    background: linear-gradient(135deg, rgba(247,200,115,0.10) 0%, rgba(233,168,201,0.08) 100%);
+  }
+
+  .dark .gradient-amber-soft {
+    background: linear-gradient(135deg, rgba(247,200,115,0.14) 0%, rgba(233,168,201,0.10) 100%);
+  }
+
+  .gradient-amber-text {
+    background: linear-gradient(135deg, #e8b040 0%, #F7C873 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Sky Blue — Translation / Dictionary / Notifications / Help */
+  .gradient-sky {
+    background: linear-gradient(135deg, #A9D6F5 0%, #E9A8C9 100%);
+  }
+
+  .gradient-sky-soft {
+    background: linear-gradient(135deg, rgba(169,214,245,0.10) 0%, rgba(233,168,201,0.06) 100%);
+  }
+
+  .dark .gradient-sky-soft {
+    background: linear-gradient(135deg, rgba(169,214,245,0.14) 0%, rgba(233,168,201,0.08) 100%);
+  }
+
+  .gradient-sky-text {
+    background: linear-gradient(135deg, #7bbde8 0%, #A9D6F5 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Yellow-Mint — Certificates */
+  .gradient-yellow-mint {
+    background: linear-gradient(135deg, #F6D365 0%, #B8E6C3 100%);
+  }
+
+  .gradient-yellow-mint-soft {
+    background: linear-gradient(135deg, rgba(246,211,101,0.10) 0%, rgba(184,230,195,0.08) 100%);
+  }
+
+  .dark .gradient-yellow-mint-soft {
+    background: linear-gradient(135deg, rgba(246,211,101,0.14) 0%, rgba(184,230,195,0.10) 100%);
+  }
+
+  .gradient-yellow-mint-text {
+    background: linear-gradient(135deg, #d4a520 0%, #86d49a 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
   .gradient-border {
     position: relative;
     border: none;
@@ -157,7 +237,7 @@ body {
   }
 
   /* ============================================
-     BUTTONS
+     BUTTONS — Design System Compliant
      ============================================ */
   .btn-primary {
     background: linear-gradient(135deg, #E9A8C9 0%, #F6D365 100%);
@@ -215,6 +295,66 @@ body {
     color: #F5F3F0;
   }
 
+  /* Module-colored solid buttons */
+  .btn-mint {
+    background: #B8E6C3;
+    color: #1A1A1A;
+    font-weight: 600;
+    border-radius: 18px;
+    padding: 12px 28px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .btn-mint:hover {
+    background: #a3ddb0;
+    transform: scale(1.02);
+    box-shadow: 0 4px 16px -2px rgba(184, 230, 195, 0.35);
+  }
+
+  .btn-sky {
+    background: #A9D6F5;
+    color: #1A1A1A;
+    font-weight: 600;
+    border-radius: 18px;
+    padding: 12px 28px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .btn-sky:hover {
+    background: #8ec8ee;
+    transform: scale(1.02);
+    box-shadow: 0 4px 16px -2px rgba(169, 214, 245, 0.35);
+  }
+
+  .btn-amber {
+    background: #F7C873;
+    color: #1A1A1A;
+    font-weight: 600;
+    border-radius: 18px;
+    padding: 12px 28px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .btn-amber:hover {
+    background: #f0b85e;
+    transform: scale(1.02);
+    box-shadow: 0 4px 16px -2px rgba(247, 200, 115, 0.35);
+  }
+
+  .btn-danger {
+    background: #F87171;
+    color: #FFFFFF;
+    font-weight: 600;
+    border-radius: 18px;
+    padding: 12px 28px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .btn-danger:hover {
+    background: #ef4444;
+    transform: scale(1.02);
+  }
+
   /* ============================================
      CARDS
      ============================================ */
@@ -232,6 +372,27 @@ body {
 
   .dark .card-float {
     background: #1A1A1A;
+  }
+
+  /* Card accent borders — semantic per module */
+  .card-accent-mint {
+    border-left: 3px solid #B8E6C3;
+  }
+
+  .card-accent-amber {
+    border-left: 3px solid #F7C873;
+  }
+
+  .card-accent-sky {
+    border-left: 3px solid #A9D6F5;
+  }
+
+  .card-accent-pink {
+    border-left: 3px solid #E9A8C9;
+  }
+
+  .card-accent-yellow {
+    border-left: 3px solid #F6D365;
   }
 
   /* ============================================

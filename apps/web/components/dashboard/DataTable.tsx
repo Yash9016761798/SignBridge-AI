@@ -23,32 +23,43 @@ export default function DataTable<T extends Record<string, unknown>>({
   className = '',
 }: DataTableProps<T>) {
   return (
-    <div className={`overflow-x-auto rounded-xl border border-gray-200 ${className}`}>
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
+    <div
+      className={`overflow-x-auto rounded-card border border-surface-200 dark:border-surface-700 ${className}`}
+    >
+      <table className="min-w-full divide-y divide-surface-200 dark:divide-surface-700">
+        <thead className="bg-surface-50 dark:bg-surface-800">
           <tr>
             {columns.map((col) => (
               <th
                 key={col.key}
-                className={`px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600 ${col.className || ''}`}
+                className={`px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500 ${col.className || ''}`}
               >
                 {col.header}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-200 bg-white">
+        <tbody className="divide-y divide-surface-100 bg-white dark:divide-surface-800 dark:bg-surface-900">
           {data.length === 0 ? (
             <tr>
-              <td colSpan={columns.length} className="px-4 py-8 text-center text-sm text-gray-500">
+              <td
+                colSpan={columns.length}
+                className="px-4 py-8 text-center text-sm text-surface-500"
+              >
                 {emptyMessage}
               </td>
             </tr>
           ) : (
             data.map((item, i) => (
-              <tr key={i} className="hover:bg-gray-50">
+              <tr
+                key={i}
+                className="transition-colors hover:bg-surface-50 dark:hover:bg-surface-800/50"
+              >
                 {columns.map((col) => (
-                  <td key={col.key} className={`px-4 py-3 text-sm text-gray-700 ${col.className || ''}`}>
+                  <td
+                    key={col.key}
+                    className={`px-4 py-3 text-sm text-surface-700 dark:text-surface-300 ${col.className || ''}`}
+                  >
                     {col.render ? col.render(item) : String(item[col.key] ?? '')}
                   </td>
                 ))}

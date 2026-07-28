@@ -110,7 +110,7 @@ export default function NotificationsPage() {
                   className={`group flex items-start gap-4 rounded-card border p-4 shadow-card transition-all dark:bg-surface-900 ${
                     notification.read
                       ? 'border-surface-200 bg-white dark:border-surface-800'
-                      : 'border-primary-200 bg-primary-50/30 dark:border-primary-800/30 dark:bg-primary-900/10'
+                      : 'border-info-200 bg-info-50/30 dark:border-info-800/30 dark:bg-info-900/10'
                   }`}
                 >
                   <div
@@ -123,7 +123,7 @@ export default function NotificationsPage() {
                       <h4 className="text-sm font-semibold text-surface-900 dark:text-white">
                         {notification.title}
                         {!notification.read && (
-                          <span className="ml-2 inline-block h-2 w-2 rounded-full bg-primary-500" />
+                          <span className="ml-2 inline-block h-2 w-2 rounded-full bg-info-500" />
                         )}
                       </h4>
                       <span className="flex-shrink-0 text-xs text-surface-400">
@@ -138,7 +138,7 @@ export default function NotificationsPage() {
                     {!notification.read && (
                       <button
                         onClick={() => markAsRead(notification.id)}
-                        className="rounded-[8px] p-1.5 text-surface-400 transition-colors hover:bg-surface-100 hover:text-surface-600 dark:hover:bg-surface-800 dark:hover:text-surface-300"
+                        className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-[8px] p-1.5 text-surface-400 transition-colors hover:bg-surface-100 hover:text-surface-600 dark:hover:bg-surface-800 dark:hover:text-surface-300"
                         aria-label="Mark as read"
                         title="Mark as read"
                       >
@@ -147,7 +147,7 @@ export default function NotificationsPage() {
                     )}
                     <button
                       onClick={() => deleteNotification(notification.id)}
-                      className="rounded-[8px] p-1.5 text-surface-400 transition-colors hover:bg-danger-50 hover:text-danger-600 dark:hover:bg-danger-500/10 dark:hover:text-danger-400"
+                      className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-[8px] p-1.5 text-surface-400 transition-colors hover:bg-danger-50 hover:text-danger-600 dark:hover:bg-danger-500/10 dark:hover:text-danger-400"
                       aria-label="Delete notification"
                       title="Delete"
                     >

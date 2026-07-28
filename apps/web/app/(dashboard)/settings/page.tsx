@@ -59,14 +59,14 @@ export default function SettingsPage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`group flex items-center gap-3 rounded-[14px] px-4 py-3 text-left text-sm font-medium transition-all ${
+              className={`group flex items-center gap-3 rounded-[14px] px-4 py-3 min-h-[44px] text-left text-sm font-medium transition-all ${
                 activeTab === tab.id
-                  ? 'bg-gradient-brand-soft text-primary-700 shadow-sm dark:text-primary-400'
+                  ? 'bg-surface-100 text-surface-900 shadow-sm dark:bg-surface-800 dark:text-white'
                   : 'text-surface-600 hover:bg-surface-100 hover:text-surface-900 dark:text-surface-400 dark:hover:bg-surface-800 dark:hover:text-surface-200'
               }`}
             >
               <tab.icon
-                className={`h-5 w-5 ${activeTab === tab.id ? 'text-primary-500' : 'text-surface-500 group-hover:text-surface-700 dark:text-surface-400 dark:group-hover:text-surface-300'}`}
+                className={`h-5 w-5 ${activeTab === tab.id ? 'text-surface-700 dark:text-surface-300' : 'text-surface-500 group-hover:text-surface-700 dark:text-surface-400 dark:group-hover:text-surface-300'}`}
               />
               <div>
                 <div className="font-semibold">{tab.label}</div>
@@ -182,7 +182,7 @@ export default function SettingsPage() {
                       }
                       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                         notifications[key as keyof typeof notifications]
-                          ? 'gradient-bg'
+                          ? 'bg-surface-600 dark:bg-surface-400'
                           : 'bg-surface-200 dark:bg-surface-700'
                       }`}
                       role="switch"

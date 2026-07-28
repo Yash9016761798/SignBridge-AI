@@ -180,8 +180,8 @@ export default function PracticePage() {
 
               {!session && !prediction && (
                 <div className="flex min-h-[300px] flex-col items-center justify-center rounded-card border-2 border-dashed border-surface-200 bg-white p-8 text-center dark:border-surface-700 dark:bg-surface-900">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-[18px] bg-gradient-brand-soft">
-                    <Sparkles className="h-8 w-8 text-primary-500" />
+                  <div className="flex h-16 w-16 items-center justify-center rounded-[18px] bg-gradient-amber-soft">
+                    <Sparkles className="h-8 w-8 text-warning-600" />
                   </div>
                   <h3 className="mt-4 text-lg font-bold text-surface-900 dark:text-white">
                     Ready to Practice

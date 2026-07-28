@@ -62,7 +62,8 @@ export default function LearnPage() {
         <select
           value={difficulty}
           onChange={(e) => setDifficulty(e.target.value)}
-          className="input-field text-sm"
+          className="input-field text-sm min-h-[44px]"
+          aria-label="Filter by difficulty"
         >
           <option value="">All Levels</option>
           <option value="BEGINNER">Beginner</option>
@@ -97,10 +98,10 @@ export default function LearnPage() {
                 href={`/learn/${course.id}`}
                 className="group block overflow-hidden rounded-card bg-white shadow-card transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1 dark:bg-surface-900"
               >
-                <div className="relative aspect-video bg-gradient-brand-soft">
+                <div className="relative aspect-video bg-gradient-mint-soft">
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/80 shadow-lg transition-transform group-hover:scale-110">
-                      <Play className="h-6 w-6 text-primary-500 ml-0.5" />
+                      <Play className="h-6 w-6 text-success-600 ml-0.5" />
                     </div>
                   </div>
                   <div className="absolute right-3 top-3">
@@ -108,7 +109,7 @@ export default function LearnPage() {
                   </div>
                 </div>
                 <div className="p-5">
-                  <h3 className="text-base font-bold text-surface-900 group-hover:text-primary-600 transition-colors dark:text-white">
+                  <h3 className="text-base font-bold text-surface-900 group-hover:text-success-600 transition-colors dark:text-white dark:group-hover:text-success-500">
                     {course.title}
                   </h3>
                   {course.description && (

@@ -26,23 +26,37 @@ export default function ConfirmDialog({
   variant = 'danger',
 }: ConfirmDialogProps) {
   const variantStyles = {
-    danger: 'bg-red-600 hover:bg-red-700 text-white',
-    warning: 'bg-yellow-600 hover:bg-yellow-700 text-white',
-    info: 'bg-primary-600 hover:bg-primary-700 text-white',
+    danger: 'bg-danger-500 hover:bg-danger-600 text-white',
+    warning: 'bg-warning-500 hover:bg-warning-600 text-surface-900',
+    info: 'bg-info-500 hover:bg-info-600 text-surface-900',
+  };
+
+  const iconBg = {
+    danger: 'bg-danger-50 dark:bg-danger-500/10',
+    warning: 'bg-warning-50 dark:bg-warning-500/10',
+    info: 'bg-info-50 dark:bg-info-500/10',
+  };
+
+  const iconColor = {
+    danger: 'text-danger-500',
+    warning: 'text-warning-600',
+    info: 'text-info-600',
   };
 
   return (
     <GenericModal open={open} onClose={onClose} title={title}>
       <div className="flex gap-4">
-        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-red-100">
-          <AlertTriangle className="h-5 w-5 text-red-600" />
+        <div
+          className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full ${iconBg[variant]}`}
+        >
+          <AlertTriangle className={`h-5 w-5 ${iconColor[variant]}`} aria-hidden="true" />
         </div>
-        <p className="text-sm text-gray-600">{message}</p>
+        <p className="text-sm text-surface-600 dark:text-surface-400">{message}</p>
       </div>
       <div className="mt-6 flex justify-end gap-3">
         <button
           onClick={onClose}
-          className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          className="min-h-[44px] rounded-[12px] border border-surface-200 px-4 py-2 text-sm font-medium text-surface-700 transition-colors hover:bg-surface-50 dark:border-surface-700 dark:text-surface-300 dark:hover:bg-surface-800"
         >
           {cancelLabel}
         </button>
@@ -51,7 +65,7 @@ export default function ConfirmDialog({
             onConfirm();
             onClose();
           }}
-          className={`rounded-lg px-4 py-2 text-sm font-medium ${variantStyles[variant]}`}
+          className={`min-h-[44px] rounded-[12px] px-4 py-2 text-sm font-medium transition-colors ${variantStyles[variant]}`}
         >
           {confirmLabel}
         </button>

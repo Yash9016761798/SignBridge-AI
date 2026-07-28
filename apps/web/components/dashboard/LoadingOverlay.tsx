@@ -8,15 +8,18 @@ interface LoadingOverlayProps {
   className?: string;
 }
 
-export default function LoadingOverlay({ message = 'Loading...', className = '' }: LoadingOverlayProps) {
+export default function LoadingOverlay({
+  message = 'Loading...',
+  className = '',
+}: LoadingOverlayProps) {
   return (
     <div
       className={`flex flex-col items-center justify-center py-12 ${className}`}
       role="status"
       aria-label={message}
     >
-      <Loader2 className="h-8 w-8 animate-spin text-primary-600" />
-      <p className="mt-3 text-sm text-gray-600">{message}</p>
+      <Loader2 className="h-8 w-8 animate-spin text-primary-500" />
+      <p className="mt-3 text-sm text-surface-500">{message}</p>
       <span className="sr-only">{message}</span>
     </div>
   );
