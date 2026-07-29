@@ -197,12 +197,12 @@ model Course {
 }
 
 model Enrollment {
-  id          String   @id @default(uuid())
-  enrolledAt DateTime @default(now())
+  id          String    @id @default(uuid())
+  enrolledAt  DateTime  @default(now())
   completedAt DateTime?
-  status      String   @default("ACTIVE") // ACTIVE, COMPLETED, DROPPED
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  status      String    @default("ACTIVE") // ACTIVE, COMPLETED, DROPPED
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   // Foreign Keys
   userId   String

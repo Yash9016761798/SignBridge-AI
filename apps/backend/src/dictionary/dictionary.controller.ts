@@ -11,6 +11,7 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import { ApiQuery } from '@nestjs/swagger';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { DictionaryService } from './dictionary.service';
 import { CreateSignWordDto } from './dto/create-sign-word.dto';
@@ -35,7 +36,11 @@ export class DictionaryController {
   async findAllSignWords(@Query() query: QuerySignWordDto) {
     return this.dictionaryService.findAllSignWords(query);
   }
-
+  @ApiQuery({
+    name: 'userId',
+    required: false,
+    type: String,
+  })
   @Get('signs/:id')
   @ApiOperation({ summary: 'Get sign word by ID' })
   @ApiResponse({ status: 200, description: 'Sign word details' })
@@ -46,7 +51,7 @@ export class DictionaryController {
 
   @Post('signs')
   @UseGuards(FirebaseAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('firebase-auth')
   @ApiOperation({ summary: 'Create a new sign word (Admin only)' })
   @ApiResponse({ status: 201, description: 'Sign word created' })
   async createSignWord(@Body() dto: CreateSignWordDto) {
@@ -55,7 +60,7 @@ export class DictionaryController {
 
   @Put('signs/:id')
   @UseGuards(FirebaseAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('firebase-auth')
   @ApiOperation({ summary: 'Update sign word (Admin only)' })
   @ApiResponse({ status: 200, description: 'Sign word updated' })
   async updateSignWord(@Param('id') id: string, @Body() dto: UpdateSignWordDto) {
@@ -64,7 +69,7 @@ export class DictionaryController {
 
   @Delete('signs/:id')
   @UseGuards(FirebaseAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('firebase-auth')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete sign word (Admin only)' })
   @ApiResponse({ status: 204, description: 'Sign word deleted' })
@@ -92,7 +97,7 @@ export class DictionaryController {
 
   @Post('categories')
   @UseGuards(FirebaseAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('firebase-auth')
   @ApiOperation({ summary: 'Create category (Admin only)' })
   @ApiResponse({ status: 201, description: 'Category created' })
   async createCategory(@Body() dto: CreateCategoryDto) {
@@ -101,7 +106,7 @@ export class DictionaryController {
 
   @Put('categories/:id')
   @UseGuards(FirebaseAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('firebase-auth')
   @ApiOperation({ summary: 'Update category (Admin only)' })
   @ApiResponse({ status: 200, description: 'Category updated' })
   async updateCategory(@Param('id') id: string, @Body() dto: UpdateCategoryDto) {
@@ -110,7 +115,7 @@ export class DictionaryController {
 
   @Delete('categories/:id')
   @UseGuards(FirebaseAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('firebase-auth')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete category (Admin only)' })
   @ApiResponse({ status: 204, description: 'Category deleted' })
@@ -124,7 +129,7 @@ export class DictionaryController {
 
   @Post('favorites/:signId')
   @UseGuards(FirebaseAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('firebase-auth')
   @ApiOperation({ summary: 'Toggle favorite for a sign word' })
   @ApiResponse({ status: 200, description: 'Favorite toggled' })
   async toggleFavorite(@Req() req: any, @Param('signId') signId: string) {

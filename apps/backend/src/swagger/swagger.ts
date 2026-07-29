@@ -50,7 +50,7 @@ export function setupSwagger(app: INestApplication, configService: ConfigService
   SwaggerModule.setup('api/docs', app, document, {
     customSiteTitle: 'SignBridge AI API Documentation',
     customfavIcon: 'https://nestjs.com/img/logo_text.svg',
-    customJs: 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-bundle.min.js',
+    // customJs: 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-bundle.min.js',
     customCss: '.swagger-ui .topbar { display: none }',
     swaggerOptions: {
       persistAuthorization: true,

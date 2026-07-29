@@ -12,6 +12,9 @@ export class DictionaryService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findAllSignWords(query: QuerySignWordDto) {
+    this.logger.log('Incoming Query');
+    this.logger.log(query);
+
     const {
       search,
       categoryId,
@@ -23,6 +26,8 @@ export class DictionaryService {
       sortOrder = 'asc',
       userId,
     } = query;
+
+    this.logger.log(search, categoryId, difficulty, letter);
 
     const where: Record<string, unknown> = {};
 
