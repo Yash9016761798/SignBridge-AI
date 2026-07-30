@@ -8,6 +8,7 @@ import {
   MaxLength,
   ValidateNested,
   IsArray,
+  IsObject,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
@@ -93,7 +94,16 @@ export class SubmitQuizAttemptDto {
   @Min(0)
   timeTaken?: number;
 
-  @ApiProperty({ example: { q1: 'optionA', q2: 'optionC' } })
-  @IsString()
+  @ApiProperty({
+    type: 'object',
+    additionalProperties: {
+      type: 'string',
+    },
+    example: {
+      q1: 'optionA',
+      q2: 'optionC',
+    },
+  })
+  @IsObject()
   answers!: Record<string, string>;
 }

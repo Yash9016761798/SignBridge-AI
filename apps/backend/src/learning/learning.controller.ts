@@ -46,7 +46,7 @@ export class LearningController {
 
   @Post('courses')
   @UseGuards(FirebaseAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('firebase-auth')
   @ApiOperation({ summary: 'Create course (Admin/Teacher)' })
   @ApiResponse({ status: 201, description: 'Course created' })
   async createCourse(@Body() dto: CreateCourseDto) {
@@ -55,7 +55,7 @@ export class LearningController {
 
   @Put('courses/:id')
   @UseGuards(FirebaseAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('firebase-auth')
   @ApiOperation({ summary: 'Update course' })
   async updateCourse(@Param('id') id: string, @Body() dto: UpdateCourseDto) {
     return this.learningService.updateCourse(id, dto);
@@ -63,7 +63,7 @@ export class LearningController {
 
   @Delete('courses/:id')
   @UseGuards(FirebaseAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('firebase-auth')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete course' })
   async deleteCourse(@Param('id') id: string) {
@@ -76,7 +76,7 @@ export class LearningController {
 
   @Post('courses/:courseId/enroll')
   @UseGuards(FirebaseAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('firebase-auth')
   @ApiOperation({ summary: 'Enroll in a course' })
   async enrollInCourse(@Req() req: any, @Param('courseId') courseId: string) {
     return this.learningService.enrollInCourse(req.user.id, courseId);
@@ -84,7 +84,7 @@ export class LearningController {
 
   @Delete('courses/:courseId/enroll')
   @UseGuards(FirebaseAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('firebase-auth')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Unenroll from a course' })
   async unenrollFromCourse(@Req() req: any, @Param('courseId') courseId: string) {
@@ -93,7 +93,7 @@ export class LearningController {
 
   @Get('my-courses')
   @UseGuards(FirebaseAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('firebase-auth')
   @ApiOperation({ summary: 'Get enrolled courses for current user' })
   async getMyEnrollments(@Req() req: any) {
     return this.learningService.getUserEnrollments(req.user.id);
@@ -105,7 +105,7 @@ export class LearningController {
 
   @Post('modules')
   @UseGuards(FirebaseAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('firebase-auth')
   @ApiOperation({ summary: 'Create module in a course' })
   async createModule(@Body() dto: CreateModuleDto) {
     return this.learningService.createModule(dto);
@@ -113,7 +113,7 @@ export class LearningController {
 
   @Put('modules/:id')
   @UseGuards(FirebaseAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('firebase-auth')
   @ApiOperation({ summary: 'Update module' })
   async updateModule(@Param('id') id: string, @Body() dto: UpdateModuleDto) {
     return this.learningService.updateModule(id, dto);
@@ -121,7 +121,7 @@ export class LearningController {
 
   @Delete('modules/:id')
   @UseGuards(FirebaseAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('firebase-auth')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete module' })
   async deleteModule(@Param('id') id: string) {
@@ -140,7 +140,7 @@ export class LearningController {
 
   @Post('lessons')
   @UseGuards(FirebaseAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('firebase-auth')
   @ApiOperation({ summary: 'Create lesson in a module' })
   async createLesson(@Body() dto: CreateLessonDto) {
     return this.learningService.createLesson(dto);
@@ -148,7 +148,7 @@ export class LearningController {
 
   @Put('lessons/:id')
   @UseGuards(FirebaseAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('firebase-auth')
   @ApiOperation({ summary: 'Update lesson' })
   async updateLesson(@Param('id') id: string, @Body() dto: UpdateLessonDto) {
     return this.learningService.updateLesson(id, dto);
@@ -156,7 +156,7 @@ export class LearningController {
 
   @Delete('lessons/:id')
   @UseGuards(FirebaseAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('firebase-auth')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete lesson' })
   async deleteLesson(@Param('id') id: string) {
@@ -169,7 +169,7 @@ export class LearningController {
 
   @Post('progress')
   @UseGuards(FirebaseAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('firebase-auth')
   @ApiOperation({ summary: 'Update lesson progress' })
   async updateProgress(@Req() req: any, @Body() dto: UpdateProgressDto) {
     return this.learningService.updateProgress(req.user.id, dto);
@@ -177,7 +177,7 @@ export class LearningController {
 
   @Get('courses/:courseId/progress')
   @UseGuards(FirebaseAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('firebase-auth')
   @ApiOperation({ summary: 'Get course progress for current user' })
   async getCourseProgress(@Req() req: any, @Param('courseId') courseId: string) {
     return this.learningService.getUserProgress(req.user.id, courseId);
@@ -195,7 +195,7 @@ export class LearningController {
 
   @Post('quizzes')
   @UseGuards(FirebaseAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('firebase-auth')
   @ApiOperation({ summary: 'Create quiz for a course' })
   async createQuiz(@Body() dto: CreateQuizDto) {
     return this.learningService.createQuiz(dto);
@@ -203,7 +203,7 @@ export class LearningController {
 
   @Post('quizzes/attempt')
   @UseGuards(FirebaseAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('firebase-auth')
   @ApiOperation({ summary: 'Submit a quiz attempt' })
   async submitQuizAttempt(@Req() req: any, @Body() dto: SubmitQuizAttemptDto) {
     return this.learningService.submitQuizAttempt(req.user.id, dto);
@@ -211,7 +211,7 @@ export class LearningController {
 
   @Get('quizzes/:quizId/attempts')
   @UseGuards(FirebaseAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('firebase-auth')
   @ApiOperation({ summary: 'Get quiz attempts for current user' })
   async getQuizAttempts(@Req() req: any, @Param('quizId') quizId: string) {
     return this.learningService.getUserQuizAttempts(req.user.id, quizId);
@@ -223,7 +223,7 @@ export class LearningController {
 
   @Post('courses/:courseId/certificate')
   @UseGuards(FirebaseAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('firebase-auth')
   @ApiOperation({ summary: 'Issue certificate for completed course' })
   async issueCertificate(@Req() req: any, @Param('courseId') courseId: string) {
     return this.learningService.issueCertificate(req.user.id, courseId);
@@ -237,7 +237,7 @@ export class LearningController {
 
   @Get('my-certificates')
   @UseGuards(FirebaseAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('firebase-auth')
   @ApiOperation({ summary: 'Get certificates for current user' })
   async getMyCertificates(@Req() req: any) {
     return this.learningService.getUserCertificates(req.user.id);

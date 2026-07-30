@@ -40,6 +40,7 @@ export class DictionaryController {
     name: 'userId',
     required: false,
     type: String,
+    description: 'Optional user ID to determine favorite status',
   })
   @Get('signs/:id')
   @ApiOperation({ summary: 'Get sign word by ID' })

@@ -18,7 +18,7 @@ export class AiController {
 
   @Post('translation/session')
   @UseGuards(FirebaseAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('firebase-auth')
   @ApiOperation({ summary: 'Create a new translation session' })
   @ApiResponse({ status: 201, description: 'Translation session created' })
   async createTranslationSession(@Req() req: any, @Body() dto: CreateTranslationSessionDto) {
@@ -27,7 +27,7 @@ export class AiController {
 
   @Get('translation/session/:id')
   @UseGuards(FirebaseAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('firebase-auth')
   @ApiOperation({ summary: 'Get translation session with history' })
   @ApiResponse({ status: 200, description: 'Translation session details' })
   async getTranslationSession(@Param('id') id: string) {
@@ -36,7 +36,7 @@ export class AiController {
 
   @Post('translation/translate')
   @UseGuards(FirebaseAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('firebase-auth')
   @ApiOperation({ summary: 'Translate text to ISL (creates session if none provided)' })
   @ApiResponse({ status: 200, description: 'Translation result' })
   async translateText(@Req() req: any, @Body() dto: TranslateTextDto) {
@@ -45,7 +45,7 @@ export class AiController {
 
   @Get('translation/history')
   @UseGuards(FirebaseAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('firebase-auth')
   @ApiOperation({ summary: 'Get user translation history' })
   async getTranslationHistory(@Req() req: any) {
     return this.aiService.getUserTranslationHistory(req.user.id);
@@ -57,7 +57,7 @@ export class AiController {
 
   @Post('practice/session')
   @UseGuards(FirebaseAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('firebase-auth')
   @ApiOperation({ summary: 'Create a new practice session' })
   @ApiResponse({ status: 201, description: 'Practice session created' })
   async createPracticeSession(@Req() req: any, @Body() dto: CreatePracticeSessionDto) {
@@ -66,7 +66,7 @@ export class AiController {
 
   @Get('practice/session/:id')
   @UseGuards(FirebaseAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('firebase-auth')
   @ApiOperation({ summary: 'Get practice session with predictions' })
   async getPracticeSession(@Param('id') id: string) {
     return this.aiService.getPracticeSession(id);
@@ -74,7 +74,7 @@ export class AiController {
 
   @Post('practice/predict')
   @UseGuards(FirebaseAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('firebase-auth')
   @ApiOperation({ summary: 'Submit a prediction for a practice session' })
   async submitPrediction(@Req() req: any, @Body() dto: SubmitPredictionDto) {
     return this.aiService.submitPrediction(req.user.id, dto);
@@ -82,7 +82,7 @@ export class AiController {
 
   @Post('practice/session/:id/end')
   @UseGuards(FirebaseAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('firebase-auth')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'End a practice session' })
   async endPracticeSession(
@@ -94,7 +94,7 @@ export class AiController {
 
   @Get('practice/history')
   @UseGuards(FirebaseAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('firebase-auth')
   @ApiOperation({ summary: 'Get user practice history' })
   async getPracticeHistory(@Req() req: any) {
     return this.aiService.getUserPracticeHistory(req.user.id);
@@ -106,7 +106,7 @@ export class AiController {
 
   @Post('ai/predict')
   @UseGuards(FirebaseAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('firebase-auth')
   @ApiOperation({ summary: 'Make a gesture prediction (stub - mock response)' })
   @ApiResponse({ status: 200, description: 'Mock prediction result' })
   async predict(@Req() req: any, @Body() dto: PredictGestureDto) {

@@ -198,7 +198,11 @@ export class DictionaryService {
   }
 
   async toggleFavorite(userId: string, signId: string) {
+    this.logger.log('===== FAVORITE DEBUG =====');
+    this.logger.log(`User ID: ${userId}`);
+    this.logger.log(`Sign ID: ${signId}`);
     const signWord = await this.prisma.signWord.findUnique({ where: { id: signId } });
+    this.logger.log(`Sign Found: ${JSON.stringify(signWord)}`);
     if (!signWord) throw new NotFoundException('Sign word not found');
 
     const existing = await this.prisma.favoriteSign.findUnique({
