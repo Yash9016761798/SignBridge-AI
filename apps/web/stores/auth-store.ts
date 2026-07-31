@@ -5,14 +5,15 @@ import { apiClient } from '@/lib/api';
 import type { AuthState, User, LoginRequest, RegisterRequest } from '@/types/auth';
 
 function generateDemoUser(data: LoginRequest | RegisterRequest): User {
+  const isAdmin = data.email.toLowerCase().includes('admin');
   return {
-    id: 'demo-user-001',
+    id: isAdmin ? 'demo-admin-001' : 'demo-user-001',
     email: data.email,
     firstName: 'firstName' in data ? data.firstName : 'Demo',
     lastName: 'lastName' in data ? data.lastName : 'User',
     firebaseUid: 'demo-uid',
-    role: 'LEARNER',
-    roleId: 'demo-role',
+    role: isAdmin ? 'ADMIN' : 'LEARNER',
+    roleId: isAdmin ? 'demo-admin-role' : 'demo-role',
     isVerified: true,
     isActive: true,
     createdAt: new Date().toISOString(),

@@ -15,6 +15,8 @@ import {
   FileText,
   BarChart3,
   Shield,
+  Activity,
+  Brain,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -120,18 +122,19 @@ const governmentNavigation: NavGroup[] = [
 
 const adminNavigation: NavGroup[] = [
   {
-    label: 'Main',
+    label: 'Administration',
     items: [
-      { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+      { label: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
       { label: 'Users', href: '/admin/users', icon: Users },
       { label: 'Courses', href: '/admin/courses', icon: BookOpen },
-      { label: 'Organizations', href: '/admin/organizations', icon: Building2 },
+      { label: 'Dictionary', href: '/admin/dictionary', icon: BookMarked },
     ],
   },
   {
     label: 'System',
     items: [
-      { label: 'Security', href: '/admin/security', icon: Shield },
+      { label: 'AI Monitoring', href: '/admin/ai', icon: Brain },
+      { label: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
       { label: 'Settings', href: '/admin/settings', icon: Settings },
     ],
   },
