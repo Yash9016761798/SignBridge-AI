@@ -3,470 +3,599 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Brain,
-  Activity,
-  Cpu,
-  Database,
-  Shield,
-  Zap,
-  Server,
-  RefreshCw,
-  RotateCcw,
-  Trash2,
-  AlertTriangle,
-  CheckCircle2,
-  XCircle,
-  Clock,
-  ChevronDown,
-  ChevronUp,
-  Play,
-  TrendingUp,
-  BarChart3,
-  Gauge,
-  MemoryStick,
-  HardDrive,
+  Activity, AlertTriangle, CheckCircle, Database, Download, GitBranch,
+  HardDrive, Layers, Loader2, Monitor, RefreshCcw, Server, Shield,
+  BrainCircuit, Zap, Clock, TrendingUp, AlertCircle, Cpu, Wifi, Eye,
+  BarChart3, LineChart as LineChartIcon, ActivitySquare, Gauge,
+  RotateCcw, PlayCircle, Trash2, FileText, GraduationCap,
+  ChevronDown, ChevronUp, Search, ChevronLeft, ChevronRight, Info,
 } from 'lucide-react';
-import PageHeader from '@/components/dashboard/PageHeader';
-import StatCard from '@/components/dashboard/StatCard';
-import SkeletonLoader from '@/components/dashboard/SkeletonLoader';
 import { adminAiApi } from '@/lib/admin-ai-api';
 import type {
-  AiSystemHealth,
-  AiModelInfo,
-  AiRealtimeMetrics,
-  AiPredictionRecord,
-  AiErrorLog,
-  AiChartDataPoint,
-  AiServiceAction,
-  ServiceStatus,
-  ErrorSeverity,
+  AiSystemHealth, AiModelInfo, AiRealtimeMetrics,
+  AiPredictionRecord, AiErrorLog, AiChartDataPoint, AiServiceAction,
 } from '@/types/admin-ai';
+import ChartCard from '@/components/admin/charts/ChartCard';
+import BarChart from '@/components/admin/charts/BarChart';
+import LineChartComponent from '@/components/admin/charts/LineChart';
+import DonutChart from '@/components/admin/charts/DonutChart';
 
-const statusColors: Record<ServiceStatus, { bg: string; text: string; dot: string }> = {
-  healthy: { bg: 'bg-success-50 dark:bg-success-500/10', text: 'text-success-700 dark:text-success-500', dot: 'bg-success-500' },
-  warning: { bg: 'bg-warning-50 dark:bg-warning-500/10', text: 'text-warning-700 dark:text-warning-500', dot: 'bg-warning-500' },
-  offline: { bg: 'bg-surface-100 dark:bg-surface-800', text: 'text-surface-500 dark:text-surface-400', dot: 'bg-surface-400' },
-  degraded: { bg: 'bg-warning-50 dark:bg-warning-500/10', text: 'text-warning-700 dark:text-warning-500', dot: 'bg-warning-500' },
-};
-
-const severityColors: Record<ErrorSeverity, { bg: string; text: string; icon: React.ElementType }> = {
-  info: { bg: 'bg-info-50 dark:bg-info-500/10', text: 'text-info-600 dark:text-info-500', icon: CheckCircle2 },
-  warning: { bg: 'bg-warning-50 dark:bg-warning-500/10', text: 'text-warning-600 dark:text-warning-500', icon: AlertTriangle },
-  error: { bg: 'bg-danger-50 dark:bg-danger-500/10', text: 'text-danger-600 dark:text-danger-500', icon: XCircle },
-  critical: { bg: 'bg-danger-100 dark:bg-danger-500/20', text: 'text-danger-700 dark:text-danger-400', icon: XCircle },
-};
-
-const serviceIcons: Record<string, React.ElementType> = {
-  backend: Server,
-  aiService: Brain,
-  database: Database,
-  firebase: Shield,
-  model: Cpu,
-};
-
-function SimpleBarChart({ data }: { data: AiChartDataPoint[] }) {
-  const max = Math.max(...data.map((d) => d.value), 1);
-  return (
-    <div className="flex items-end gap-2 h-32">
-      {data.map((d, i) => (
-        <div key={i} className="flex flex-col items-center gap-1 flex-1 min-w-0">
-          <span className="text-2xs text-surface-500 font-medium">{Math.round(d.value)}</span>
-          <div className="w-full rounded-t-md bg-primary-400 transition-all" style={{ height: `${(d.value / max) * 100}%` }} />
-          <span className="text-2xs text-surface-400 truncate w-full text-center">{d.label}</span>
-        </div>
-      ))}
-    </div>
-  );
+function statusColor(s: string) {
+  if (s === 'healthy' || s === 'success') return 'text-[#B8E6C3]';
+  if (s === 'warning' || s === 'degraded') return 'text-[#F6D365]';
+  if (s === 'demo') return 'text-[#A9D6F5]';
+  if (s === 'offline' || s === 'error' || s === 'critical') return 'text-[#F87171]';
+  return 'text-neutral-400';
+}
+function statusBg(s: string) {
+  if (s === 'healthy' || s === 'success') return 'bg-[#B8E6C3]/10 border-[#B8E6C3]/20';
+  if (s === 'warning' || s === 'degraded') return 'bg-[#F6D365]/10 border-[#F6D365]/20';
+  if (s === 'demo') return 'bg-[#A9D6F5]/10 border-[#A9D6F5]/20';
+  if (s === 'offline' || s === 'error' || s === 'critical') return 'bg-[#F87171]/10 border-[#F87171]/20';
+  return 'bg-[#EFEFEF] border-[#EFEFEF]';
+}
+function statusIcon(s: string) {
+  if (s === 'healthy' || s === 'success') return <CheckCircle size={14} />;
+  if (s === 'warning' || s === 'degraded') return <AlertTriangle size={14} />;
+  if (s === 'demo') return <PlayCircle size={14} />;
+  if (s === 'offline' || s === 'error' || s === 'critical') return <AlertCircle size={14} />;
+  return <Loader2 size={14} className="animate-spin" />;
+}
+function severityColor(s: string) {
+  if (s === 'critical') return 'bg-red-500/10 text-red-400 border-red-500/20';
+  if (s === 'error') return 'bg-[#F87171]/10 text-[#F87171] border-[#F87171]/20';
+  if (s === 'warning') return 'bg-[#F6D365]/10 text-[#F6D365] border-[#F6D365]/20';
+  return 'bg-[#A9D6F5]/10 text-[#A9D6F5] border-[#A9D6F5]/20';
 }
 
-function ConfidenceChart({ data }: { data: AiChartDataPoint[] }) {
-  const max = Math.max(...data.map((d) => d.value), 1);
-  const colors = ['bg-danger-400', 'bg-warning-400', 'bg-sky-400', 'bg-primary-400', 'bg-success-400'];
-  return (
-    <div className="flex items-end gap-2 h-32">
-      {data.map((d, i) => (
-        <div key={i} className="flex flex-col items-center gap-1 flex-1 min-w-0">
-          <span className="text-2xs text-surface-500 font-medium">{d.value}</span>
-          <div className={`w-full rounded-t-md ${colors[i % colors.length]} transition-all`} style={{ height: `${(d.value / max) * 100}%` }} />
-          <span className="text-2xs text-surface-400 truncate w-full text-center">{d.label}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-export default function AdminAiPage() {
+export default function AdminAiMonitoringPage() {
   const [health, setHealth] = useState<AiSystemHealth | null>(null);
-  const [modelInfo, setModelInfo] = useState<AiModelInfo | null>(null);
+  const [model, setModel] = useState<AiModelInfo | null>(null);
   const [metrics, setMetrics] = useState<AiRealtimeMetrics | null>(null);
   const [predictions, setPredictions] = useState<AiPredictionRecord[]>([]);
-  const [predTotal, setPredTotal] = useState(0);
-  const [predPage, setPredPage] = useState(1);
-  const [errorLogs, setErrorLogs] = useState<AiErrorLog[]>([]);
+  const [predictionTotal, setPredictionTotal] = useState(0);
+  const [predictionPage, setPredictionPage] = useState(1);
+  const [predSearch, setPredSearch] = useState('');
+  const [predSort, setPredSort] = useState<'timestamp' | 'confidence' | 'latencyMs'>('timestamp');
+  const [predSortDir, setPredSortDir] = useState<'asc' | 'desc'>('desc');
+  const [errors, setErrors] = useState<AiErrorLog[]>([]);
+  const [charts, setCharts] = useState<{
+    predictionsOverTime: AiChartDataPoint[];
+    averageConfidence: AiChartDataPoint[];
+    responseTime: AiChartDataPoint[];
+    successRate: AiChartDataPoint[];
+    errorRate: AiChartDataPoint[];
+    predictionsPerMinute: AiChartDataPoint[];
+    inferenceLatency: AiChartDataPoint[];
+  } | null>(null);
   const [actions, setActions] = useState<AiServiceAction[]>([]);
-  const [predChart, setPredChart] = useState<AiChartDataPoint[]>([]);
-  const [latencyChart, setLatencyChart] = useState<AiChartDataPoint[]>([]);
-  const [confidenceChart, setConfidenceChart] = useState<AiChartDataPoint[]>([]);
-  const [successChart, setSuccessChart] = useState<AiChartDataPoint[]>([]);
+  const [actionResult, setActionResult] = useState<{ id: string; success: boolean; message: string } | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [expandedError, setExpandedError] = useState<string | null>(null);
-  const [actionLoading, setActionLoading] = useState<string | null>(null);
-  const refreshTimer = useRef<ReturnType<typeof setInterval> | null>(null);
-  const isVisible = useRef(true);
+  const [showModelInfo, setShowModelInfo] = useState(true);
+  const limit = 15;
 
-  const fetchAll = useCallback(async () => {
-    if (!isVisible.current) return;
+  const loadAll = useCallback(async () => {
     try {
-      const [h, m, met, pRes, err, act, pc, lc, cc, sc] = await Promise.all([
+      const [h, m, met, pred, err, ch, act] = await Promise.all([
         adminAiApi.getSystemHealth(),
         adminAiApi.getModelInfo(),
         adminAiApi.getRealtimeMetrics(),
-        adminAiApi.getPredictionHistory(predPage),
+        adminAiApi.getPredictionHistory(predictionPage, limit, predSearch, predSort, predSortDir),
         adminAiApi.getErrorLogs(),
+        adminAiApi.getCharts(),
         adminAiApi.getServiceActions(),
-        adminAiApi.getPredictionChart(),
-        adminAiApi.getLatencyChart(),
-        adminAiApi.getConfidenceChart(),
-        adminAiApi.getSuccessRateChart(),
       ]);
-      setHealth(h);
-      setModelInfo(m);
-      setMetrics(met);
-      setPredictions(pRes.data);
-      setPredTotal(pRes.total);
-      setErrorLogs(err);
-      setActions(act);
-      setPredChart(pc);
-      setLatencyChart(lc);
-      setConfidenceChart(cc);
-      setSuccessChart(sc);
-    } catch { /* ignore */ }
-    setLoading(false);
-  }, [predPage]);
+      setHealth(h); setModel(m); setMetrics(met);
+      setPredictions(pred.data); setPredictionTotal(pred.total);
+      setErrors(err); setCharts(ch); setActions(act);
+      setError(null);
+    } catch { setError('Failed to load AI monitoring data'); }
+    finally { setLoading(false); }
+  }, [predictionPage, predSearch, predSort, predSortDir]);
 
-  useEffect(() => { fetchAll(); }, [fetchAll]);
+  useEffect(() => { loadAll(); }, [loadAll]);
 
+  // Auto-refresh every 30s (paused when tab hidden)
+  const refreshRef = useRef(loadAll);
+  refreshRef.current = loadAll;
   useEffect(() => {
-    refreshTimer.current = setInterval(() => { if (isVisible.current) fetchAll(); }, 30000);
-    const onVis = () => { isVisible.current = !document.hidden; };
+    const id = setInterval(() => {
+      if (!document.hidden) refreshRef.current();
+    }, 30_000);
+    const onVis = () => { if (!document.hidden) refreshRef.current(); };
     document.addEventListener('visibilitychange', onVis);
-    return () => {
-      if (refreshTimer.current) clearInterval(refreshTimer.current);
-      document.removeEventListener('visibilitychange', onVis);
-    };
-  }, [fetchAll]);
+    return () => { clearInterval(id); document.removeEventListener('visibilitychange', onVis); };
+  }, []);
 
-  const handleAction = async (actionId: string) => {
-    setActionLoading(actionId);
-    try { await adminAiApi.executeAction(actionId); await fetchAll(); } catch { /* ignore */ }
-    setActionLoading(null);
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setPredictionPage(1);
+    loadAll();
   };
 
-  const handleDismissError = async (errorId: string) => {
-    await adminAiApi.dismissError(errorId);
-    setErrorLogs((prev) => prev.map((e) => e.id === errorId ? { ...e, resolved: true } : e));
+  const handleSort = (field: 'timestamp' | 'confidence' | 'latencyMs') => {
+    if (predSort === field) setPredSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
+    else { setPredSort(field); setPredSortDir('desc'); }
+    setPredictionPage(1);
   };
 
-  const successRate = metrics ? ((metrics.inferenceCount - metrics.failedRequests) / Math.max(metrics.inferenceCount, 1) * 100) : 0;
+  const handleAction = async (id: string) => {
+    setActionResult(null);
+    const result = await adminAiApi.executeAction(id);
+    setActionResult({ id, ...result });
+    setTimeout(() => setActionResult(null), 4000);
+  };
+
+  const handleDismissError = async (id: string) => {
+    await adminAiApi.dismissError(id);
+    setErrors((prev) => prev.map((e) => (e.id === id ? { ...e, status: 'resolved' as const } : e)));
+  };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-32" role="status" aria-label="Loading AI monitoring data">
+        <Loader2 size={40} className="text-[#E9A8C9] animate-spin mb-4" />
+        <p className="text-[#1A1A1A]/60 text-sm">Loading AI monitoring data…</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-[#F87171]/10 border border-[#F87171]/20 rounded-xl p-8 text-center" role="alert">
+        <AlertTriangle size={40} className="mx-auto text-[#F87171] mb-4" />
+        <p className="text-[#1A1A1A] font-medium mb-2">{error}</p>
+        <button onClick={loadAll} className="text-sm text-[#E9A8C9] hover:text-[#d490ab] underline">
+          Try Again
+        </button>
+      </div>
+    );
+  }
+
+  const summaryCards = metrics && health ? [
+    { label: 'AI Service', icon: <BrainCircuit size={20} />, value: health.aiService.status.toUpperCase(), color: statusColor(health.aiService.status), bg: statusBg(health.aiService.status), sub: `${health.aiService.latency}ms latency` },
+    { label: 'Backend Status', icon: <Server size={20} />, value: health.backend.status.toUpperCase(), color: statusColor(health.backend.status), bg: statusBg(health.backend.status), sub: `${health.backend.latency}ms` },
+    { label: 'Database', icon: <Database size={20} />, value: health.database.status.toUpperCase(), color: statusColor(health.database.status), bg: statusBg(health.database.status), sub: 'PostgreSQL' },
+    { label: 'Model Loaded', icon: <Layers size={20} />, value: model?.modelName ?? 'N/A', color: statusColor(health.model.status), bg: statusBg(health.model.status), sub: `v${model?.modelVersion ?? '?'}` },
+    { label: 'Predictions Today', icon: <TrendingUp size={20} />, value: metrics.predictionsToday.toLocaleString(), color: 'text-[#B8E6C3]', bg: 'bg-[#B8E6C3]/10 border-[#B8E6C3]/20', sub: `${metrics.throughputPerMinute}/min` },
+    { label: 'Translations Today', icon: <Activity size={20} />, value: metrics.translationsToday.toLocaleString(), color: 'text-[#A9D6F5]', bg: 'bg-[#A9D6F5]/10 border-[#A9D6F5]/20', sub: 'Sign → Text' },
+    { label: 'Avg Confidence', icon: <Gauge size={20} />, value: `${(metrics.averageConfidence * 100).toFixed(1)}%`, color: 'text-[#F6D365]', bg: 'bg-[#F6D365]/10 border-[#F6D365]/20', sub: 'Model confidence' },
+    { label: 'Avg Response Time', icon: <Clock size={20} />, value: `${metrics.averageLatency.toFixed(0)}ms`, color: 'text-[#F7C873]', bg: 'bg-[#F7C873]/10 border-[#F7C873]/20', sub: 'Inference latency' },
+    { label: 'Failed Predictions', icon: <AlertCircle size={20} />, value: metrics.failedRequests.toString(), color: 'text-[#F87171]', bg: 'bg-[#F87171]/10 border-[#F87171]/20', sub: 'Last 24h' },
+    { label: 'Success Rate', icon: <CheckCircle size={20} />, value: `${((1 - metrics.failedRequests / Math.max(1, metrics.inferenceCount)) * 100).toFixed(1)}%`, color: 'text-[#B8E6C3]', bg: 'bg-[#B8E6C3]/10 border-[#B8E6C3]/20', sub: 'Overall' },
+    { label: 'GPU', icon: <Cpu size={20} />, value: health.gpu.available ? 'Active' : 'N/A', color: statusColor(health.gpu.status), bg: statusBg(health.gpu.status), sub: 'Inference device' },
+    { label: 'Uptime', icon: <Shield size={20} />, value: metrics.uptime, color: 'text-[#A9D6F5]', bg: 'bg-[#A9D6F5]/10 border-[#A9D6F5]/20', sub: health.demoMode ? 'Demo mode' : 'Production' },
+  ] : [];
+
+  const healthItems = health ? [
+    { label: 'AI Service', icon: <BrainCircuit size={16} />, key: 'aiService', ...health.aiService },
+    { label: 'Backend', icon: <Server size={16} />, key: 'backend', ...health.backend },
+    { label: 'Database', icon: <Database size={16} />, key: 'database', ...health.database },
+    { label: 'Storage', icon: <HardDrive size={16} />, key: 'storage', ...health.storage },
+    { label: 'Memory', icon: <Monitor size={16} />, key: 'memory', ...health.memory },
+    { label: 'CPU', icon: <Cpu size={16} />, key: 'cpu', ...health.cpu },
+    { label: 'GPU', icon: <Zap size={16} />, key: 'gpu', ...health.gpu },
+    { label: 'Network', icon: <Wifi size={16} />, key: 'network', ...health.network },
+  ] : [];
+
+  const modelInfoItems = model ? [
+    { label: 'Model Name', value: model.modelName },
+    { label: 'Checkpoint', value: model.checkpoint.split('/').pop()! },
+    { label: 'Version', value: model.modelVersion },
+    { label: 'Framework', value: model.framework },
+    { label: 'PyTorch Version', value: model.pytorchVersion },
+    { label: 'MediaPipe Version', value: model.mediapipeVersion },
+    { label: 'Inference Device', value: model.inferenceDevice },
+    { label: 'Vocab Size', value: model.vocabSize.toLocaleString() },
+    { label: 'd_model', value: String(model.dModel) },
+    { label: 'Num Heads', value: String(model.numHeads) },
+    { label: 'Encoder Layers', value: String(model.numEncoderLayers) },
+    { label: 'Decoder Layers', value: String(model.numDecoderLayers) },
+    { label: 'Parameters', value: model.numParameters.toLocaleString() },
+    { label: 'Max Seq Length', value: String(model.maxSeqLength) },
+    { label: 'Landmarks', value: String(model.numLandmarks) },
+    { label: 'Features', value: String(model.numFeatures) },
+    { label: 'Loaded At', value: new Date(model.loadedAt).toLocaleTimeString() },
+    { label: 'Last Updated', value: new Date(model.lastUpdated).toLocaleDateString() },
+    { label: 'Model Size', value: `${model.modelSizeMb} MB` },
+    { label: 'Confidence Threshold', value: model.confidenceThreshold.toString() },
+    { label: 'Prediction Timeout', value: `${model.predictionTimeout}s` },
+    { label: 'Inference Mode', value: model.inferenceMode },
+  ] : [];
+
+  const paginationTotalPages = Math.ceil(predictionTotal / limit);
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="AI Monitoring"
-        description="Monitor AI service health, model status, and real-time metrics"
-        icon={Brain}
-        action={
-          <button onClick={() => fetchAll()} className="btn-secondary inline-flex items-center gap-2 text-sm" disabled={loading}>
-            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} /> Refresh
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-[#1A1A1A]">AI Monitoring</h1>
+          <p className="text-sm text-[#1A1A1A]/60 mt-1">
+            Real-time monitoring of AI inference service and model performance
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusBg(health?.overallStatus ?? 'warning')} ${statusColor(health?.overallStatus ?? 'warning')} border`}>
+            {statusIcon(health?.overallStatus ?? 'warning')}
+            <span className="ml-1">{health?.overallStatus.toUpperCase()}</span>
+          </span>
+          <button
+            onClick={loadAll}
+            className="flex items-center gap-2 px-3 py-1.5 bg-[#111] text-white rounded-lg text-sm hover:bg-[#111]/80 transition-colors"
+            aria-label="Refresh AI monitoring data"
+          >
+            <RefreshCcw size={14} /> Refresh
           </button>
-        }
-      />
+        </div>
+      </div>
 
-      {loading ? <SkeletonLoader count={4} /> : (
-        <>
-          {/* Stat Cards */}
-          {health && metrics && (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-              <StatCard
-                title="AI Service"
-                value={health.aiService.status === 'healthy' ? 'Online' : health.demoMode ? 'Demo' : 'Offline'}
-                icon={Brain}
-              />
-              <StatCard title="Model" value={health.model.loaded ? 'Loaded' : 'N/A'} icon={Cpu} />
-              <StatCard title="Predictions" value={metrics.inferenceCount} icon={Zap} />
-              <StatCard title="Avg Latency" value={`${metrics.averageLatency.toFixed(1)}ms`} icon={Clock} />
-              <StatCard title="Success Rate" value={`${successRate.toFixed(1)}%`} icon={TrendingUp} />
-              <StatCard title="Failed" value={metrics.failedRequests} icon={AlertTriangle} />
+      {/* Summary Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
+        {summaryCards.map((c, i) => (
+          <motion.div
+            key={c.label}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.04 }}
+            className={`p-3 rounded-[10px] border ${c.bg} flex flex-col gap-1`}
+          >
+            <div className="flex items-center gap-2 text-xs text-[#1A1A1A]/50">
+              <span className={c.color}>{c.icon}</span>{c.label}
             </div>
-          )}
+            <div className={`text-lg font-bold ${c.color}`}>{c.value}</div>
+            <div className="text-[10px] text-[#1A1A1A]/40">{c.sub}</div>
+          </motion.div>
+        ))}
+      </div>
 
-          {/* System Status + Model Info */}
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            {/* System Status */}
-            <div className="rounded-card bg-white p-6 shadow-card dark:bg-surface-900">
-              <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-surface-900 dark:text-white">
-                <Activity className="h-5 w-5 text-primary-500" /> System Status
-                {health?.demoMode && <span className="rounded-full bg-warning-100 px-2.5 py-0.5 text-xs font-bold text-warning-700 dark:bg-warning-500/10 dark:text-warning-500">DEMO MODE</span>}
-              </h3>
-              <div className="space-y-3">
-                {health && [
-                  { key: 'backend', label: 'Backend', data: health.backend },
-                  { key: 'aiService', label: 'AI Service', data: health.aiService },
-                  { key: 'database', label: 'Database', data: health.database },
-                  { key: 'firebase', label: 'Firebase', data: health.firebase },
-                  { key: 'model', label: 'Model', data: health.model },
-                ].map((item) => {
-                  const Icon = serviceIcons[item.key] || Server;
-                  const sc = statusColors[item.data.status];
-                  return (
-                    <div key={item.key} className="flex items-center justify-between rounded-[12px] border border-surface-100 p-3 dark:border-surface-800">
-                      <div className="flex items-center gap-3">
-                        <Icon className="h-4 w-4 text-surface-400" />
-                        <span className="text-sm font-medium text-surface-700 dark:text-surface-300">{item.label}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {'latency' in item.data && <span className="text-xs text-surface-400">{item.data.latency}ms</span>}
-                        <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-bold ${sc.bg} ${sc.text}`}>
-                          <span className={`h-1.5 w-1.5 rounded-full ${sc.dot}`} />
-                          {item.data.status === 'healthy' ? 'Healthy' : item.data.status === 'warning' ? 'Warning' : item.data.status === 'degraded' ? 'Degraded' : 'Offline'}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
-                {health && (
-                  <div className="flex items-center justify-between rounded-[12px] border border-surface-100 p-3 dark:border-surface-800">
-                    <div className="flex items-center gap-3">
-                      <HardDrive className="h-4 w-4 text-surface-400" />
-                      <span className="text-sm font-medium text-surface-700 dark:text-surface-300">GPU / CPU</span>
-                    </div>
-                    <span className="text-xs font-medium text-surface-500">{health.gpu.mode} {health.gpu.available ? '(GPU Available)' : ''}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Model Info */}
-            <div className="rounded-card bg-white p-6 shadow-card dark:bg-surface-900">
-              <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-surface-900 dark:text-white">
-                <Cpu className="h-5 w-5 text-primary-500" /> Model Information
-              </h3>
-              {modelInfo ? (
-                <div className="grid grid-cols-2 gap-3">
-                  {[
-                    { label: 'Model', value: modelInfo.modelName },
-                    { label: 'Version', value: modelInfo.modelVersion },
-                    { label: 'Checkpoint', value: modelInfo.checkpoint.split('/').pop() },
-                    { label: 'Framework', value: modelInfo.framework },
-                    { label: 'PyTorch', value: modelInfo.pytorchVersion },
-                    { label: 'MediaPipe', value: modelInfo.mediapipeVersion },
-                    { label: 'Device', value: modelInfo.inferenceDevice },
-                    { label: 'Parameters', value: `${(modelInfo.numParameters / 1000).toFixed(1)}K` },
-                    { label: 'Vocab Size', value: String(modelInfo.vocabSize) },
-                    { label: 'd_model', value: String(modelInfo.dModel) },
-                    { label: 'Heads', value: String(modelInfo.numHeads) },
-                    { label: 'Encoder Layers', value: String(modelInfo.numEncoderLayers) },
-                    { label: 'Decoder Layers', value: String(modelInfo.numDecoderLayers) },
-                    { label: 'Max Seq Length', value: String(modelInfo.maxSeqLength) },
-                    { label: 'Landmarks', value: String(modelInfo.numLandmarks) },
-                    { label: 'Features', value: String(modelInfo.numFeatures) },
-                  ].map((item) => (
-                    <div key={item.label} className="rounded-[10px] bg-surface-50 p-2.5 dark:bg-surface-800">
-                      <p className="text-2xs text-surface-400">{item.label}</p>
-                      <p className="text-sm font-semibold text-surface-900 dark:text-white truncate">{item.value}</p>
-                    </div>
-                  ))}
-                  <div className="col-span-2 rounded-[10px] bg-surface-50 p-2.5 dark:bg-surface-800">
-                    <p className="text-2xs text-surface-400">Loaded At</p>
-                    <p className="text-sm font-semibold text-surface-900 dark:text-white">{new Date(modelInfo.loadedAt).toLocaleString()}</p>
-                  </div>
+      {/* System Health */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+        className="bg-white rounded-[10px] border border-[#EFEFEF] p-5"
+      >
+        <h2 className="text-sm font-semibold text-[#1A1A1A] flex items-center gap-2 mb-4">
+          <Activity size={16} /> System Health
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3" role="list" aria-label="System health status">
+          {healthItems.map((item) => (
+            <div key={item.key} className={`p-3 rounded-[10px] border ${statusBg(item.status)}`} role="listitem">
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-2 text-xs font-medium text-[#1A1A1A]">
+                  <span className={statusColor(item.status)}>{item.icon}</span>{item.label}
                 </div>
-              ) : (
-                <div className="py-8 text-center text-sm text-surface-500">Model info unavailable</div>
-              )}
-            </div>
-          </div>
-
-          {/* Real-Time Metrics */}
-          {metrics && (
-            <div className="rounded-card bg-white p-6 shadow-card dark:bg-surface-900">
-              <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-surface-900 dark:text-white">
-                <Gauge className="h-5 w-5 text-primary-500" /> Real-Time Metrics
-              </h3>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                {[
-                  { label: 'Inference Count', value: metrics.inferenceCount, icon: Zap, color: 'text-primary-600 bg-primary-50 dark:bg-primary-500/10 dark:text-primary-400' },
-                  { label: 'Avg Latency', value: `${metrics.averageLatency.toFixed(1)}ms`, icon: Clock, color: 'text-info-600 bg-info-50 dark:bg-info-500/10 dark:text-info-500' },
-                  { label: 'Failed Requests', value: metrics.failedRequests, icon: XCircle, color: 'text-danger-600 bg-danger-50 dark:bg-danger-500/10 dark:text-danger-500' },
-                  { label: 'Queue Length', value: metrics.queueLength, icon: Activity, color: 'text-success-600 bg-success-50 dark:bg-success-500/10 dark:text-success-500' },
-                  { label: 'Memory Usage', value: `${Math.round(metrics.memoryUsageMb)}MB`, icon: MemoryStick, color: 'text-warning-600 bg-warning-50 dark:bg-warning-500/10 dark:text-warning-500' },
-                  { label: 'CPU Usage', value: `${Math.round(metrics.cpuUsagePercent)}%`, icon: Cpu, color: 'text-secondary-600 bg-secondary-50 dark:bg-secondary-500/10 dark:text-secondary-600' },
-                  { label: 'GPU Usage', value: metrics.gpuUsagePercent !== null ? `${Math.round(metrics.gpuUsagePercent)}%` : 'N/A', icon: HardDrive, color: 'text-surface-600 bg-surface-100 dark:bg-surface-800 dark:text-surface-400' },
-                  { label: 'Throughput', value: `${metrics.throughputPerMinute}/min`, icon: TrendingUp, color: 'text-primary-600 bg-primary-50 dark:bg-primary-500/10 dark:text-primary-400' },
-                ].map((item) => (
-                  <div key={item.label} className="rounded-[14px] border border-surface-100 p-3 dark:border-surface-800">
-                    <div className={`flex h-8 w-8 items-center justify-center rounded-[10px] ${item.color}`}>
-                      <item.icon className="h-4 w-4" />
-                    </div>
-                    <p className="mt-2 text-lg font-bold text-surface-900 dark:text-white">{item.value}</p>
-                    <p className="text-2xs text-surface-500">{item.label}</p>
-                  </div>
-                ))}
+                <span className={`flex items-center gap-1 text-[10px] font-medium ${statusColor(item.status)}`}>
+                  {statusIcon(item.status)}{item.status}
+                </span>
               </div>
-              {metrics.lastPredictionAt && (
-                <p className="mt-3 text-xs text-surface-400">Last prediction: {new Date(metrics.lastPredictionAt).toLocaleTimeString()}</p>
-              )}
+              <div className="flex items-center justify-between mt-2 text-[10px] text-[#1A1A1A]/40">
+                <span>{item.key === 'gpu' ? (health?.gpu.available ? 'Active' : 'N/A') : `${item.latency}ms`}</span>
+                <span>Updated {new Date(item.lastCheck).toLocaleTimeString()}</span>
+              </div>
             </div>
-          )}
+          ))}
+        </div>
+      </motion.div>
 
-          {/* Charts */}
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            <div className="rounded-card bg-white p-6 shadow-card dark:bg-surface-900">
-              <h3 className="mb-4 text-sm font-semibold text-surface-900 dark:text-white">Prediction Volume</h3>
-              <SimpleBarChart data={predChart} />
-            </div>
-            <div className="rounded-card bg-white p-6 shadow-card dark:bg-surface-900">
-              <h3 className="mb-4 text-sm font-semibold text-surface-900 dark:text-white">Average Latency (ms)</h3>
-              <SimpleBarChart data={latencyChart} />
-            </div>
-            <div className="rounded-card bg-white p-6 shadow-card dark:bg-surface-900">
-              <h3 className="mb-4 text-sm font-semibold text-surface-900 dark:text-white">Confidence Distribution</h3>
-              <ConfidenceChart data={confidenceChart} />
-            </div>
-            <div className="rounded-card bg-white p-6 shadow-card dark:bg-surface-900">
-              <h3 className="mb-4 text-sm font-semibold text-surface-900 dark:text-white">Success Rate (%)</h3>
-              <SimpleBarChart data={successChart} />
-            </div>
+      {/* Charts Grid — 7 charts using reusable components */}
+      {charts && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+          className="space-y-6"
+        >
+          {/* Row 1: 3 charts */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <ChartCard title="Predictions Over Time" icon={BarChart3} className="min-h-[220px]">
+              <BarChart data={charts.predictionsOverTime} color="#B8E6C3" height={180} />
+            </ChartCard>
+            <ChartCard title="Average Confidence" icon={Gauge} className="min-h-[220px]">
+              <BarChart data={charts.averageConfidence.map((d) => ({ label: d.label, value: d.value * 100 }))} color="#F6D365" height={180} />
+            </ChartCard>
+            <ChartCard title="Response Time" icon={Clock} className="min-h-[220px]">
+              <LineChartComponent data={charts.responseTime} color="#A9D6F5" height={180} />
+            </ChartCard>
           </div>
-
-          {/* Prediction History */}
-          <div className="rounded-card bg-white p-6 shadow-card dark:bg-surface-900">
-            <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-surface-900 dark:text-white">
-              <BarChart3 className="h-5 w-5 text-primary-500" /> Prediction History
-            </h3>
-            <div className="overflow-x-auto rounded-[12px] border border-surface-200 dark:border-surface-700">
-              <table className="min-w-full divide-y divide-surface-200 dark:divide-surface-700">
-                <thead className="bg-surface-50 dark:bg-surface-800">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">Time</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">Prediction</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500 hidden sm:table-cell">Confidence</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500 hidden md:table-cell">Latency</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500 hidden lg:table-cell">User</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-surface-100 bg-white dark:divide-surface-800 dark:bg-surface-900">
-                  {predictions.map((p) => (
-                    <tr key={p.id} className="hover:bg-surface-50 dark:hover:bg-surface-800/50">
-                      <td className="px-4 py-2.5 text-xs text-surface-500">{new Date(p.timestamp).toLocaleTimeString()}</td>
-                      <td className="px-4 py-2.5 text-sm font-semibold text-surface-900 dark:text-white">{p.prediction}</td>
-                      <td className="px-4 py-2.5 hidden sm:table-cell">
-                        <div className="flex items-center gap-2">
-                          <div className="h-1.5 w-12 overflow-hidden rounded-full bg-surface-100 dark:bg-surface-800">
-                            <div className={`h-full rounded-full ${p.confidence > 0.8 ? 'bg-success-500' : p.confidence > 0.5 ? 'bg-warning-500' : 'bg-danger-500'}`} style={{ width: `${p.confidence * 100}%` }} />
-                          </div>
-                          <span className="text-xs text-surface-500">{(p.confidence * 100).toFixed(0)}%</span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-2.5 text-xs text-surface-500 hidden md:table-cell">{p.latencyMs.toFixed(1)}ms</td>
-                      <td className="px-4 py-2.5 text-xs text-surface-500 hidden lg:table-cell">{p.userName || '—'}</td>
-                      <td className="px-4 py-2.5">
-                        <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-2xs font-bold ${p.status === 'success' ? 'bg-success-50 text-success-600 dark:bg-success-500/10 dark:text-success-500' : p.status === 'failed' ? 'bg-danger-50 text-danger-600 dark:bg-danger-500/10 dark:text-danger-500' : 'bg-warning-50 text-warning-600 dark:bg-warning-500/10 dark:text-warning-500'}`}>
-                          {p.status === 'success' ? <CheckCircle2 className="h-2.5 w-2.5" /> : <XCircle className="h-2.5 w-2.5" />}
-                          {p.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+          {/* Row 2: 2 charts */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <ChartCard title="Success Rate" icon={CheckCircle} className="min-h-[220px]">
+              <BarChart data={charts.successRate} color="#B8E6C3" height={180} />
+            </ChartCard>
+            <ChartCard title="Error Rate" icon={AlertCircle} className="min-h-[220px]">
+              <BarChart data={charts.errorRate} color="#F87171" height={180} />
+            </ChartCard>
           </div>
-
-          {/* Error Log */}
-          <div className="rounded-card bg-white p-6 shadow-card dark:bg-surface-900">
-            <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-surface-900 dark:text-white">
-              <AlertTriangle className="h-5 w-5 text-danger-500" /> Error Log
-              <span className="rounded-full bg-danger-100 px-2 py-0.5 text-2xs font-bold text-danger-600 dark:bg-danger-500/10 dark:text-danger-500">{errorLogs.filter((e) => !e.resolved).length}</span>
-            </h3>
-            <div className="space-y-2">
-              {errorLogs.map((err) => {
-                const sev = severityColors[err.severity];
-                const SevIcon = sev.icon;
-                const expanded = expandedError === err.id;
-                return (
-                  <div key={err.id} className={`rounded-[12px] border border-surface-100 dark:border-surface-800 ${err.resolved ? 'opacity-50' : ''}`}>
-                    <button onClick={() => setExpandedError(expanded ? null : err.id)} className="flex w-full items-center justify-between p-3 text-left">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <span className={`inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full ${sev.bg} ${sev.text}`}>
-                          <SevIcon className="h-3 w-3" />
-                        </span>
-                        <div className="min-w-0">
-                          <p className="text-sm font-medium text-surface-900 dark:text-white truncate">{err.message}</p>
-                          <p className="text-2xs text-surface-400">{err.module} • {new Date(err.timestamp).toLocaleTimeString()}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        {err.resolved && <span className="rounded-full bg-success-100 px-2 py-0.5 text-2xs font-bold text-success-600">Resolved</span>}
-                        {!err.resolved && (
-                          <button onClick={(e) => { e.stopPropagation(); handleDismissError(err.id); }} className="min-h-[28px] rounded-[8px] bg-surface-100 px-2 text-2xs font-medium text-surface-600 hover:bg-surface-200 dark:bg-surface-800 dark:text-surface-400 dark:hover:bg-surface-700">
-                            Dismiss
-                          </button>
-                        )}
-                        {expanded ? <ChevronUp className="h-4 w-4 text-surface-400" /> : <ChevronDown className="h-4 w-4 text-surface-400" />}
-                      </div>
-                    </button>
-                    <AnimatePresence>
-                      {expanded && err.stackTrace && (
-                        <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                          <pre className="mx-3 mb-3 rounded-[10px) bg-surface-950 p-3 text-2xs text-surface-300 overflow-x-auto dark:bg-surface-950">
-                            {err.stackTrace}
-                          </pre>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                );
-              })}
-            </div>
+          {/* Row 3: 2 charts */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <ChartCard title="Predictions Per Minute" icon={ActivitySquare} className="min-h-[220px]">
+              <LineChartComponent data={charts.predictionsPerMinute} color="#E9A8C9" height={180} />
+            </ChartCard>
+            <ChartCard title="Inference Latency" icon={Zap} className="min-h-[220px]">
+              <LineChartComponent data={charts.inferenceLatency} color="#F7C873" height={180} />
+            </ChartCard>
           </div>
-
-          {/* Service Control */}
-          <div className="rounded-card bg-white p-6 shadow-card dark:bg-surface-900">
-            <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-surface-900 dark:text-white">
-              <Server className="h-5 w-5 text-primary-500" /> Service Control
-            </h3>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {actions.map((action) => {
-                const icons: Record<string, React.ElementType> = { reload: RotateCcw, restart: Play, 'clear-cache': Trash2, refresh: RefreshCw };
-                const Icon = icons[action.id] || Server;
-                return (
-                  <button
-                    key={action.id}
-                    onClick={() => handleAction(action.id)}
-                    disabled={!action.available || actionLoading === action.id}
-                    className={`flex items-center gap-3 rounded-[14px] border p-4 text-left transition-all ${
-                      action.available
-                        ? 'border-surface-200 hover:border-primary-300 hover:bg-primary-50 dark:border-surface-700 dark:hover:border-primary-700 dark:hover:bg-primary-500/10'
-                        : 'border-surface-100 opacity-50 cursor-not-allowed dark:border-surface-800'
-                    }`}
-                  >
-                    <div className={`flex h-10 w-10 items-center justify-center rounded-[10px] ${action.available ? 'bg-primary-50 text-primary-600 dark:bg-primary-500/10 dark:text-primary-400' : 'bg-surface-100 text-surface-400 dark:bg-surface-800'}`}>
-                      <Icon className={`h-5 w-5 ${actionLoading === action.id ? 'animate-spin' : ''}`} />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-surface-900 dark:text-white">{action.name}</p>
-                      <p className="text-2xs text-surface-400 truncate">{action.description}</p>
-                      {!action.available && <p className="mt-1 text-2xs text-warning-600">Requires backend endpoints</p>}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </>
+        </motion.div>
       )}
+
+      {/* Model Info + Service Actions */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Model Info */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
+          className="lg:col-span-2 bg-white rounded-[10px] border border-[#EFEFEF] p-5"
+        >
+          <button
+            onClick={() => setShowModelInfo(!showModelInfo)}
+            className="flex items-center justify-between w-full text-sm font-semibold text-[#1A1A1A] mb-3"
+            aria-expanded={showModelInfo}
+          >
+            <span className="flex items-center gap-2"><Layers size={16} /> Model Information</span>
+            {showModelInfo ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          </button>
+          <AnimatePresence>
+            {showModelInfo && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="overflow-hidden"
+              >
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                  {modelInfoItems.map((item) => (
+                    <div key={item.label} className="p-2.5 rounded-[10px] bg-neutral-50 border border-[#EFEFEF]">
+                      <div className="text-[10px] text-[#1A1A1A]/40 mb-0.5">{item.label}</div>
+                      <div className="text-xs font-medium text-[#1A1A1A] truncate" title={item.value}>
+                        {item.value}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+
+        {/* Service Actions */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
+          className="bg-white rounded-[10px] border border-[#EFEFEF] p-5"
+        >
+          <h2 className="text-sm font-semibold text-[#1A1A1A] flex items-center gap-2 mb-3">
+            <Shield size={16} /> Service Actions
+          </h2>
+          <div className="space-y-2" role="list" aria-label="Service actions">
+            {actions.map((action) => {
+              const icons: Record<string, React.ReactNode> = {
+                reload: <RotateCcw size={14} />,
+                restart: <PlayCircle size={14} />,
+                'clear-cache': <Trash2 size={14} />,
+                'download-logs': <Download size={14} />,
+                retrain: <GraduationCap size={14} />,
+                refresh: <RefreshCcw size={14} />,
+              };
+              const resultForThis = actionResult?.id === action.id ? actionResult : null;
+              return (
+                <div key={action.id} className="flex items-center gap-3 p-2.5 rounded-[10px] bg-neutral-50 border border-[#EFEFEF]">
+                  <span className="text-[#1A1A1A]/40">{icons[action.id] ?? <Zap size={14} />}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs font-medium text-[#1A1A1A]">{action.name}</div>
+                    <div className="text-[10px] text-[#1A1A1A]/40 truncate">{action.description}</div>
+                    {resultForThis && (
+                      <div className={`text-[10px] mt-1 font-medium ${resultForThis.success ? 'text-[#B8E6C3]' : 'text-[#F87171]'}`}>
+                        {resultForThis.message}
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => handleAction(action.id)}
+                    disabled={!action.available}
+                    className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                      action.available
+                        ? 'bg-[#111] text-white hover:bg-[#111]/80'
+                        : 'bg-[#EFEFEF] text-[#1A1A1A]/30 cursor-not-allowed'
+                    }`}
+                    aria-label={action.name}
+                  >
+                    {action.id === 'refresh' ? 'Refresh' : 'Execute'}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+          <div className="mt-3 pt-3 border-t border-[#EFEFEF] text-[10px] text-[#1A1A1A]/40">
+            Actions requiring backend endpoints show as unavailable until implemented.
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Prediction History Table */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}
+        className="bg-white rounded-[10px] border border-[#EFEFEF] p-5"
+      >
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
+          <h2 className="text-sm font-semibold text-[#1A1A1A] flex items-center gap-2">
+            <BarChart3 size={16} /> Prediction History
+            <span className="text-[10px] text-[#1A1A1A]/40 font-normal ml-2">
+              {predictionTotal} total records
+            </span>
+          </h2>
+          <form onSubmit={handleSearch} className="flex gap-2">
+            <input
+              type="text"
+              placeholder="Search predictions…"
+              value={predSearch}
+              onChange={(e) => setPredSearch(e.target.value)}
+              className="px-3 py-1.5 text-xs bg-[#FAF8F6] border border-[#EFEFEF] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#E9A8C9]/50 w-48"
+              aria-label="Search predictions"
+            />
+            <button type="submit" className="px-3 py-1.5 bg-[#111] text-white rounded-lg text-xs hover:bg-[#111]/80 transition-colors">
+              <Search size={14} />
+            </button>
+          </form>
+        </div>
+
+        <div className="overflow-x-auto" role="region" aria-label="Prediction history table">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="border-b border-[#EFEFEF]">
+                {[
+                  { key: 'timestamp', label: 'Time' },
+                  { key: 'prediction', label: 'Prediction' },
+                  { key: 'confidence', label: 'Confidence' },
+                  { key: 'latencyMs', label: 'Latency' },
+                  { key: 'processingTimeMs', label: 'Processing' },
+                  { key: 'inputType', label: 'Input' },
+                  { key: 'status', label: 'Status' },
+                ].map((col) => (
+                  <th
+                    key={col.key}
+                    onClick={() => col.key === 'timestamp' || col.key === 'confidence' || col.key === 'latencyMs' ? handleSort(col.key as 'timestamp' | 'confidence' | 'latencyMs') : undefined}
+                    className={`text-left py-2 px-3 text-[#1A1A1A]/50 font-medium ${col.key === 'timestamp' || col.key === 'confidence' || col.key === 'latencyMs' ? 'cursor-pointer hover:text-[#1A1A1A]' : ''}`}
+                    scope="col"
+                  >
+                    {col.label}
+                    {predSort === col.key && (
+                      <span className="ml-1">{predSortDir === 'asc' ? '↑' : '↓'}</span>
+                    )}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {predictions.map((pred) => (
+                <tr key={pred.id} className="border-b border-[#EFEFEF]/50 hover:bg-[#FAF8F6] transition-colors">
+                  <td className="py-2 px-3 text-[#1A1A1A]/60">
+                    {new Date(pred.timestamp).toLocaleTimeString()}
+                  </td>
+                  <td className="py-2 px-3 font-medium text-[#1A1A1A]">{pred.prediction}</td>
+                  <td className="py-2 px-3">
+                    <span className={`font-medium ${
+                      pred.confidence >= 0.8 ? 'text-[#B8E6C3]' : pred.confidence >= 0.5 ? 'text-[#F6D365]' : 'text-[#F87171]'
+                    }`}>
+                      {(pred.confidence * 100).toFixed(1)}%
+                    </span>
+                  </td>
+                  <td className="py-2 px-3 text-[#1A1A1A]/60">{pred.latencyMs.toFixed(0)}ms</td>
+                  <td className="py-2 px-3 text-[#1A1A1A]/60">{pred.processingTimeMs.toFixed(0)}ms</td>
+                  <td className="py-2 px-3">
+                    <span className="px-2 py-0.5 rounded-full bg-[#A9D6F5]/10 text-[#A9D6F5] text-[10px] font-medium">
+                      {pred.inputType}
+                    </span>
+                  </td>
+                  <td className="py-2 px-3">
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${
+                      pred.status === 'success' ? 'bg-[#B8E6C3]/10 text-[#B8E6C3]' : 'bg-[#F87171]/10 text-[#F87171]'
+                    }`}>
+                      {pred.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+              {predictions.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="py-8 text-center text-[#1A1A1A]/30 text-xs">
+                    No prediction records found.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination */}
+        {paginationTotalPages > 1 && (
+          <div className="flex items-center justify-between mt-4 pt-4 border-t border-[#EFEFEF]" role="navigation" aria-label="Prediction history pagination">
+            <span className="text-[10px] text-[#1A1A1A]/40">
+              Page {predictionPage} of {paginationTotalPages}
+            </span>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setPredictionPage((p) => Math.max(1, p - 1))}
+                disabled={predictionPage <= 1}
+                className="p-1.5 rounded-lg bg-[#FAF8F6] border border-[#EFEFEF] hover:bg-[#EFEFEF] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                aria-label="Previous page"
+              >
+                <ChevronLeft size={14} />
+              </button>
+              <button
+                onClick={() => setPredictionPage((p) => Math.min(paginationTotalPages, p + 1))}
+                disabled={predictionPage >= paginationTotalPages}
+                className="p-1.5 rounded-lg bg-[#FAF8F6] border border-[#EFEFEF] hover:bg-[#EFEFEF] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                aria-label="Next page"
+              >
+                <ChevronRight size={14} />
+              </button>
+            </div>
+          </div>
+        )}
+      </motion.div>
+
+      {/* Error Logs */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
+        className="bg-white rounded-[10px] border border-[#EFEFEF] p-5"
+      >
+        <h2 className="text-sm font-semibold text-[#1A1A1A] flex items-center gap-2 mb-4">
+          <AlertTriangle size={16} /> Error Logs
+          <span className="text-[10px] text-[#1A1A1A]/40 font-normal ml-2">
+            {errors.filter((e) => e.status !== 'resolved').length} open
+          </span>
+        </h2>
+        <div className="space-y-2" role="list" aria-label="Error logs">
+          {errors.length === 0 ? (
+            <div className="text-center py-8 text-[#1A1A1A]/30 text-xs">No errors recorded</div>
+          ) : (
+            errors.map((err) => (
+              <div key={err.id} className={`rounded-[10px] border ${severityColor(err.severity)} overflow-hidden`}>
+                <button
+                  onClick={() => setExpandedError(expandedError === err.id ? null : err.id)}
+                  className="w-full flex items-center justify-between p-3 text-left hover:bg-white/5 transition-colors"
+                  aria-expanded={expandedError === err.id}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${severityColor(err.severity)}`}>
+                      {err.severity.toUpperCase()}
+                    </span>
+                    <div>
+                      <div className="text-xs font-medium text-[#1A1A1A]">{err.message}</div>
+                      <div className="text-[10px] text-[#1A1A1A]/40">
+                        {err.module} · {err.errorType} · {new Date(err.timestamp).toLocaleTimeString()}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {err.status !== 'resolved' && (
+                      <span
+                        onClick={(e) => { e.stopPropagation(); handleDismissError(err.id); }}
+                        className="text-[10px] text-[#B8E6C3] hover:text-[#8cc99a] cursor-pointer underline"
+                        role="button"
+                      >
+                        Dismiss
+                      </span>
+                    )}
+                    {expandedError === err.id ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                  </div>
+                </button>
+                <AnimatePresence>
+                  {expandedError === err.id && err.stackTrace && (
+                    <motion.div
+                      initial={{ height: 0 }}
+                      animate={{ height: 'auto' }}
+                      exit={{ height: 0 }}
+                      className="overflow-hidden border-t border-current/10"
+                    >
+                      <pre className="p-3 text-[10px] text-[#1A1A1A]/60 font-mono whitespace-pre-wrap break-all bg-black/5">
+                        {err.stackTrace}
+                      </pre>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ))
+          )}
+        </div>
+      </motion.div>
+
+      {/* Footer note */}
+      <div className="text-center text-[10px] text-[#1A1A1A]/30 pb-4 flex items-center justify-center gap-1.5">
+        <Info size={10} />
+        Auto-refreshes every 30 seconds. All data is simulated in demo mode.
+      </div>
     </div>
   );
 }

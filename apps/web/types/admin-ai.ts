@@ -1,13 +1,23 @@
-export type ServiceStatus = 'healthy' | 'warning' | 'offline' | 'degraded';
+export type ServiceStatus = 'healthy' | 'warning' | 'offline' | 'degraded' | 'demo';
 export type ErrorSeverity = 'info' | 'warning' | 'error' | 'critical';
 
+export interface AiSystemHealthItem {
+  status: ServiceStatus;
+  latency: number;
+  lastCheck: string;
+  available?: boolean;
+}
+
 export interface AiSystemHealth {
-  backend: { status: ServiceStatus; latency: number; lastCheck: string };
-  aiService: { status: ServiceStatus; latency: number; lastCheck: string };
-  database: { status: ServiceStatus; latency: number; lastCheck: string };
-  firebase: { status: ServiceStatus; latency: number; lastCheck: string };
+  aiService: AiSystemHealthItem;
+  backend: AiSystemHealthItem;
+  database: AiSystemHealthItem;
+  storage: AiSystemHealthItem;
+  memory: AiSystemHealthItem;
+  cpu: AiSystemHealthItem;
+  gpu: AiSystemHealthItem;
+  network: AiSystemHealthItem;
   model: { status: ServiceStatus; loaded: boolean; version: string };
-  gpu: { available: boolean; mode: string };
   demoMode: boolean;
   overallStatus: ServiceStatus;
 }
@@ -30,6 +40,11 @@ export interface AiModelInfo {
   numLandmarks: number;
   numFeatures: number;
   loadedAt: string;
+  lastUpdated: string;
+  modelSizeMb: number;
+  confidenceThreshold: number;
+  predictionTimeout: number;
+  inferenceMode: string;
 }
 
 export interface AiRealtimeMetrics {
@@ -42,6 +57,10 @@ export interface AiRealtimeMetrics {
   gpuUsagePercent: number | null;
   throughputPerMinute: number;
   lastPredictionAt: string | null;
+  predictionsToday: number;
+  translationsToday: number;
+  averageConfidence: number;
+  uptime: string;
 }
 
 export interface AiPredictionRecord {
@@ -50,8 +69,10 @@ export interface AiPredictionRecord {
   prediction: string;
   confidence: number;
   latencyMs: number;
+  processingTimeMs: number;
   userId: string | null;
   userName: string | null;
+  inputType: string;
   status: 'success' | 'failed' | 'timeout';
   modelVersion: string;
 }
@@ -61,9 +82,10 @@ export interface AiErrorLog {
   timestamp: string;
   module: string;
   severity: ErrorSeverity;
+  errorType: string;
   message: string;
   stackTrace: string | null;
-  resolved: boolean;
+  status: 'open' | 'acknowledged' | 'resolved';
 }
 
 export interface AiChartDataPoint {
