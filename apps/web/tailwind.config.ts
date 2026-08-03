@@ -76,8 +76,22 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
-        display: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        sans: [
+          'var(--font-manrope)',
+          'Manrope',
+          'var(--font-inter)',
+          'Inter',
+          'system-ui',
+          'sans-serif',
+        ],
+        display: [
+          'var(--font-manrope)',
+          'Manrope',
+          'var(--font-inter)',
+          'Inter',
+          'system-ui',
+          'sans-serif',
+        ],
         mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
       },
       fontSize: {

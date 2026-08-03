@@ -1,418 +1,389 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  BookOpen,
-  Filter,
-  Eye,
-  Pencil,
-  Trash2,
-  Copy,
+  BookMarked,
+  Brain,
+  Sparkles,
+  Search,
+  Play,
+  TrendingUp,
+  Flame,
   CheckCircle2,
   AlertTriangle,
-  Archive,
-  ChevronDown,
   Plus,
-  Heart,
-  Tag,
-  List,
-  Image,
-  Video,
-  EyeOff,
+  Zap,
+  Volume2,
+  X,
 } from 'lucide-react';
-import PageHeader from '@/components/dashboard/PageHeader';
-import SearchBar from '@/components/dashboard/SearchBar';
-import Pagination from '@/components/dashboard/Pagination';
-import StatCard from '@/components/dashboard/StatCard';
-import EmptyState from '@/components/dashboard/EmptyState';
-import SkeletonLoader from '@/components/dashboard/SkeletonLoader';
-import ConfirmDialog from '@/components/dashboard/ConfirmDialog';
-import DictViewModal from '@/components/admin/DictViewModal';
-import DictCreateModal from '@/components/admin/DictCreateModal';
-import DictEditModal from '@/components/admin/DictEditModal';
-import CategoryManageModal from '@/components/admin/CategoryManageModal';
-import { adminDictApi } from '@/lib/admin-dictionary-api';
-import type { AdminDictSign, AdminDictStats, AdminDictCategory, AdminDictAlphabetStats, AdminDictDifficulty } from '@/types/admin-dictionary';
 
-const statusConfig: Record<string, { color: string; icon: React.ElementType; label: string }> = {
-  ACTIVE: { color: 'bg-success-50 text-success-600 dark:bg-success-500/10 dark:text-success-500', icon: CheckCircle2, label: 'Active' },
-  ARCHIVED: { color: 'bg-surface-100 text-surface-600 dark:bg-surface-800 dark:text-surface-400', icon: Archive, label: 'Archived' },
-};
+/* ============================================================================
+   DICTIONARY MANAGEMENT DATA CONFIGS
+   ============================================================================ */
 
-const difficultyConfig: Record<string, { color: string; label: string }> = {
-  BEGINNER: { color: 'bg-success-50 text-success-600 dark:bg-success-500/10 dark:text-success-500', label: 'Beginner' },
-  INTERMEDIATE: { color: 'bg-warning-50 text-warning-600 dark:bg-warning-500/10 dark:text-warning-500', label: 'Intermediate' },
-  ADVANCED: { color: 'bg-danger-50 text-danger-600 dark:bg-danger-500/10 dark:text-danger-500', label: 'Advanced' },
-};
+const DICTIONARY_KPIS = [
+  {
+    title: 'Total Sign Gestures',
+    value: '1,856',
+    change: 15,
+    icon: BookMarked,
+    hex: '#F6D365',
+    subtext: 'ISL standardized',
+  },
+  {
+    title: 'AI Accuracy Score',
+    value: '98.42%',
+    change: 0.4,
+    icon: Brain,
+    hex: '#D8B4F8',
+    subtext: '21 landmark pose model',
+  },
+  {
+    title: 'Total Translations',
+    value: '148,920',
+    change: 33,
+    icon: TrendingUp,
+    hex: '#A9D6F5',
+    subtext: 'evaluated today',
+  },
+  {
+    title: 'Trending Gestures',
+    value: '42',
+    change: 12,
+    icon: Flame,
+    hex: '#E8A5C9',
+    subtext: 'high daily practice',
+  },
+  {
+    title: 'Domain Categories',
+    value: '7',
+    change: 1,
+    icon: Zap,
+    hex: '#B8E6C3',
+    subtext: 'Medical to Civic',
+  },
+  {
+    title: 'Offline Audio Clips',
+    value: '1,856',
+    change: 10,
+    icon: Volume2,
+    hex: '#E8A5C9',
+    subtext: 'synthesized ISL',
+  },
+];
 
-const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+const DOMAIN_CATEGORIES = [
+  'All',
+  'Greetings',
+  'Education',
+  'Hospital',
+  'Government',
+  'Emergency',
+  'Transport',
+  'Shopping',
+];
+
+const MOCK_DICTIONARY = [
+  {
+    id: 'd-1',
+    word: 'Namaste / Hello',
+    category: 'Greetings',
+    accuracy: '99.2%',
+    usage: '42.8K times',
+    badge: '🔥 Trending',
+    thumbnail: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=200',
+    videoUrl: 'https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4',
+    hex: '#F6D365',
+  },
+  {
+    id: 'd-2',
+    word: 'Doctor / Medical Help',
+    category: 'Hospital',
+    accuracy: '98.4%',
+    usage: '21.4K times',
+    badge: '⭐ Most Practiced',
+    thumbnail: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=200',
+    videoUrl: 'https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4',
+    hex: '#E8A5C9',
+  },
+  {
+    id: 'd-3',
+    word: 'Emergency Ambulance',
+    category: 'Emergency',
+    accuracy: '97.8%',
+    usage: '18.9K times',
+    badge: '🔥 High Priority',
+    thumbnail: 'https://images.unsplash.com/photo-1587745416684-47953f16f02f?w=200',
+    videoUrl: 'https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4',
+    hex: '#B8E6C3',
+  },
+  {
+    id: 'd-4',
+    word: 'Passport Counter Inquiry',
+    category: 'Government',
+    accuracy: '96.9%',
+    usage: '12.1K times',
+    badge: '⭐ Civic Standard',
+    thumbnail: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=200',
+    videoUrl: 'https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4',
+    hex: '#A9D6F5',
+  },
+  {
+    id: 'd-5',
+    word: 'Teacher / Classroom',
+    category: 'Education',
+    accuracy: '98.9%',
+    usage: '34.2K times',
+    badge: '🔥 Trending',
+    thumbnail: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=200',
+    videoUrl: 'https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4',
+    hex: '#D8B4F8',
+  },
+  {
+    id: 'd-6',
+    word: 'Ticket Booking / Bus Station',
+    category: 'Transport',
+    accuracy: '95.4%',
+    usage: '9.8K times',
+    badge: '⭐ Public Transit',
+    thumbnail: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=200',
+    videoUrl: 'https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4',
+    hex: '#F6D365',
+  },
+];
 
 export default function AdminDictionaryPage() {
-  const [signs, setSigns] = useState<AdminDictSign[]>([]);
-  const [stats, setStats] = useState<AdminDictStats | null>(null);
-  const [categories, setCategories] = useState<AdminDictCategory[]>([]);
-  const [alphabetStats, setAlphabetStats] = useState<AdminDictAlphabetStats>({});
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [difficultyFilter, setDifficultyFilter] = useState<AdminDictDifficulty | ''>('');
-  const [categoryIdFilter, setCategoryIdFilter] = useState('');
-  const [letterFilter, setLetterFilter] = useState('');
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [total, setTotal] = useState(0);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [activeCategory, setActiveCategory] = useState('All');
+  const [previewSign, setPreviewSign] = useState<(typeof MOCK_DICTIONARY)[0] | null>(null);
 
-  const [viewSignId, setViewSignId] = useState<string | null>(null);
-  const [editSignId, setEditSignId] = useState<string | null>(null);
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showCategoryModal, setShowCategoryModal] = useState(false);
-  const [confirmAction, setConfirmAction] = useState<{
-    type: 'delete' | 'archive' | 'duplicate';
-    signId: string;
-    signWord: string;
-  } | null>(null);
-
-  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  const fetchSigns = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await adminDictApi.getSigns({
-        search: search || undefined,
-        categoryId: categoryIdFilter || undefined,
-        difficulty: (difficultyFilter as AdminDictDifficulty) || undefined,
-        letter: letterFilter || undefined,
-        page,
-        limit: 10,
-      });
-      setSigns(res.data);
-      setTotalPages(res.pagination.totalPages);
-      setTotal(res.pagination.total);
-    } catch {
-      setSigns([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [search, difficultyFilter, categoryIdFilter, letterFilter, page]);
-
-  const fetchMeta = useCallback(async () => {
-    try {
-      const [s, c, a] = await Promise.all([
-        adminDictApi.getStats(),
-        adminDictApi.getCategories(),
-        adminDictApi.getAlphabetStats(),
-      ]);
-      setStats(s);
-      setCategories(c);
-      setAlphabetStats(a);
-    } catch { /* ignore */ }
-  }, []);
-
-  useEffect(() => { fetchSigns(); }, [fetchSigns]);
-  useEffect(() => { fetchMeta(); }, [fetchMeta]);
-
-  const [searchInput, setSearchInput] = useState('');
-  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const handleSearchChange = (value: string) => {
-    setSearchInput(value);
-    if (debounceTimer.current) clearTimeout(debounceTimer.current);
-    debounceTimer.current = setTimeout(() => { setSearch(value); setPage(1); }, 300);
-  };
-
-  useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) setOpenDropdown(null);
-    }
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
-  }, []);
-
-  const refresh = useCallback(() => { fetchSigns(); fetchMeta(); }, [fetchSigns, fetchMeta]);
-
-  const handleAction = async () => {
-    if (!confirmAction) return;
-    try {
-      switch (confirmAction.type) {
-        case 'delete': await adminDictApi.deleteSign(confirmAction.signId); break;
-        case 'archive': await adminDictApi.archiveSign(confirmAction.signId); break;
-        case 'duplicate': await adminDictApi.duplicateSign(confirmAction.signId); break;
-      }
-      refresh();
-    } catch { /* ignore */ }
-    setConfirmAction(null);
-  };
-
-  const confirmLabels: Record<string, { title: string; message: string; label: string; variant: 'danger' | 'warning' | 'info' }> = {
-    delete: { title: 'Delete Sign', message: 'This action cannot be undone.', label: 'Delete', variant: 'danger' },
-    archive: { title: 'Archive Sign', message: 'This sign will no longer be visible to students.', label: 'Archive', variant: 'warning' },
-    duplicate: { title: 'Duplicate Sign', message: 'A copy of this sign will be created.', label: 'Duplicate', variant: 'info' },
-  };
-
-  const ci = confirmAction ? confirmLabels[confirmAction.type] : null;
+  const filteredSigns = MOCK_DICTIONARY.filter((item) => {
+    const matchesSearch = item.word.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = activeCategory === 'All' || item.category === activeCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Dictionary Management"
-        description="Manage sign language dictionary entries"
-        icon={BookOpen}
-        action={
-          <div className="flex items-center gap-2">
-            <button onClick={() => setShowCategoryModal(true)} className="btn-secondary inline-flex items-center gap-2 text-sm">
-              <List className="h-4 w-4" /> Categories
-            </button>
-            <button onClick={() => setShowCreateModal(true)} className="btn-primary inline-flex items-center gap-2 text-sm">
-              <Plus className="h-4 w-4" /> Add Sign
-            </button>
+    <div className="space-y-8 font-sans pb-16">
+      {/* Header Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <div className="inline-flex items-center gap-2 rounded-full bg-[#F6D365]/50 px-3.5 py-1 text-2xs font-extrabold text-[#111111] mb-1">
+            <BookMarked className="h-3.5 w-3.5" />
+            <span>National ISL Standard Gesture Repository</span>
           </div>
-        }
-      />
-
-      {/* Stats */}
-      {stats && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard title="Total Signs" value={stats.totalSigns} icon={BookOpen} />
-          <StatCard title="Categories" value={stats.totalCategories} icon={List} />
-          <StatCard title="Total Favorites" value={stats.totalFavorites} icon={Heart} />
-          <StatCard title="Recently Added" value={stats.recentlyAdded} icon={Tag} />
+          <h1 className="font-display text-3xl font-extrabold tracking-tight text-[#111111]">
+            Dictionary & Landmark Management
+          </h1>
         </div>
-      )}
 
-      {/* Alphabet Filter */}
-      {Object.keys(alphabetStats).length > 0 && (
-        <div className="flex flex-wrap gap-1">
-          <button
-            onClick={() => { setLetterFilter(''); setPage(1); }}
-            className={`min-h-[32px] min-w-[32px] flex items-center justify-center rounded-[8px] px-2 text-xs font-bold transition-colors ${
-              !letterFilter ? 'bg-primary-100 text-primary-700 dark:bg-primary-500/20 dark:text-primary-400' : 'bg-surface-100 text-surface-600 hover:bg-surface-200 dark:bg-surface-800 dark:text-surface-400 dark:hover:bg-surface-700'
-            }`}
+        <button className="flex items-center gap-2 rounded-full bg-[#111111] text-white px-6 py-3 text-xs font-extrabold shadow-sm hover:scale-105 transition-all">
+          <Sparkles className="h-4 w-4 text-[#F6D365]" />
+          <span>✨ Generate AI Sign</span>
+        </button>
+      </div>
+
+      {/* 6 Pastel KPI Cards */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+        {DICTIONARY_KPIS.map((kpi, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: i * 0.05 }}
+            style={{ backgroundColor: kpi.hex }}
+            className="rounded-[24px] p-5 shadow-sm border border-black/5 flex flex-col justify-between"
           >
-            All
-          </button>
-          {ALPHABET.map((letter) => {
-            const count = alphabetStats[letter] || 0;
-            return (
-              <button
-                key={letter}
-                onClick={() => { setLetterFilter(letter); setPage(1); }}
-                disabled={count === 0}
-                className={`min-h-[32px] min-w-[32px] flex items-center justify-center rounded-[8px] px-2 text-xs font-bold transition-colors ${
-                  letterFilter === letter
-                    ? 'bg-primary-100 text-primary-700 dark:bg-primary-500/20 dark:text-primary-400'
-                    : count > 0
-                      ? 'bg-surface-100 text-surface-600 hover:bg-surface-200 dark:bg-surface-800 dark:text-surface-400 dark:hover:bg-surface-700'
-                      : 'bg-surface-50 text-surface-300 dark:bg-surface-900 dark:text-surface-700'
-                }`}
-                title={`${letter}: ${count}`}
-              >
-                {letter}
-              </button>
-            );
-          })}
-        </div>
-      )}
+            <div>
+              <div className="flex items-center justify-between">
+                <p className="text-2xs font-extrabold uppercase tracking-wider text-[#111111]/80 truncate">
+                  {kpi.title}
+                </p>
+                <div className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-[#111111] text-white shadow-2xs">
+                  <kpi.icon className="h-4 w-4 text-white" />
+                </div>
+              </div>
+              <p className="font-heading text-3xl font-extrabold text-[#111111] mt-3">
+                {kpi.value}
+              </p>
+            </div>
+            <div className="mt-3 pt-2 border-t border-black/10 flex items-center justify-between text-2xs font-extrabold text-[#111111]">
+              <span className="inline-flex items-center gap-1 rounded-full bg-[#111111]/15 px-2 py-0.5">
+                +{kpi.change}%
+              </span>
+              <span className="text-[#111111]/70 font-semibold truncate">{kpi.subtext}</span>
+            </div>
+          </motion.div>
+        ))}
+      </div>
 
-      {/* Filters */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <div className="flex-1">
-          <SearchBar value={searchInput} onChange={handleSearchChange} placeholder="Search signs by word or meaning..." />
+      {/* Domain Category Filter Pills */}
+      <div className="rounded-[28px] bg-white p-6 shadow-sm border border-black/5 flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search users, courses, AI logs..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full rounded-full border border-black/10 bg-[#FAF8F6] pl-10 pr-4 py-2.5 text-xs font-bold text-[#111111] focus:outline-none focus:border-black/30"
+            />
+          </div>
+          <span className="text-xs font-bold text-gray-500">
+            Showing {filteredSigns.length} Gestures
+          </span>
         </div>
-        <div className="flex items-center gap-2" ref={dropdownRef}>
-          {/* Category Filter */}
-          <div className="relative">
-            <button
-              onClick={() => setOpenDropdown(openDropdown === 'category' ? null : 'category')}
-              className={`flex min-h-[44px] items-center gap-2 rounded-[14px] border px-4 py-2.5 text-sm font-medium transition-colors ${
-                categoryIdFilter ? 'border-primary-300 bg-primary-50 text-primary-700 dark:border-primary-700 dark:bg-primary-500/10 dark:text-primary-400' : 'border-surface-200 bg-white text-surface-700 hover:border-surface-300 dark:border-surface-700 dark:bg-surface-900 dark:text-surface-300'
-              }`}
-              aria-label="Filter by category"
-            >
-              <Filter className="h-4 w-4" />
-              <span className="hidden sm:inline">Category</span>
-              {categoryIdFilter && <span className="rounded-full bg-primary-100 px-2 py-0.5 text-2xs font-bold text-primary-700">{categories.find((c) => c.id === categoryIdFilter)?.name}</span>}
-              <ChevronDown className={`h-4 w-4 transition-transform ${openDropdown === 'category' ? 'rotate-180' : ''}`} />
-            </button>
-            <AnimatePresence>
-              {openDropdown === 'category' && (
-                <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} className="absolute right-0 top-full z-30 mt-2 w-52 max-h-60 overflow-y-auto rounded-[16px] border border-surface-200 bg-white shadow-lg dark:border-surface-700 dark:bg-surface-900">
-                  <div className="py-1">
-                    <button onClick={() => { setCategoryIdFilter(''); setPage(1); setOpenDropdown(null); }} className={`flex w-full items-center px-4 py-2.5 text-sm transition-colors ${!categoryIdFilter ? 'bg-surface-50 font-semibold dark:bg-surface-800' : 'hover:bg-surface-50 dark:hover:bg-surface-800'}`}>
-                      All Categories
-                    </button>
-                    {categories.map((cat) => (
-                      <button key={cat.id} onClick={() => { setCategoryIdFilter(cat.id); setPage(1); setOpenDropdown(null); }} className={`flex w-full items-center justify-between px-4 py-2.5 text-sm transition-colors ${categoryIdFilter === cat.id ? 'bg-surface-50 font-semibold dark:bg-surface-800' : 'hover:bg-surface-50 dark:hover:bg-surface-800'}`}>
-                        <span>{cat.name}</span>
-                        <span className="text-2xs text-surface-400">{cat.signCount}</span>
-                      </button>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
 
-          {/* Difficulty Filter */}
-          <div className="relative">
+        {/* Domain Category Buttons */}
+        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-black/5">
+          {DOMAIN_CATEGORIES.map((cat) => (
             <button
-              onClick={() => setOpenDropdown(openDropdown === 'difficulty' ? null : 'difficulty')}
-              className={`flex min-h-[44px] items-center gap-2 rounded-[14px] border px-4 py-2.5 text-sm font-medium transition-colors ${
-                difficultyFilter ? 'border-primary-300 bg-primary-50 text-primary-700 dark:border-primary-700 dark:bg-primary-500/10 dark:text-primary-400' : 'border-surface-200 bg-white text-surface-700 hover:border-surface-300 dark:border-surface-700 dark:bg-surface-900 dark:text-surface-300'
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              className={`rounded-full px-4 py-2 text-xs font-extrabold transition-all ${
+                activeCategory === cat
+                  ? 'bg-[#111111] text-white shadow-sm'
+                  : 'bg-[#FAF8F6] text-gray-700 hover:bg-gray-200'
               }`}
-              aria-label="Filter by difficulty"
             >
-              <Filter className="h-4 w-4" />
-              <span className="hidden sm:inline">Difficulty</span>
-              {difficultyFilter && <span className="rounded-full bg-primary-100 px-2 py-0.5 text-2xs font-bold text-primary-700">{difficultyConfig[difficultyFilter]?.label}</span>}
-              <ChevronDown className={`h-4 w-4 transition-transform ${openDropdown === 'difficulty' ? 'rotate-180' : ''}`} />
+              {cat}
             </button>
-            <AnimatePresence>
-              {openDropdown === 'difficulty' && (
-                <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} className="absolute right-0 top-full z-30 mt-2 w-48 overflow-hidden rounded-[16px] border border-surface-200 bg-white shadow-lg dark:border-surface-700 dark:bg-surface-900">
-                  <div className="py-1">
-                    {(['', 'BEGINNER', 'INTERMEDIATE', 'ADVANCED'] as const).map((d) => (
-                      <button key={d || 'all'} onClick={() => { setDifficultyFilter(d as AdminDictDifficulty | ''); setPage(1); setOpenDropdown(null); }} className={`flex w-full items-center px-4 py-2.5 text-sm transition-colors ${difficultyFilter === d ? 'bg-surface-50 font-semibold dark:bg-surface-800' : 'hover:bg-surface-50 dark:hover:bg-surface-800'}`}>
-                        {d ? difficultyConfig[d]?.label : 'All Difficulties'}
-                      </button>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+          ))}
         </div>
       </div>
 
-      {/* Table */}
-      {loading ? (
-        <SkeletonLoader count={5} />
-      ) : signs.length === 0 ? (
-        <EmptyState
-          icon={BookOpen}
-          title="No signs found"
-          description={search || difficultyFilter || categoryIdFilter || letterFilter ? 'Try adjusting your search or filters.' : 'No dictionary entries yet.'}
-          accentColor="mint"
-          action={<button onClick={() => setShowCreateModal(true)} className="btn-mint text-sm inline-flex items-center gap-2"><Plus className="h-4 w-4" /> Add First Sign</button>}
-        />
-      ) : (
-        <div className="overflow-x-auto rounded-card border border-surface-200 dark:border-surface-700">
-          <table className="min-w-full divide-y divide-surface-200 dark:divide-surface-700">
-            <thead className="bg-surface-50 dark:bg-surface-800">
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">Sign</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500 hidden md:table-cell">Category</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500 hidden lg:table-cell">Difficulty</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500 hidden lg:table-cell">Favorites</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500 hidden xl:table-cell">Media</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500 hidden lg:table-cell">Status</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500 hidden xl:table-cell">Updated</th>
-                <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-surface-500">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-surface-100 bg-white dark:divide-surface-800 dark:bg-surface-900">
-              {signs.map((sign) => {
-                const StatusIcon = statusConfig[sign.status]?.icon || CheckCircle2;
-                const diff = difficultyConfig[sign.difficulty];
-                return (
-                  <tr key={sign.id} className="transition-colors hover:bg-surface-50 dark:hover:bg-surface-800/50">
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-3 min-w-0">
-                        {sign.imageUrl ? (
-                          <img src={sign.imageUrl} alt={sign.word} className="h-10 w-10 flex-shrink-0 rounded-[10px] object-cover" />
-                        ) : (
-                          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-[10px] bg-primary-50 text-primary-600 dark:bg-primary-500/10 dark:text-primary-400">
-                            <BookOpen className="h-5 w-5" />
-                          </div>
-                        )}
-                        <div className="min-w-0">
-                          <p className="text-sm font-semibold text-surface-900 dark:text-white truncate">{sign.word}</p>
-                          <p className="text-xs text-surface-500 truncate max-w-[200px]">{sign.meaning}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 hidden md:table-cell">
-                      <span className="inline-flex items-center rounded-full bg-surface-100 px-2.5 py-0.5 text-xs font-medium text-surface-700 dark:bg-surface-800 dark:text-surface-300">
-                        {sign.category.name}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 hidden lg:table-cell">
-                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${diff?.color}`}>
-                        <Tag className="mr-1 h-3 w-3" />{diff?.label}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 hidden lg:table-cell">
-                      <span className="inline-flex items-center gap-1 text-sm text-surface-600 dark:text-surface-400">
-                        <Heart className="h-3.5 w-3.5 text-danger-400" /> {sign.favoriteCount}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 hidden xl:table-cell">
-                      <div className="flex items-center gap-1">
-                        {sign.imageUrl ? <Image className="h-4 w-4 text-success-500" aria-label="Has image" /> : sign.videoUrl ? <Video className="h-4 w-4 text-info-500" aria-label="Has video" /> : <EyeOff className="h-4 w-4 text-surface-300" aria-label="No media" />}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 hidden lg:table-cell">
-                      <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold ${statusConfig[sign.status]?.color}`}>
-                        <StatusIcon className="h-3 w-3" />
-                        {statusConfig[sign.status]?.label}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 hidden xl:table-cell text-xs text-surface-500">
-                      {new Date(sign.updatedAt).toLocaleDateString()}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <button onClick={() => setViewSignId(sign.id)} className="min-h-[36px] min-w-[36px] flex items-center justify-center rounded-[10px] p-1.5 text-surface-400 transition-colors hover:bg-surface-100 hover:text-surface-700 dark:hover:bg-surface-800" title="View">
-                          <Eye className="h-4 w-4" />
-                        </button>
-                        <button onClick={() => setEditSignId(sign.id)} className="min-h-[36px] min-w-[36px] flex items-center justify-center rounded-[10px] p-1.5 text-surface-400 transition-colors hover:bg-surface-100 hover:text-surface-700 dark:hover:bg-surface-800" title="Edit">
-                          <Pencil className="h-4 w-4" />
-                        </button>
-                        <button onClick={() => setConfirmAction({ type: 'duplicate', signId: sign.id, signWord: sign.word })} className="min-h-[36px] min-w-[36px] flex items-center justify-center rounded-[10px] p-1.5 text-surface-400 transition-colors hover:bg-info-50 hover:text-info-600 dark:hover:bg-info-500/10" title="Duplicate">
-                          <Copy className="h-4 w-4" />
-                        </button>
-                        {sign.status === 'ACTIVE' ? (
-                          <button onClick={() => setConfirmAction({ type: 'archive', signId: sign.id, signWord: sign.word })} className="min-h-[36px] min-w-[36px] flex items-center justify-center rounded-[10px] p-1.5 text-surface-400 transition-colors hover:bg-warning-50 hover:text-warning-600 dark:hover:bg-warning-500/10" title="Archive">
-                            <Archive className="h-4 w-4" />
-                          </button>
-                        ) : null}
-                        <button onClick={() => setConfirmAction({ type: 'delete', signId: sign.id, signWord: sign.word })} className="min-h-[36px] min-w-[36px] flex items-center justify-center rounded-[10px] p-1.5 text-surface-400 transition-colors hover:bg-danger-50 hover:text-danger-600 dark:hover:bg-danger-500/10" title="Delete">
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+      {/* Gesture Cards Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredSigns.map((item) => (
+          <motion.div
+            key={item.id}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-[32px] bg-white p-6 shadow-sm border border-black/5 flex flex-col justify-between space-y-4 transition-all hover:shadow-md"
+          >
+            <div className="flex items-start gap-4">
+              <img
+                src={item.thumbnail}
+                alt={item.word}
+                className="h-16 w-20 rounded-[18px] object-cover border border-black/10 shadow-2xs flex-shrink-0"
+              />
+              <div className="flex-1 min-w-0">
+                <span
+                  style={{ backgroundColor: item.hex }}
+                  className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-2xs font-extrabold text-[#111111] mb-1"
+                >
+                  {item.badge}
+                </span>
+                <h3 className="font-display text-base font-extrabold text-[#111111] truncate">
+                  {item.word}
+                </h3>
+                <p className="text-xs font-bold text-gray-500">{item.category} Domain</p>
+              </div>
+            </div>
+
+            {/* AI Accuracy & Usage */}
+            <div className="flex items-center justify-between pt-3 border-t border-black/5 text-xs font-extrabold text-[#111111]">
+              <div className="rounded-full bg-[#B8E6C3]/40 px-3 py-1 text-2xs">
+                AI Accuracy: <strong>{item.accuracy}</strong>
+              </div>
+              <div className="rounded-full bg-gray-100 px-3 py-1 text-2xs">{item.usage}</div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center justify-between pt-2">
+              <span className="text-2xs font-bold text-gray-400">21-Landmark Model</span>
+              <button
+                onClick={() => setPreviewSign(item)}
+                className="flex items-center gap-1.5 rounded-full bg-[#111111] text-white px-4 py-2 text-xs font-extrabold hover:bg-black transition-all"
+              >
+                <Play className="h-3.5 w-3.5 text-[#F6D365]" /> Preview Sign
+              </button>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* AI Missing Gestures Alert Panel */}
+      <div className="rounded-[32px] bg-[#1B1B1D] p-6 lg:p-8 text-white shadow-xl border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+        <div className="flex items-center gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-[18px] bg-[#E8A5C9] text-[#111111] font-extrabold shadow-sm">
+            <Brain className="h-6 w-6 text-[#111111]" />
+          </div>
+          <div>
+            <h3 className="font-display text-lg font-extrabold text-white">
+              AI Alert: Missing Emergency Gestures
+            </h3>
+            <p className="text-xs font-semibold text-gray-400">
+              AI detected 12 missing gesture landmarks in Emergency Healthcare domain. Auto-train
+              queued.
+            </p>
+          </div>
         </div>
-      )}
 
-      {!loading && signs.length > 0 && (
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-surface-500">Showing {((page - 1) * 10) + 1}–{Math.min(page * 10, total)} of {total}</p>
-          <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
-        </div>
-      )}
+        <button className="rounded-full bg-[#E8A5C9] text-[#111111] px-6 py-3 text-xs font-extrabold shadow-sm hover:scale-105 transition-all">
+          Train Missing Gestures
+        </button>
+      </div>
 
-      {/* Modals */}
-      <DictViewModal open={!!viewSignId} onClose={() => setViewSignId(null)} signId={viewSignId} />
-      <DictCreateModal open={showCreateModal} onClose={() => setShowCreateModal(false)} onCreated={refresh} />
-      <DictEditModal open={!!editSignId} onClose={() => setEditSignId(null)} signId={editSignId} onSaved={refresh} />
-      <CategoryManageModal open={showCategoryModal} onClose={() => setShowCategoryModal(false)} onCategoryChange={refresh} />
+      {/* Interactive Sign Preview Modal */}
+      <AnimatePresence>
+        {previewSign && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="relative w-full max-w-lg rounded-[32px] bg-white p-6 shadow-2xl border border-black/10 text-[#111111]"
+            >
+              <button
+                onClick={() => setPreviewSign(null)}
+                className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-gray-700 hover:bg-[#111111] hover:text-white transition-all"
+              >
+                <X className="h-4 w-4" />
+              </button>
 
-      {ci && (
-        <ConfirmDialog
-          open={!!confirmAction}
-          onClose={() => setConfirmAction(null)}
-          onConfirm={handleAction}
-          title={ci.title}
-          message={`${confirmAction?.signWord ? `"${confirmAction.signWord}" — ` : ''}${ci.message}`}
-          confirmLabel={ci.label}
-          variant={ci.variant}
-        />
-      )}
+              <span
+                style={{ backgroundColor: previewSign.hex }}
+                className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-2xs font-extrabold text-[#111111] mb-2"
+              >
+                {previewSign.badge}
+              </span>
+              <h3 className="font-display text-2xl font-extrabold">{previewSign.word}</h3>
+              <p className="text-xs font-bold text-gray-500 mt-0.5">
+                {previewSign.category} Domain • Accuracy {previewSign.accuracy}
+              </p>
+
+              {/* Video Preview */}
+              <div className="mt-4 rounded-[20px] overflow-hidden bg-black aspect-video flex items-center justify-center border border-black/10">
+                <img
+                  src={previewSign.thumbnail}
+                  alt={previewSign.word}
+                  className="w-full h-full object-cover opacity-80"
+                />
+              </div>
+
+              <div className="mt-4 pt-4 border-t border-black/10 flex items-center justify-between text-xs font-bold">
+                <span>
+                  Usage Volume: <strong>{previewSign.usage}</strong>
+                </span>
+                <button
+                  onClick={() => setPreviewSign(null)}
+                  className="rounded-full bg-[#111111] text-white px-5 py-2 text-xs font-extrabold"
+                >
+                  Close Preview
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -1,0 +1,124 @@
+# Development Dataset Configuration
+# Phase 9: Build Development Dataset from Exploration-Lab/iSign
+
+# =============================================================================
+# SAMPLE SIZE
+# =============================================================================
+# Number of unique video IDs to select
+# Options: 25, 50, 100, 250, 500
+sample_size: 50
+
+# Random seed for reproducibility
+random_seed: 42
+
+# =============================================================================
+# SOURCE
+# =============================================================================
+source:
+  # HuggingFace repo
+  repo_id: 'Exploration-Lab/iSign'
+  repo_type: 'dataset'
+
+  # CSV file in the repo
+  csv_file: 'iSign_v1.1.csv'
+
+  # UID column name in CSV
+  uid_column: 'uid'
+
+  # Text column name in CSV
+  text_column: 'text'
+
+  # Local CSV path (HuggingFace cache)
+  local_csv_path: 'C:/Users/Gaurav Gopal Gosavi/.cache/huggingface/hub/datasets--Exploration-Lab--iSign/snapshots/e4ee6c5f0d9dfcbc74205e3f1388ce94da26c298/iSign_v1.1.csv'
+
+# =============================================================================
+# VIDEO FILES
+# =============================================================================
+# Videos are stored as split zip parts in HuggingFace
+# We must download all parts, concatenate, then extract specific videos
+videos:
+  # Part files to download (in order)
+  part_files:
+    - 'iSign-videos_v1.1_part_aa'
+    - 'iSign-videos_v1.1_part_ab'
+
+  # Output zip name after concatenation
+  combined_zip: 'iSign-videos_v1.1.zip'
+
+  # Video file extension inside the zip
+  video_extension: '.mp4'
+
+  # Folder hierarchy inside the zip (if any)
+  # Videos are typically at root or in a folder like videos/
+  zip_inner_prefix: ''
+
+# =============================================================================
+# POSE FILES
+# =============================================================================
+# Pose files use the same split zip approach
+# Format: .pose files using pose-format library
+poses:
+  # Enable pose download (set false to skip)
+  enabled: true
+
+  # Part files to download (in order)
+  part_files:
+    - 'iSign-poses_v1.1_part_aa'
+    - 'iSign-poses_v1.1_part_ab'
+    - 'iSign-poses_v1.1_part_ac'
+    - 'iSign-poses_v1.1_part_ad'
+
+  # Output zip name after concatenation
+  combined_zip: 'iSign-poses_v1.1.zip'
+
+  # Pose file extension inside the zip
+  pose_extension: '.pose'
+
+  # Folder hierarchy inside the zip (if any)
+  zip_inner_prefix: ''
+
+# =============================================================================
+# OUTPUT
+# =============================================================================
+output:
+  # Root directory for the dev dataset
+  root_dir: './datasets/dev'
+
+  # Subdirectories
+  videos_dir: 'videos'
+  poses_dir: 'poses'
+  metadata_dir: 'metadata'
+
+  # Output files
+  manifest_csv: 'manifest.csv'
+  statistics_json: 'statistics.json'
+  readme_md: 'README.md'
+
+# =============================================================================
+# VERIFICATION
+# =============================================================================
+verification:
+  # Check that every sample has video file
+  check_videos: true
+
+  # Check that every sample has pose file (if poses enabled)
+  check_poses: true
+
+  # Check metadata integrity
+  check_metadata: true
+
+  # Fail fast on verification errors
+  fail_fast: false
+
+# =============================================================================
+# CLEANUP
+# =============================================================================
+cleanup:
+  # Remove combined zip after extraction
+  remove_combined_zip: true
+
+  # Remove video part files after concatenation
+  remove_part_files: true
+
+  # Keep partial downloads for resume capability
+  keep_partial_downloads: false

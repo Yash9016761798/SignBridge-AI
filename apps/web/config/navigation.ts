@@ -17,6 +17,7 @@ import {
   Shield,
   Activity,
   Brain,
+  Palette,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -122,20 +123,26 @@ const governmentNavigation: NavGroup[] = [
 
 const adminNavigation: NavGroup[] = [
   {
-    label: 'Administration',
+    label: 'Overview',
+    items: [{ label: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard }],
+  },
+  {
+    label: 'Learning',
     items: [
-      { label: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
       { label: 'Users', href: '/admin/users', icon: Users },
       { label: 'Courses', href: '/admin/courses', icon: BookOpen },
       { label: 'Dictionary', href: '/admin/dictionary', icon: BookMarked },
     ],
   },
   {
+    label: 'AI Engine',
+    items: [{ label: 'AI Operations', href: '/admin/ai', icon: Brain }],
+  },
+  {
     label: 'System',
     items: [
-      { label: 'AI Monitoring', href: '/admin/ai', icon: Brain },
       { label: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
-      { label: 'Settings', href: '/admin/settings', icon: Settings },
+      { label: 'System Settings', href: '/admin/settings', icon: Settings },
     ],
   },
 ];

@@ -39,6 +39,7 @@ type AuthStoreState = AuthPersistState &
     forgotPassword: (email: string) => Promise<void>;
     resetPassword: (token: string, password: string) => Promise<void>;
     setUser: (user: User | null) => void;
+    switchRole: (role: 'LEARNER' | 'ADMIN' | 'TEACHER' | 'INSTITUTION') => void;
     clearError: () => void;
   };
 
@@ -156,8 +157,35 @@ export const useAuthStore = create<AuthStoreState>()(
         }
       },
 
-      setUser: (user: User | null) => {
-        set({ user, isAuthenticated: !!user });
+      setUser: (user: User | null) => set({ user, isAuthenticated: !!user }),
+
+      switchRole: (role: 'LEARNER' | 'ADMIN' | 'TEACHER' | 'INSTITUTION') => {
+        const currentUser = get().user;
+        if (currentUser) {
+          set({
+            user: {
+              ...currentUser,
+              role,
+            },
+          });
+        } else {
+          set({
+            user: {
+              id: 'demo-user-001',
+              email: 'demo@signbridge.ai',
+              firstName: 'Demo',
+              lastName: 'User',
+              firebaseUid: 'demo-uid',
+              role,
+              roleId: 'demo-role',
+              isVerified: true,
+              isActive: true,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            },
+            isAuthenticated: true,
+          });
+        }
       },
 
       clearError: () => set({ error: null }),

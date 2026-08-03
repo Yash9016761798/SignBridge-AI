@@ -1,6 +1,6 @@
 # SignBridge AI
 
-Breaking Communication Barriers Through Indian Sign Language
+> Breaking Communication Barriers Through Indian Sign Language
 
 [![CI](https://github.com/signbridge/signbridge-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/signbridge/signbridge-ai/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -8,121 +8,62 @@ Breaking Communication Barriers Through Indian Sign Language
 ## Overview
 
 SignBridge AI is an AI-powered accessibility platform designed to eliminate communication barriers
-between people who communicate using Indian Sign Language (ISL) and those who do not.
+between individuals who communicate using Indian Sign Language (ISL) and non-signers. It features
+real-time webcam gesture translation, interactive learning courses, practice suites with gesture
+feedback, an ISL dictionary, and multi-role dashboards.
 
-## Features
+---
 
-- **Learn ISL** - Interactive courses with AI-assisted learning
-- **AI Practice** - Real-time gesture recognition and feedback
-- **Translation** - Text, speech, and sign language translation
-- **Dictionary** - Comprehensive Indian Sign Language dictionary
-- **Dashboards** - Role-based dashboards for learners, teachers, hospitals, NGOs, and government
+## 📘 Complete Documentation
 
-## Tech Stack
+All detailed architecture specs, setup guides, API endpoints, testing, security, and developer
+instructions are consolidated in the master documentation:
 
-| Service        | Technology                               |
-| -------------- | ---------------------------------------- |
-| Frontend       | Next.js, React, TypeScript, Tailwind CSS |
-| Backend        | NestJS, TypeScript, Prisma, PostgreSQL   |
-| Mobile         | Flutter, Dart, Riverpod                  |
-| AI Service     | FastAPI, Python, TensorFlow, MediaPipe   |
-| Infrastructure | Docker, GitHub Actions, Vercel, Railway  |
+👉 **[PROJECT_DOCUMENTATION.md](PROJECT_DOCUMENTATION.md)**
 
-## Project Structure
+---
 
-```
-SignBridge-AI/
-├── apps/
-│   ├── web/          # Next.js frontend
-│   ├── backend/      # NestJS API
-│   ├── mobile/       # Flutter app
-│   └── ai-service/   # FastAPI AI service
-├── packages/
-│   ├── ui/           # Shared UI components
-│   ├── types/        # Shared TypeScript types
-│   ├── config/       # Shared configuration
-│   ├── eslint-config/# Shared ESLint config
-│   ├── tsconfig/     # Shared TypeScript config
-│   └── api-client/   # API client (placeholder)
-├── docs/             # Documentation
-├── MASTER_PROMPT/    # AI development prompts
-└── docker-compose.yml
-```
-
-## Getting Started
+## Quick Start
 
 ### Prerequisites
 
-- Node.js 18+
-- pnpm 8+
-- Python 3.10+
-- Flutter 3.x
-- Docker (optional)
+- **Node.js**: `>= 18.0.0`
+- **pnpm**: `>= 8.15.0`
+- **Python**: `>= 3.10.0`
 
-### Installation
+### Installation & Run
 
 ```bash
-# Clone the repository
+# Clone repository
 git clone https://github.com/signbridge/signbridge-ai.git
-cd signbridge-ai
+cd SignBridge-AI
 
-# Install dependencies
+# Install monorepo dependencies
 pnpm install
 
-# Copy environment files
-cp apps/web/.env.example apps/web/.env.local
-cp apps/backend/.env.example apps/backend/.env
-cp apps/ai-service/.env.example apps/ai-service/.env
-```
-
-### Development
-
-```bash
-# Start all services
+# Start development environment
 pnpm dev
-
-# Start specific service
-pnpm --filter @signbridge/web dev
-pnpm --filter @signbridge/backend dev
 ```
 
-### Docker
+### Docker Quickstart
 
 ```bash
-# Start all services with Docker
 docker-compose up -d
-
-# View logs
-docker-compose logs -f
 ```
 
-## Available Commands
+---
 
-Run `make help` to see all available commands:
+## Tech Stack
 
-```bash
-make dev          # Start all services
-make build        # Build all applications
-make lint         # Run linting
-make test         # Run tests
-make docker-up    # Start Docker services
-```
+| Service       | Technology                                             |
+| ------------- | ------------------------------------------------------ |
+| **Frontend**  | Next.js 14, React 18, TypeScript, Tailwind CSS         |
+| **AI Engine** | FastAPI, Python 3.10+, MediaPipe, PyTorch / TensorFlow |
+| **Backend**   | NestJS, TypeScript, Prisma, PostgreSQL                 |
+| **Mobile**    | Flutter, Dart, Riverpod                                |
 
-## Documentation
-
-- [Architecture](docs/Architecture.md)
-- [Setup Guide](docs/Setup.md)
-- [Development Guide](docs/Development.md)
-- [Deployment Guide](docs/Deployment.md)
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-## Security
-
-See [SECURITY.md](SECURITY.md) for security policy.
+---
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Licensed under the [MIT License](LICENSE).

@@ -52,13 +52,14 @@ export default function DashboardPage() {
 
       {/* Stats Grid */}
       <motion.div variants={item} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard title="Courses Enrolled" value="2" icon={BookOpen} />
+        <StatCard title="Courses Enrolled" value="2" icon={BookOpen} variant="rose" />
         <StatCard
           title="Practice Sessions"
           value="12"
           icon={Video}
           change={33}
           changeLabel="this week"
+          variant="yellow"
         />
         <StatCard
           title="Translations"
@@ -66,17 +67,20 @@ export default function DashboardPage() {
           icon={MessageSquare}
           change={21}
           changeLabel="today"
+          variant="sky"
         />
-        <StatCard title="Certificates" value="1" icon={Award} />
+        <StatCard title="Certificates" value="1" icon={Award} variant="mint" />
       </motion.div>
 
       {/* Quick Actions */}
       <motion.div variants={item}>
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-bold text-surface-900 dark:text-white">Quick Actions</h3>
+          <h3 className="font-heading text-lg font-bold text-[#111111] dark:text-white">
+            Quick Actions
+          </h3>
           <Link
             href="/learn"
-            className="flex items-center gap-1.5 text-sm font-semibold text-primary-600 hover:text-primary-700 transition-colors"
+            className="flex items-center gap-1.5 text-sm font-semibold text-[#111111] hover:underline transition-all dark:text-gray-300"
           >
             View all <ArrowRight className="h-4 w-4" />
           </Link>
@@ -87,24 +91,28 @@ export default function DashboardPage() {
             description="Begin a new ISL lesson"
             icon={BookOpen}
             href="/learn"
+            variant="rose"
           />
           <QuickActionCard
             title="Practice Signs"
             description="AI-powered practice session"
             icon={Video}
             href="/practice"
+            variant="yellow"
           />
           <QuickActionCard
             title="Translate"
             description="Convert text to sign language"
             icon={MessageSquare}
             href="/translation"
+            variant="sky"
           />
           <QuickActionCard
             title="Dictionary"
             description="Browse sign language words"
             icon={BookMarked}
             href="/dictionary"
+            variant="mint"
           />
         </div>
       </motion.div>
@@ -118,36 +126,46 @@ export default function DashboardPage() {
                 text: 'Completed "Basic Greetings" lesson',
                 time: '2 hours ago',
                 icon: BookOpen,
-                color: 'bg-success-50 text-success-500',
+                hex: '#B8E6C3',
               },
               {
                 text: 'Practiced 15 sign language gestures',
                 time: 'Yesterday',
                 icon: Video,
-                color: 'bg-gradient-brand-soft text-primary-600',
+                hex: '#A9D6F5',
               },
               {
                 text: 'Translated "Hello, how are you?" to ISL',
                 time: '2 days ago',
                 icon: MessageSquare,
-                color: 'bg-info-50 text-info-600',
+                hex: '#E9A8C9',
+              },
+              {
+                text: 'Earned ISL Basics Certificate',
+                time: '3 days ago',
+                icon: Award,
+                hex: '#F6D365',
               },
             ].map((activity, i) => (
               <div
                 key={i}
-                className="group flex items-center gap-4 rounded-[16px] p-3 transition-colors hover:bg-surface-50 dark:hover:bg-surface-800/50"
+                style={{ backgroundColor: activity.hex }}
+                className="group flex items-center justify-between rounded-[20px] p-4 text-[#111111] shadow-sm border border-black/5 transition-all hover:scale-[1.01]"
               >
-                <div
-                  className={`flex h-10 w-10 items-center justify-center rounded-[14px] ${activity.color}`}
-                >
-                  <activity.icon className="h-5 w-5" />
+                <div className="flex items-center gap-3.5">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#111111] text-white shadow-sm flex-shrink-0">
+                    <activity.icon className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="font-heading text-sm font-bold text-[#111111]">{activity.text}</p>
+                    <p className="font-body text-xs text-[#111111]/70 font-semibold mt-0.5">
+                      {activity.time}
+                    </p>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-surface-900 dark:text-white">
-                    {activity.text}
-                  </p>
-                  <p className="text-xs text-surface-500 mt-0.5">{activity.time}</p>
-                </div>
+                <span className="rounded-full bg-[#111111]/15 px-3 py-1 text-2xs font-extrabold text-[#111111]">
+                  Verified
+                </span>
               </div>
             ))}
           </div>
@@ -155,57 +173,67 @@ export default function DashboardPage() {
 
         <DashboardCard title="Continue Learning" icon={BookOpen}>
           <div className="space-y-4">
-            <div className="rounded-[16px] border border-surface-200 p-4 transition-colors hover:border-primary-200 dark:border-surface-700 dark:hover:border-primary-800">
+            <div
+              style={{ backgroundColor: '#A9D6F5' }}
+              className="rounded-[24px] p-5 border border-black/5 text-[#111111] shadow-sm transition-all hover:shadow-md"
+            >
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-sm font-bold text-surface-900 dark:text-white">
+                  <p className="font-heading text-base font-extrabold text-[#111111]">
                     ISL Fundamentals
                   </p>
-                  <p className="mt-0.5 text-xs text-surface-500">Module 2: Common Phrases</p>
+                  <p className="font-body mt-0.5 text-xs text-[#111111]/80 font-semibold">
+                    Module 2: Common Phrases
+                  </p>
                 </div>
-                <button className="flex h-9 w-9 items-center justify-center rounded-full gradient-bg text-surface-900 transition-all hover:scale-105 hover:shadow-glow">
-                  <Play className="h-4 w-4 ml-0.5" />
+                <button className="flex h-10 w-10 items-center justify-center rounded-full bg-[#111111] text-white transition-all hover:scale-105 shadow-md">
+                  <Play className="h-4 w-4 ml-0.5 text-[#A9D6F5]" />
                 </button>
               </div>
-              <div className="mt-3">
+              <div className="mt-4">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-surface-500 font-medium">Progress</span>
-                  <span className="font-bold text-primary-600">60%</span>
+                  <span className="font-semibold text-[#111111]/80">Progress</span>
+                  <span className="font-extrabold text-[#111111]">60%</span>
                 </div>
-                <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-surface-100 dark:bg-surface-800">
+                <div className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-[#111111]/15">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: '60%' }}
                     transition={{ duration: 1.2, ease: [0.4, 0, 0.2, 1] }}
-                    className="h-full rounded-full gradient-bg"
+                    className="h-full rounded-full bg-[#111111]"
                   />
                 </div>
               </div>
             </div>
 
-            <div className="rounded-[16px] border border-surface-200 p-4 transition-colors hover:border-primary-200 dark:border-surface-700 dark:hover:border-primary-800">
+            <div
+              style={{ backgroundColor: '#F6D365' }}
+              className="rounded-[24px] p-5 border border-black/5 text-[#111111] shadow-sm transition-all hover:shadow-md"
+            >
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-sm font-bold text-surface-900 dark:text-white">
+                  <p className="font-heading text-base font-extrabold text-[#111111]">
                     Numbers & Counting
                   </p>
-                  <p className="mt-0.5 text-xs text-surface-500">Module 1: Basic Numbers</p>
+                  <p className="font-body mt-0.5 text-xs text-[#111111]/80 font-semibold">
+                    Module 1: Basic Numbers
+                  </p>
                 </div>
-                <button className="flex h-9 w-9 items-center justify-center rounded-full gradient-bg text-surface-900 transition-all hover:scale-105 hover:shadow-glow">
-                  <Play className="h-4 w-4 ml-0.5" />
+                <button className="flex h-10 w-10 items-center justify-center rounded-full bg-[#111111] text-white transition-all hover:scale-105 shadow-md">
+                  <Play className="h-4 w-4 ml-0.5 text-[#F6D365]" />
                 </button>
               </div>
-              <div className="mt-3">
+              <div className="mt-4">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-surface-500 font-medium">Progress</span>
-                  <span className="font-bold text-primary-600">30%</span>
+                  <span className="font-semibold text-[#111111]/80">Progress</span>
+                  <span className="font-extrabold text-[#111111]">30%</span>
                 </div>
-                <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-surface-100 dark:bg-surface-800">
+                <div className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-[#111111]/15">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: '30%' }}
                     transition={{ duration: 1.2, ease: [0.4, 0, 0.2, 1], delay: 0.15 }}
-                    className="h-full rounded-full gradient-bg"
+                    className="h-full rounded-full bg-[#111111]"
                   />
                 </div>
               </div>
