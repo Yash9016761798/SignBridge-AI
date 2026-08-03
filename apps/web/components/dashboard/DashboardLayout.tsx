@@ -67,11 +67,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         )}
       </AnimatePresence>
 
-      {/* Sidebar */}
+      {/* Sidebar Wrapper */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 lg:static lg:z-auto ${
+        className={`fixed inset-y-0 left-0 z-50 p-3 lg:p-4 lg:static lg:z-auto ${
           mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-        } transition-transform duration-300 ease-in-out`}
+        } transition-transform duration-300 ease-in-out flex`}
       >
         <Sidebar />
       </div>

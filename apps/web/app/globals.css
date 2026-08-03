@@ -2,23 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root {
-  --foreground: #1A1A1A;
+  --foreground: #111111;
   --background: #FAF8F6;
   --card: #FFFFFF;
   --card-hover: #F5F3F0;
   --border: #EFEFEF;
   --primary: #E9A8C9;
-  --primary-foreground: #FFFFFF;
+  --primary-foreground: #111111;
   --secondary: #F6D365;
+  --accent-rose: #E9A8C9;
+  --accent-yellow: #F6D365;
+  --accent-blue: #A9D6F5;
+  --accent-mint: #B8E6C3;
+  --warning: #F7C873;
   --accent: #B8E6C3;
   --muted: #F5F3F0;
   --muted-foreground: #666666;
   --ring: #E9A8C9;
-  --radius: 20px;
-  --sidebar: #111111;
+  --radius: 24px;
+  --sidebar: #1B1B1D;
 }
 
 .dark {
@@ -30,11 +35,16 @@
   --primary: #f0b8d4;
   --primary-foreground: #1A1A1A;
   --secondary: #f8d870;
+  --accent-rose: #E9A8C9;
+  --accent-yellow: #F6D365;
+  --accent-blue: #A9D6F5;
+  --accent-mint: #B8E6C3;
+  --warning: #F7C873;
   --accent: #c4edcc;
   --muted: #1A1A1A;
   --muted-foreground: #999999;
   --ring: #E9A8C9;
-  --sidebar: #111111;
+  --sidebar: #1B1B1D;
 }
 
 * {
@@ -44,10 +54,40 @@
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-manrope), 'Manrope', system-ui, -apple-system, sans-serif !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
+}
+
+/* ============================================
+   UDAY'S TYPOGRAPHY SCALE (Manrope + Inter)
+   ============================================ */
+.font-display {
+  font-family: var(--font-manrope), 'Manrope', sans-serif !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.02em !important;
+}
+
+.font-heading {
+  font-family: var(--font-manrope), 'Manrope', sans-serif !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.015em !important;
+}
+
+.font-body {
+  font-family: var(--font-inter), 'Inter', sans-serif !important;
+  font-weight: 400 !important;
+}
+
+.font-control-active {
+  font-family: var(--font-inter), 'Inter', sans-serif !important;
+  font-weight: 600 !important;
+}
+
+.font-control-inactive {
+  font-family: var(--font-inter), 'Inter', sans-serif !important;
+  font-weight: 500 !important;
 }
 
 /* Scrollbar Styling */

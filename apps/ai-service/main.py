@@ -157,6 +157,18 @@ async def http_exception_handler(request: Request, exc: HTTPException):
     )
 
 
+@app.get("/", tags=["Root"])
+async def root():
+    """Service root endpoint."""
+    return {
+        "service": "SignBridge AI Inference API",
+        "version": settings.MODEL_VERSION,
+        "status": "online",
+        "documentation": "/docs",
+        "health": "/health"
+    }
+
+
 @app.get("/health", response_model=HealthResponse, tags=["Health"])
 async def health_check():
     """Service health check endpoint."""

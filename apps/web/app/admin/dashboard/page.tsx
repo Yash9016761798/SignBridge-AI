@@ -1,9 +1,8 @@
 'use client';
 
-import { useAuthStore } from '@/stores/auth-store';
-import StatCard from '@/components/dashboard/StatCard';
-import DashboardCard from '@/components/dashboard/DashboardCard';
-import { motion } from 'framer-motion';
+import React, { useState } from 'react';
+import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Users,
   BookOpen,
@@ -14,257 +13,757 @@ import {
   ArrowRight,
   Clock,
   UserCheck,
-  UserX,
   AlertTriangle,
-  CheckCircle,
-  Settings,
   BarChart3,
+  Sparkles,
+  Building2,
+  School,
+  Landmark,
+  HeartHandshake,
+  GraduationCap,
+  Award,
+  TrendingUp,
+  CheckCircle2,
 } from 'lucide-react';
-import Link from 'next/link';
+import { useAuthStore } from '@/stores/auth-store';
 
-const container = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.06 },
-  },
-};
+/* ============================================================================
+   DATA CONFIGURATIONS & METRICS
+   ============================================================================ */
 
-const item = {
-  hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0 },
-};
-
-const recentActivity = [
+// 6 Core KPI Cards with Permanent Category Colors
+const KPI_CARDS = [
   {
-    text: 'New user registered: Priya Sharma',
-    time: '5 minutes ago',
+    title: 'Total Users',
+    value: '124,820',
+    change: 18,
+    changeLabel: 'vs last month',
     icon: Users,
-    color: 'bg-success-50 text-success-500',
+    hex: '#E8A5C9', // Soft Rose Pink (Users)
+    subtext: 'across 24 institutions',
   },
   {
-    text: 'Course "ISL Advanced" published',
-    time: '1 hour ago',
+    title: 'Daily Active Learners',
+    value: '42,150',
+    change: 24,
+    changeLabel: 'vs last week',
+    icon: UserCheck,
+    hex: '#F6D365', // Pastel Yellow (Content)
+    subtext: 'avg 42 mins/session',
+  },
+  {
+    title: 'ISL Lessons Published',
+    value: '1,856',
+    change: 15,
+    changeLabel: 'added today',
     icon: BookOpen,
-    color: 'bg-info-50 text-info-600',
+    hex: '#B8E6C3', // Mint Green (Performance)
+    subtext: 'from Basic to Medical',
   },
   {
-    text: 'AI model updated to v2.1.0',
-    time: '3 hours ago',
+    title: 'Daily Sign Translations',
+    value: '148,920',
+    change: 33,
+    changeLabel: 'today',
+    icon: MessageSquare,
+    hex: '#A9D6F5', // Sky Blue (Translation)
+    subtext: 'evaluated in real-time',
+  },
+  {
+    title: 'AI Recognition Accuracy',
+    value: '98.42%',
+    change: 0.4,
+    changeLabel: 'v3.4 model',
     icon: Brain,
-    color: 'bg-warning-50 text-warning-600',
+    hex: '#D8B4F8', // Soft Purple (AI Engine)
+    subtext: 'at 60 FPS video inference',
   },
   {
-    text: '15 new dictionary signs added',
-    time: 'Yesterday',
-    icon: BookMarked,
-    color: 'bg-primary-50 text-primary-600',
-  },
-  {
-    text: 'System backup completed',
-    time: 'Yesterday',
-    icon: CheckCircle,
-    color: 'bg-success-50 text-success-500',
+    title: 'Certificates Issued',
+    value: '38,410',
+    change: 12,
+    changeLabel: 'this week',
+    icon: Award,
+    hex: '#E8A5C9', // Soft Rose (Credentials)
+    subtext: 'blockchain verified',
   },
 ];
 
-const recentUsers = [
-  { name: 'Priya Sharma', email: 'priya@example.com', role: 'LEARNER', status: 'active', joined: '2 hours ago' },
-  { name: 'Rahul Patel', email: 'rahul@example.com', role: 'TEACHER', status: 'active', joined: '5 hours ago' },
-  { name: 'Anita Desai', email: 'anita@example.com', role: 'LEARNER', status: 'pending', joined: '1 day ago' },
-  { name: 'Vikram Singh', email: 'vikram@example.com', role: 'INSTRUCTOR', status: 'active', joined: '2 days ago' },
+// Institutional Monitoring Table Data
+const INSTITUTION_NODES = [
+  {
+    name: 'AIIMS New Delhi Emergency',
+    type: 'Hospital',
+    icon: Building2,
+    location: 'New Delhi',
+    dailyLearners: '4,280',
+    dailyTranslations: '12,450',
+    status: 'Healthy',
+    aiHealth: '99.8%',
+    network: 'Fiber 1 Gbps',
+    lastSync: '2 mins ago',
+    hex: '#E8A5C9',
+  },
+  {
+    name: 'Kendriya Vidyalaya ISL Hub',
+    type: 'School',
+    icon: School,
+    location: 'Mumbai',
+    dailyLearners: '8,920',
+    dailyTranslations: '24,180',
+    status: 'Healthy',
+    aiHealth: '99.4%',
+    network: '5G Dedicated',
+    lastSync: '1 min ago',
+    hex: '#F6D365',
+  },
+  {
+    name: 'Passport Seva Kendra Kiosk',
+    type: 'Govt Office',
+    icon: Landmark,
+    location: 'Bengaluru',
+    dailyLearners: '1,450',
+    dailyTranslations: '8,920',
+    status: 'Healthy',
+    aiHealth: '98.9%',
+    network: 'GovNet Secure',
+    lastSync: '4 mins ago',
+    hex: '#A9D6F5',
+  },
+  {
+    name: 'State Bank of India Main Branch',
+    type: 'Bank Kiosk',
+    icon: Building2,
+    location: 'Pune',
+    dailyLearners: '2,110',
+    dailyTranslations: '5,420',
+    status: 'Maintenance',
+    aiHealth: '96.2%',
+    network: 'Broadband',
+    lastSync: '12 mins ago',
+    hex: '#F6D365',
+  },
+  {
+    name: 'Deaf Enablers Society Hub',
+    type: 'NGO Center',
+    icon: HeartHandshake,
+    location: 'Hyderabad',
+    dailyLearners: '3,840',
+    dailyTranslations: '14,200',
+    status: 'Healthy',
+    aiHealth: '99.9%',
+    network: 'Fiber 500 Mbps',
+    lastSync: 'Just now',
+    hex: '#B8E6C3',
+  },
+  {
+    name: 'National Institute for Speech & Hearing',
+    type: 'University',
+    icon: GraduationCap,
+    location: 'Trivandrum',
+    dailyLearners: '5,600',
+    dailyTranslations: '18,900',
+    status: 'Healthy',
+    aiHealth: '99.7%',
+    network: 'NKN Campus',
+    lastSync: '3 mins ago',
+    hex: '#D8B4F8',
+  },
 ];
 
-const systemStatus = [
-  { name: 'API Server', status: 'operational', uptime: '99.9%' },
-  { name: 'AI Service', status: 'operational', uptime: '99.7%' },
-  { name: 'Database', status: 'operational', uptime: '100%' },
-  { name: 'Storage', status: 'warning', uptime: '78% used' },
+// System Infrastructure Health Services
+const SYSTEM_SERVICES = [
+  {
+    name: 'FastAPI Inference Engine',
+    status: 'Healthy',
+    latency: '14.2 ms',
+    response: '99.99%',
+    hex: '#B8E6C3',
+  },
+  {
+    name: 'PoseNet Model v3.4 Registry',
+    status: 'Healthy',
+    latency: '6.1 ms',
+    response: '100%',
+    hex: '#D8B4F8',
+  },
+  {
+    name: 'Prisma PostgreSQL DB Cluster',
+    status: 'Healthy',
+    latency: '2.4 ms',
+    response: '99.98%',
+    hex: '#A9D6F5',
+  },
+  {
+    name: 'Redis Cache & Session Queue',
+    status: 'Healthy',
+    latency: '0.8 ms',
+    response: '100%',
+    hex: '#B8E6C3',
+  },
+  {
+    name: 'AWS Cloud Failover Cluster',
+    status: 'Healthy',
+    latency: '18.4 ms',
+    response: '99.95%',
+    hex: '#A9D6F5',
+  },
+  {
+    name: 'WebGPU Edge Pipeline',
+    status: 'Healthy',
+    latency: '11.0 ms',
+    response: '99.90%',
+    hex: '#D8B4F8',
+  },
 ];
+
+// Priority Alerts Feed
+const SYSTEM_ALERTS = [
+  {
+    id: 1,
+    title: 'SBI Kiosk Pune Scheduled Maintenance',
+    severity: 'Medium',
+    time: '12 mins ago',
+    category: 'Infrastructure',
+    hex: '#F6D365',
+  },
+  {
+    id: 2,
+    title: 'Model Retraining Pipeline Batch #402 Finished',
+    severity: 'Low',
+    time: '45 mins ago',
+    category: 'AI Engine',
+    hex: '#B8E6C3',
+  },
+  {
+    id: 3,
+    title: 'AIIMS Emergency Kiosk Firmware v3.4.2 Pushed',
+    severity: 'Low',
+    time: '2 hours ago',
+    category: 'Deployment',
+    hex: '#A9D6F5',
+  },
+];
+
+// Real-Time System Activity Feed
+const RECENT_ACTIVITY = [
+  {
+    time: '09:42',
+    text: 'New Hospital Node Registered: Fortis Healthcare Delhi',
+    type: 'Hospital',
+    hex: '#E8A5C9',
+  },
+  {
+    time: '09:40',
+    text: 'ISL-PoseNet Model Retrained on 12,000 new gesture clips',
+    type: 'AI',
+    hex: '#D8B4F8',
+  },
+  {
+    time: '09:35',
+    text: '312 Accredited ISL Certificates Issued to KV Students',
+    type: 'Certificate',
+    hex: '#B8E6C3',
+  },
+  {
+    time: '09:22',
+    text: 'Passport Seva Kendra Kiosk #14 Connected via 5G',
+    type: 'Kiosk',
+    hex: '#A9D6F5',
+  },
+  {
+    time: '09:15',
+    text: '1,248 New Learners Onboarded across 4 State Hubs',
+    type: 'User',
+    hex: '#F6D365',
+  },
+];
+
+/* ============================================================================
+   MAIN COMPONENT
+   ============================================================================ */
 
 export default function AdminDashboardPage() {
   const { user } = useAuthStore();
+  const [reportGenerated, setReportGenerated] = useState(false);
+
+  const handleGenerateReport = () => {
+    setReportGenerated(true);
+    setTimeout(() => setReportGenerated(false), 4000);
+  };
 
   return (
-    <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
-      {/* Welcome Header */}
-      <motion.div variants={item}>
-        <div className="rounded-card bg-gradient-to-br from-surface-900 to-surface-800 p-6 text-white shadow-elevated lg:p-8">
-          <div className="flex items-start justify-between">
+    <div className="space-y-8 font-sans pb-16">
+      {/* ====================================================================
+          1. EXECUTIVE OVERVIEW BANNER (National Control Center Header)
+          ==================================================================== */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        style={{
+          background:
+            'linear-gradient(135deg, rgba(232,165,201,0.25) 0%, rgba(246,211,101,0.20) 40%, rgba(169,214,245,0.25) 100%)',
+        }}
+        className="relative overflow-hidden rounded-[32px] p-6 lg:p-8 text-[#111111] border border-black/5 shadow-sm"
+      >
+        <div className="relative z-10">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div>
-              <h1 className="text-2xl font-bold tracking-tight lg:text-3xl">
-                Admin Dashboard
+              <div className="inline-flex items-center gap-2 rounded-full bg-[#111111] px-4 py-1.5 text-xs font-extrabold text-white shadow-sm mb-3">
+                <span className="h-2 w-2 rounded-full bg-[#B8E6C3] animate-pulse" />
+                <Sparkles className="h-3.5 w-3.5 text-[#F6D365]" />
+                <span>National ISL Ecosystem Control Center</span>
+              </div>
+              <h1 className="font-display text-3xl font-extrabold tracking-tight lg:text-4xl text-[#111111]">
+                Good Morning, {user?.firstName || 'Administrator'} 👋
               </h1>
-              <p className="mt-1 text-surface-300 lg:text-lg">
-                Welcome back, {user?.firstName || 'Admin'}. Here&apos;s what&apos;s happening.
+              <p className="font-body mt-1 text-sm lg:text-base text-gray-700 font-medium max-w-2xl">
+                Monitoring 140 Hospitals, 220 Schools, 122 Government Offices, and 482 Smart Kiosks
+                across India in real time.
               </p>
             </div>
-            <div className="hidden rounded-[16px] bg-white/10 p-3 backdrop-blur-sm lg:block">
-              <Activity className="h-6 w-6 text-primary-400" />
+
+            {/* Banner Quick Actions */}
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                onClick={handleGenerateReport}
+                className="flex items-center gap-2 rounded-full bg-[#111111] px-6 py-3 text-xs font-extrabold text-white shadow-md hover:scale-105 transition-all"
+              >
+                <BarChart3 className="h-4 w-4 text-[#F6D365]" />
+                <span>{reportGenerated ? 'Report Downloaded!' : 'Generate Report'}</span>
+              </button>
+
+              <Link
+                href="/admin/ai"
+                className="flex items-center gap-2 rounded-full bg-[#E8A5C9] border border-black/5 px-5 py-3 text-xs font-extrabold text-[#111111] shadow-sm hover:scale-105 transition-all"
+              >
+                <Brain className="h-4 w-4" />
+                <span>Retrain AI</span>
+              </Link>
+
+              <Link
+                href="/admin/ai"
+                className="flex items-center gap-2 rounded-full bg-[#A9D6F5] border border-black/5 px-5 py-3 text-xs font-extrabold text-[#111111] shadow-sm hover:scale-105 transition-all"
+              >
+                <Activity className="h-4 w-4" />
+                <span>Monitor AI</span>
+              </Link>
+            </div>
+          </div>
+
+          {/* Floating Infrastructure Metric Chips */}
+          <div className="mt-6 flex flex-wrap items-center gap-3 pt-5 border-t border-black/5">
+            <div className="rounded-full bg-white/80 border border-black/5 px-4 py-1.5 text-xs font-bold text-[#111111] shadow-2xs">
+              🏫 <strong>220</strong> Schools Online
+            </div>
+            <div className="rounded-full bg-white/80 border border-black/5 px-4 py-1.5 text-xs font-bold text-[#111111] shadow-2xs">
+              🏥 <strong>140</strong> Hospitals Active
+            </div>
+            <div className="rounded-full bg-white/80 border border-black/5 px-4 py-1.5 text-xs font-bold text-[#111111] shadow-2xs">
+              🏛️ <strong>122</strong> Govt Offices
+            </div>
+            <div className="rounded-full bg-white/80 border border-black/5 px-4 py-1.5 text-xs font-bold text-[#111111] shadow-2xs">
+              🤖 <strong>482</strong> Smart Kiosks
+            </div>
+            <div className="rounded-full bg-[#B8E6C3]/60 border border-black/5 px-4 py-1.5 text-xs font-bold text-[#111111] shadow-2xs flex items-center gap-1.5">
+              <CheckCircle2 className="h-3.5 w-3.5 text-[#111111]" /> System Uptime: 99.99%
             </div>
           </div>
         </div>
       </motion.div>
 
-      {/* Stats Grid */}
-      <motion.div variants={item} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-        <StatCard title="Total Users" value="1,247" icon={Users} change={12} changeLabel="this month" />
-        <StatCard title="Active Users" value="892" icon={UserCheck} change={8} changeLabel="this week" />
-        <StatCard title="Courses" value="24" icon={BookOpen} change={4} changeLabel="new" />
-        <StatCard title="Dictionary Signs" value="1,856" icon={BookMarked} change={15} changeLabel="added" />
-        <StatCard title="Predictions Today" value="3,421" icon={Brain} change={23} changeLabel="vs yesterday" />
-        <StatCard title="Translations Today" value="5,678" icon={MessageSquare} change={18} changeLabel="vs yesterday" />
+      {/* ====================================================================
+          2. 6 KPI SPARKLINE CARDS (Category Colored)
+          ==================================================================== */}
+      <div>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="font-display text-xl font-extrabold text-[#111111]">Platform Metrics</h2>
+          <span className="text-xs font-bold text-gray-500">Updated 2 mins ago</span>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+          {KPI_CARDS.map((card, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: i * 0.05 }}
+              style={{ backgroundColor: card.hex }}
+              className="group rounded-[24px] p-5 shadow-sm border border-black/5 flex flex-col justify-between transition-all hover:shadow-md hover:-translate-y-1"
+            >
+              <div>
+                <div className="flex items-center justify-between">
+                  <p className="font-control-inactive text-2xs font-extrabold uppercase tracking-wider text-[#111111]/80 truncate">
+                    {card.title}
+                  </p>
+                  <div className="flex h-9 w-9 items-center justify-center rounded-[12px] bg-[#111111] text-white shadow-sm flex-shrink-0">
+                    <card.icon className="h-4.5 w-4.5 text-white" />
+                  </div>
+                </div>
+
+                <p className="font-heading text-3xl font-extrabold tracking-tight text-[#111111] mt-3">
+                  {card.value}
+                </p>
+              </div>
+
+              <div className="mt-4 pt-3 border-t border-black/10 flex items-center justify-between text-2xs font-extrabold text-[#111111]">
+                <span className="inline-flex items-center gap-1 rounded-full bg-[#111111]/15 px-2 py-0.5">
+                  <TrendingUp className="h-3 w-3" />+{card.change}%
+                </span>
+                <span className="text-[#111111]/70 font-semibold truncate ml-1">
+                  {card.changeLabel}
+                </span>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* ====================================================================
+          3. DEDICATED AI OPERATIONS & PERFORMANCE PANEL
+          ==================================================================== */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="lg:col-span-8 rounded-[32px] bg-[#1B1B1D] p-6 lg:p-8 text-white shadow-2xl border border-white/10"
+        >
+          <div className="flex items-center justify-between pb-6 border-b border-white/10">
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-[16px] bg-[#D8B4F8] text-[#111111] font-extrabold shadow-md">
+                <Brain className="h-6 w-6 text-[#111111]" />
+              </div>
+              <div>
+                <h3 className="font-display text-xl font-extrabold text-white">
+                  AI Model Operations & Inference Engine
+                </h3>
+                <p className="text-xs font-semibold text-gray-400">
+                  Model Architecture: ISL-PoseNet v3.4 • MediaPipe 21 Landmark Tracker
+                </p>
+              </div>
+            </div>
+            <span className="rounded-full bg-[#B8E6C3]/20 text-[#B8E6C3] px-3 py-1 text-xs font-extrabold border border-[#B8E6C3]/30">
+              ● Healthy — Zero Model Drift
+            </span>
+          </div>
+
+          <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="rounded-[20px] bg-[#242427] p-4 border border-white/5">
+              <p className="text-2xs font-extrabold uppercase text-gray-400">Inference Latency</p>
+              <p className="font-heading text-2xl font-extrabold text-[#F6D365] mt-1">14.2 ms</p>
+              <p className="text-[10px] text-gray-400 mt-1">WebAssembly + WebGPU</p>
+            </div>
+            <div className="rounded-[20px] bg-[#242427] p-4 border border-white/5">
+              <p className="text-2xs font-extrabold uppercase text-gray-400">Model Accuracy</p>
+              <p className="font-heading text-2xl font-extrabold text-[#B8E6C3] mt-1">98.42%</p>
+              <p className="text-[10px] text-gray-400 mt-1">148K clips evaluated</p>
+            </div>
+            <div className="rounded-[20px] bg-[#242427] p-4 border border-white/5">
+              <p className="text-2xs font-extrabold uppercase text-gray-400">Daily Predictions</p>
+              <p className="font-heading text-2xl font-extrabold text-[#A9D6F5] mt-1">1.48M</p>
+              <p className="text-[10px] text-gray-400 mt-1">60 FPS stream</p>
+            </div>
+            <div className="rounded-[20px] bg-[#242427] p-4 border border-white/5">
+              <p className="text-2xs font-extrabold uppercase text-gray-400">GPU Resource</p>
+              <p className="font-heading text-2xl font-extrabold text-[#E8A5C9] mt-1">42% Used</p>
+              <p className="text-[10px] text-gray-400 mt-1">Cluster 8x A100</p>
+            </div>
+          </div>
+
+          {/* System Resource Utilization Gauges */}
+          <div className="mt-6 space-y-3 pt-6 border-t border-white/10">
+            <div>
+              <div className="flex justify-between text-xs font-bold mb-1">
+                <span className="text-gray-300">GPU Cluster Load (NVIDIA Tensor Core)</span>
+                <span className="text-[#E8A5C9]">42% Utilization</span>
+              </div>
+              <div className="h-2 w-full rounded-full bg-white/10 overflow-hidden">
+                <div className="h-full bg-[#E8A5C9] rounded-full w-[42%]" />
+              </div>
+            </div>
+
+            <div>
+              <div className="flex justify-between text-xs font-bold mb-1">
+                <span className="text-gray-300">Inference Worker Threads (FastAPI Async)</span>
+                <span className="text-[#A9D6F5]">28% CPU Usage</span>
+              </div>
+              <div className="h-2 w-full rounded-full bg-white/10 overflow-hidden">
+                <div className="h-full bg-[#A9D6F5] rounded-full w-[28%]" />
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Real-time System Activity Timeline */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="lg:col-span-4 rounded-[32px] bg-white p-6 shadow-sm border border-black/5 flex flex-col justify-between"
+        >
+          <div>
+            <div className="flex items-center justify-between pb-4 border-b border-black/5">
+              <div className="flex items-center gap-2">
+                <Clock className="h-5 w-5 text-[#111111]" />
+                <h3 className="font-display text-lg font-extrabold text-[#111111]">
+                  Real-Time Event Stream
+                </h3>
+              </div>
+              <span className="rounded-full bg-[#111111] text-white px-2.5 py-0.5 text-2xs font-extrabold">
+                Live Feed
+              </span>
+            </div>
+
+            <div className="mt-4 space-y-3">
+              {RECENT_ACTIVITY.map((act, i) => (
+                <div
+                  key={i}
+                  style={{ backgroundColor: act.hex }}
+                  className="rounded-[18px] p-3 text-[#111111] border border-black/5 flex items-center justify-between shadow-2xs"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <span className="rounded-md bg-[#111111] text-white px-2 py-0.5 text-[10px] font-extrabold">
+                      {act.time}
+                    </span>
+                    <p className="text-xs font-bold truncate max-w-[200px]">{act.text}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <Link
+            href="/admin/ai"
+            className="mt-6 flex items-center justify-center gap-2 rounded-full bg-[#111111] text-white py-3 text-xs font-extrabold hover:bg-black transition-all"
+          >
+            <span>View Full Audit Logs</span>
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </motion.div>
+      </div>
+
+      {/* ====================================================================
+          4. INSTITUTIONAL INFRASTRUCTURE MONITORING TABLE
+          ==================================================================== */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="rounded-[32px] bg-white p-6 lg:p-8 shadow-sm border border-black/5"
+      >
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-black/5">
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full bg-[#A9D6F5]/40 px-3 py-1 text-2xs font-extrabold text-[#111111] mb-1">
+              Infrastructure Operations
+            </div>
+            <h3 className="font-display text-2xl font-extrabold text-[#111111]">
+              National Institution & Hub Monitoring
+            </h3>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="rounded-full bg-[#B8E6C3] px-3 py-1 text-xs font-bold text-[#111111]">
+              6 Active Nodes
+            </span>
+          </div>
+        </div>
+
+        {/* Table Container */}
+        <div className="mt-6 overflow-x-auto">
+          <table className="w-full text-left text-xs font-medium border-collapse">
+            <thead>
+              <tr className="border-b border-black/10 text-gray-400 uppercase tracking-wider text-[10px] font-extrabold">
+                <th className="pb-3 px-2">Institution Name</th>
+                <th className="pb-3 px-2">Type</th>
+                <th className="pb-3 px-2">Location</th>
+                <th className="pb-3 px-2">Daily Learners</th>
+                <th className="pb-3 px-2">Daily Translations</th>
+                <th className="pb-3 px-2">AI Health</th>
+                <th className="pb-3 px-2">Status</th>
+                <th className="pb-3 px-2 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-black/5">
+              {INSTITUTION_NODES.map((node, i) => (
+                <tr key={i} className="hover:bg-[#FAF8F6] transition-colors">
+                  <td className="py-4 px-2 font-extrabold text-[#111111] flex items-center gap-2.5">
+                    <div
+                      style={{ backgroundColor: node.hex }}
+                      className="flex h-8 w-8 items-center justify-center rounded-[10px] text-[#111111] shadow-2xs"
+                    >
+                      <node.icon className="h-4 w-4" />
+                    </div>
+                    <span>{node.name}</span>
+                  </td>
+                  <td className="py-4 px-2 font-bold text-gray-700">{node.type}</td>
+                  <td className="py-4 px-2 font-bold text-gray-600">{node.location}</td>
+                  <td className="py-4 px-2 font-extrabold text-[#111111]">{node.dailyLearners}</td>
+                  <td className="py-4 px-2 font-extrabold text-[#111111]">
+                    {node.dailyTranslations}
+                  </td>
+                  <td className="py-4 px-2 font-extrabold text-[#111111]">{node.aiHealth}</td>
+                  <td className="py-4 px-2">
+                    <span
+                      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-2xs font-extrabold ${
+                        node.status === 'Healthy'
+                          ? 'bg-[#B8E6C3] text-[#111111]'
+                          : 'bg-[#F6D365] text-[#111111]'
+                      }`}
+                    >
+                      <span className="h-1.5 w-1.5 rounded-full bg-[#111111]" />
+                      {node.status}
+                    </span>
+                  </td>
+                  <td className="py-4 px-2 text-right">
+                    <button className="rounded-full bg-[#111111] text-white px-3 py-1 text-2xs font-extrabold hover:bg-black transition-all">
+                      Inspect Node
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </motion.div>
 
-      {/* Quick Actions */}
-      <motion.div variants={item}>
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-bold text-surface-900 dark:text-white">Quick Actions</h3>
+      {/* ====================================================================
+          5. SYSTEM HEALTH & PRIORITY ALERTS
+          ==================================================================== */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* System Services Grid */}
+        <div className="lg:col-span-8 rounded-[32px] bg-white p-6 lg:p-8 shadow-sm border border-black/5">
+          <div className="flex items-center justify-between pb-6 border-b border-black/5">
+            <h3 className="font-display text-xl font-extrabold text-[#111111]">
+              System Health & Service Monitoring
+            </h3>
+            <span className="text-xs font-bold text-gray-500">6/6 Services Operational</span>
+          </div>
+
+          <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {SYSTEM_SERVICES.map((srv, i) => (
+              <div
+                key={i}
+                style={{ backgroundColor: srv.hex }}
+                className="rounded-[20px] p-4 text-[#111111] border border-black/5 flex flex-col justify-between shadow-2xs"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-heading text-xs font-extrabold text-[#111111] truncate">
+                    {srv.name}
+                  </span>
+                  <CheckCircle2 className="h-4 w-4 text-[#111111] flex-shrink-0" />
+                </div>
+                <div className="mt-3 flex items-center justify-between text-2xs font-extrabold text-[#111111]">
+                  <span>Latency: {srv.latency}</span>
+                  <span>Uptime: {srv.response}</span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+
+        {/* Priority Alerts Panel */}
+        <div className="lg:col-span-4 rounded-[32px] bg-white p-6 shadow-sm border border-black/5 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between pb-4 border-b border-black/5">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-[#111111]" />
+                <h3 className="font-display text-lg font-extrabold text-[#111111]">
+                  Priority System Alerts
+                </h3>
+              </div>
+              <span className="rounded-full bg-[#F6D365] text-[#111111] px-2.5 py-0.5 text-2xs font-extrabold">
+                3 Active
+              </span>
+            </div>
+
+            <div className="mt-4 space-y-3">
+              {SYSTEM_ALERTS.map((alert) => (
+                <div
+                  key={alert.id}
+                  style={{ backgroundColor: alert.hex }}
+                  className="rounded-[18px] p-3 text-[#111111] border border-black/5 shadow-2xs"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-heading text-xs font-extrabold text-[#111111]">
+                      {alert.title}
+                    </span>
+                    <span className="rounded-full bg-[#111111] text-white px-2 py-0.5 text-[9px] font-extrabold">
+                      {alert.severity}
+                    </span>
+                  </div>
+                  <p className="text-[10px] font-bold text-[#111111]/70 mt-1">
+                    {alert.time} • {alert.category}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <button className="mt-6 w-full rounded-full bg-[#111111] text-white py-3 text-xs font-extrabold hover:bg-black transition-all">
+            Dismiss Non-Critical Alerts
+          </button>
+        </div>
+      </div>
+
+      {/* ====================================================================
+          6. RICH QUICK ACTION CARDS
+          ==================================================================== */}
+      <div>
+        <h3 className="font-display text-xl font-extrabold text-[#111111] mb-4">
+          Quick Command Center
+        </h3>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[
-            { title: 'Manage Users', description: 'View and manage all users', icon: Users, href: '/admin/users' },
-            { title: 'Manage Courses', description: 'Create and edit courses', icon: BookOpen, href: '/admin/courses' },
-            { title: 'AI Monitoring', description: 'Monitor AI service health', icon: Brain, href: '/admin/ai' },
-            { title: 'View Analytics', description: 'Platform usage analytics', icon: BarChart3, href: '/admin/analytics' },
-          ].map((action) => (
-            <motion.div key={action.href} whileHover={{ y: -3 }} transition={{ duration: 0.3 }}>
+            {
+              title: 'Manage Users',
+              description: '124 Pending Approvals',
+              icon: Users,
+              href: '/admin/users',
+              hex: '#E8A5C9',
+            },
+            {
+              title: 'Manage Courses',
+              description: '8 Curriculum Updates Ready',
+              icon: BookOpen,
+              href: '/admin/courses',
+              hex: '#F6D365',
+            },
+            {
+              title: 'AI Monitoring',
+              description: 'PoseNet v3.4 Operational',
+              icon: Brain,
+              href: '/admin/ai',
+              hex: '#D8B4F8',
+            },
+            {
+              title: 'View Analytics',
+              description: 'Generate Operations Report',
+              icon: BarChart3,
+              href: '/admin/analytics',
+              hex: '#A9D6F5',
+            },
+          ].map((action, i) => (
+            <motion.div key={i} whileHover={{ y: -3 }} transition={{ duration: 0.3 }}>
               <Link
                 href={action.href}
-                className="group flex items-center gap-4 rounded-card bg-white p-5 shadow-card transition-all duration-300 hover:shadow-card-hover hover:border-primary-200 border border-transparent dark:bg-surface-900 dark:hover:border-primary-800"
+                style={{ backgroundColor: action.hex }}
+                className="group flex items-center gap-4 rounded-[24px] p-5 shadow-sm border border-black/5 transition-all duration-300 hover:shadow-md"
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-[16px] bg-gradient-brand-soft transition-colors group-hover:bg-gradient-brand-medium">
-                  <action.icon className="h-6 w-6 text-primary-600" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-[18px] bg-[#111111] text-white shadow-sm transition-transform group-hover:scale-105 flex-shrink-0">
+                  <action.icon className="h-6 w-6 text-white" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-sm font-bold text-surface-900 dark:text-white">{action.title}</h3>
-                  <p className="mt-0.5 text-xs text-surface-500">{action.description}</p>
+                  <h3 className="font-heading text-sm font-extrabold text-[#111111]">
+                    {action.title}
+                  </h3>
+                  <p className="font-body mt-0.5 text-xs text-[#111111]/80 font-medium">
+                    {action.description}
+                  </p>
                 </div>
-                <ArrowRight className="h-4 w-4 text-surface-300 transition-all group-hover:translate-x-1 group-hover:text-primary-500" />
+                <ArrowRight className="h-4 w-4 text-[#111111]/60 transition-all group-hover:translate-x-1 group-hover:text-[#111111]" />
               </Link>
             </motion.div>
           ))}
         </div>
-      </motion.div>
-
-      {/* Activity, Users, Status */}
-      <motion.div variants={item} className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {/* Recent Activity */}
-        <DashboardCard title="Recent Activity" icon={Clock} className="lg:col-span-1">
-          <div className="space-y-3">
-            {recentActivity.map((activity, i) => (
-              <div
-                key={i}
-                className="group flex items-center gap-4 rounded-[16px] p-3 transition-colors hover:bg-surface-50 dark:hover:bg-surface-800/50"
-              >
-                <div
-                  className={`flex h-10 w-10 items-center justify-center rounded-[14px] ${activity.color}`}
-                >
-                  <activity.icon className="h-5 w-5" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-surface-900 dark:text-white">
-                    {activity.text}
-                  </p>
-                  <p className="text-xs text-surface-500 mt-0.5">{activity.time}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </DashboardCard>
-
-        {/* Recent Users */}
-        <DashboardCard title="Recent Users" icon={Users} className="lg:col-span-1">
-          <div className="space-y-3">
-            {recentUsers.map((u, i) => (
-              <div
-                key={i}
-                className="flex items-center gap-4 rounded-[16px] p-3 transition-colors hover:bg-surface-50 dark:hover:bg-surface-800/50"
-              >
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-100 dark:bg-surface-800">
-                  <span className="text-sm font-semibold text-surface-600 dark:text-surface-400">
-                    {u.name.split(' ').map(n => n[0]).join('')}
-                  </span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-surface-900 dark:text-white truncate">
-                    {u.name}
-                  </p>
-                  <p className="text-xs text-surface-500 truncate">{u.email}</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span
-                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-2xs font-bold ${
-                      u.role === 'TEACHER' || u.role === 'INSTRUCTOR'
-                        ? 'bg-info-50 text-info-600 dark:bg-info-500/10 dark:text-info-500'
-                        : 'bg-surface-100 text-surface-600 dark:bg-surface-800 dark:text-surface-400'
-                    }`}
-                  >
-                    {u.role}
-                  </span>
-                  <span
-                    className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-2xs font-bold ${
-                      u.status === 'active'
-                        ? 'bg-success-50 text-success-600 dark:bg-success-500/10 dark:text-success-500'
-                        : 'bg-warning-50 text-warning-600 dark:bg-warning-500/10 dark:text-warning-600'
-                    }`}
-                  >
-                    {u.status === 'active' ? (
-                      <CheckCircle className="h-3 w-3" />
-                    ) : (
-                      <AlertTriangle className="h-3 w-3" />
-                    )}
-                    {u.status}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </DashboardCard>
-
-        {/* System Status */}
-        <DashboardCard title="System Status" icon={Activity} className="lg:col-span-1">
-          <div className="space-y-3">
-            {systemStatus.map((s, i) => (
-              <div
-                key={i}
-                className="flex items-center justify-between rounded-[16px] p-3 transition-colors hover:bg-surface-50 dark:hover:bg-surface-800/50"
-              >
-                <div className="flex items-center gap-3">
-                  <div
-                    className={`h-3 w-3 rounded-full ${
-                      s.status === 'operational'
-                        ? 'bg-success-500'
-                        : s.status === 'warning'
-                        ? 'bg-warning-500'
-                        : 'bg-danger-500'
-                    }`}
-                  />
-                  <span className="text-sm font-medium text-surface-900 dark:text-white">{s.name}</span>
-                </div>
-                <span
-                  className={`text-xs font-semibold ${
-                    s.status === 'operational'
-                      ? 'text-success-600 dark:text-success-500'
-                      : s.status === 'warning'
-                      ? 'text-warning-600 dark:text-warning-500'
-                      : 'text-danger-600 dark:text-danger-500'
-                  }`}
-                >
-                  {s.uptime}
-                </span>
-              </div>
-            ))}
-            <Link
-              href="/admin/settings"
-              className="mt-2 flex items-center justify-center gap-2 rounded-[12px] border border-surface-200 px-4 py-2.5 text-sm font-medium text-surface-700 transition-colors hover:bg-surface-50 dark:border-surface-700 dark:text-surface-300 dark:hover:bg-surface-800"
-            >
-              <Settings className="h-4 w-4" />
-              System Settings
-            </Link>
-          </div>
-        </DashboardCard>
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 }

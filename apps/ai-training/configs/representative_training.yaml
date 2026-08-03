@@ -1,0 +1,55 @@
+representative_training:
+  seed: 42
+  max_epochs: 3
+  batch_size: 16
+  learning_rate: 0.0003
+  weight_decay: 0.0001
+  optimizer: 'adamw'
+  scheduler: 'cosineannealing'
+  gradient_clip: 1.0
+  mixed_precision: true
+  label_smoothing: 0.1
+  dropout: 0.1
+
+  early_stopping:
+    patience: 8
+    min_delta: 0.001
+    monitor: 'val_loss'
+    mode: 'min'
+
+  checkpoint:
+    save_dir: 'experiments/representative/checkpoints'
+    save_best: true
+    save_latest: true
+    save_interval: 1
+
+  logging:
+    log_dir: 'experiments/representative/logs'
+    log_interval: 10
+    tensorboard: true
+    csv_logging: true
+
+  model:
+    d_model: 32
+    nhead: 4
+    num_encoder_layers: 1
+    num_decoder_layers: 1
+    dim_feedforward: 64
+    max_seq_length: 30
+    vocab_size: 68241
+    dropout: 0.1
+
+  evaluation:
+    compute_bleu: true
+    compute_wer: true
+    compute_cer: true
+    compute_rouge: true
+    generate_predictions: true
+    generate_plots: true
+    generate_report: true
+
+  output:
+    experiment_dir: 'experiments/representative'
+    plots_dir: 'experiments/representative/plots'
+    predictions_csv: 'experiments/representative/predictions.csv'
+    report_md: 'experiments/representative/report.md'

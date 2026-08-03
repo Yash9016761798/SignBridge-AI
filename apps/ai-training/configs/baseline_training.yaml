@@ -1,0 +1,93 @@
+# Baseline Training Configuration
+# SignBridge AI — First Real Training Experiment
+
+# =============================================================================
+# EXPERIMENT
+# =============================================================================
+experiment:
+  name: baseline
+  description: 'First real training experiment on small pilot dataset'
+  seed: 42
+
+# =============================================================================
+# DATASET
+# =============================================================================
+dataset:
+  num_samples: 500
+  train_split: 0.8
+  val_split: 0.1
+  test_split: 0.1
+  shuffle: true
+  pose_length: 32
+  num_landmarks: 33
+  num_features: 5
+  text_length: 20
+  vocab_size: 1000
+
+# =============================================================================
+# MODEL
+# =============================================================================
+model:
+  vocab_size: 1000
+  num_landmarks: 33
+  num_features: 5
+  d_model: 128
+  num_heads: 4
+  num_encoder_layers: 3
+  num_decoder_layers: 3
+  d_ff: 256
+  max_pose_length: 32
+  max_text_length: 20
+  dropout: 0.1
+  pad_token_id: 0
+  bos_token_id: 1
+  eos_token_id: 2
+
+# =============================================================================
+# TRAINING
+# =============================================================================
+training:
+  max_epochs: 20
+  batch_size: 8
+  learning_rate: 0.0001
+  weight_decay: 0.01
+  optimizer: adamw
+  scheduler: cosineannealing
+  gradient_clip: 1.0
+  mixed_precision: false
+  label_smoothing: 0.1
+  teacher_forcing_ratio: 1.0
+
+# =============================================================================
+# CHECKPOINTING
+# =============================================================================
+checkpoint:
+  save_dir: ./experiments/baseline/checkpoints
+  save_best: true
+  save_latest: true
+  save_interval: 1
+
+# =============================================================================
+# LOGGING
+# =============================================================================
+logging:
+  log_dir: ./experiments/baseline/logs
+  log_interval: 1
+  save_metrics: true
+
+# =============================================================================
+# EARLY STOPPING
+# =============================================================================
+early_stopping:
+  patience: 10
+  min_delta: 0.001
+  monitor: val_loss
+  mode: min
+  restore_best: true
+
+# =============================================================================
+# OUTPUT
+# =============================================================================
+output:
+  base_dir: ./experiments/baseline
+  plots_dir: ./experiments/baseline/plots

@@ -1,7 +1,22 @@
 import type { Metadata, Viewport } from 'next';
+import { Manrope, Inter } from 'next/font/google';
 import './globals.css';
 import AuthProvider from '@/providers/AuthProvider';
 import { ThemeProvider } from '@/providers/ThemeProvider';
+
+const manrope = Manrope({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800'],
+  variable: '--font-manrope',
+  display: 'swap',
+});
+
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-inter',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: {
@@ -67,8 +82,10 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className="bg-surface-50 text-surface-900 antialiased dark:bg-[#0D0D0D] dark:text-surface-100">
+    <html lang="en" className={`${manrope.variable} ${inter.variable}`} suppressHydrationWarning>
+      <body
+        className={`${manrope.className} bg-surface-50 text-surface-900 antialiased dark:bg-[#0D0D0D] dark:text-surface-100`}
+      >
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:rounded-btn focus:bg-gradient-brand focus:px-6 focus:py-3 focus:text-sm focus:font-semibold focus:text-surface-900 focus:shadow-glow"
