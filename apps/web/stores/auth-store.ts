@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { isFirebaseEnabled, auth } from '@/lib/firebase';
 import { apiClient } from '@/lib/api';
+// Removed UserRole from the import line
 import type { AuthState, User, LoginRequest, RegisterRequest } from '@/types/auth';
 
 function generateDemoUser(data: LoginRequest | RegisterRequest): User {
@@ -31,6 +32,9 @@ interface AuthTransientState {
   error: string | null;
 }
 
+// Automatically match whatever role union type is defined inside User['role']
+type AllowedRole = User['role'];
+
 type AuthStoreState = AuthPersistState &
   AuthTransientState & {
     login: (data: LoginRequest) => Promise<void>;
@@ -39,13 +43,13 @@ type AuthStoreState = AuthPersistState &
     forgotPassword: (email: string) => Promise<void>;
     resetPassword: (token: string, password: string) => Promise<void>;
     setUser: (user: User | null) => void;
-    switchRole: (role: 'LEARNER' | 'ADMIN' | 'TEACHER' | 'INSTITUTION') => void;
+    switchRole: (role: AllowedRole) => void;
     clearError: () => void;
   };
 
 export const useAuthStore = create<AuthStoreState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       isAuthenticated: false,
       isLoading: false,
@@ -159,7 +163,7 @@ export const useAuthStore = create<AuthStoreState>()(
 
       setUser: (user: User | null) => set({ user, isAuthenticated: !!user }),
 
-      switchRole: (role: 'LEARNER' | 'ADMIN' | 'TEACHER' | 'INSTITUTION') => {
+      switchRole: (role: AllowedRole) => {
         const currentUser = get().user;
         if (currentUser) {
           set({
