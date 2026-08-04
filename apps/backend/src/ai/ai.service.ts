@@ -9,7 +9,7 @@ import { HttpService } from '@nestjs/axios';
 import { PrismaService } from '../database/prisma.service';
 import { CreateTranslationSessionDto, TranslateTextDto } from './dto/translation.dto';
 import { CreatePracticeSessionDto, SubmitPredictionDto } from './dto/practice.dto';
-import { PredictGestureDto } from './dto/ai.dto';
+import { PredictionRequest } from './dto/ai.dto';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -198,7 +198,7 @@ export class AiService {
   // AI PREDICTION (STUB)
   // ===========================================================================
 
-  async predict(userId: string, dto: PredictGestureDto) {
+  async predict(userId: string, dto: PredictionRequest) {
     // Mock prediction - will be replaced with FastAPI call
     const mockResult = {
       gesture: 'Hello',

@@ -3,7 +3,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagg
 import { AiService } from './ai.service';
 import { CreateTranslationSessionDto, TranslateTextDto } from './dto/translation.dto';
 import { CreatePracticeSessionDto, SubmitPredictionDto } from './dto/practice.dto';
-import { PredictGestureDto } from './dto/ai.dto';
+import { PredictionRequest, PredictionResponse } from './dto/ai.dto';
 import { FirebaseAuthGuard } from '../common/guards/firebase-auth.guard';
 import { UseGuards } from '@nestjs/common';
 
@@ -107,9 +107,9 @@ export class AiController {
   @Post('ai/predict')
   @UseGuards(FirebaseAuthGuard)
   @ApiBearerAuth('firebase-auth')
-  @ApiOperation({ summary: 'Make a gesture prediction (stub - mock response)' })
-  @ApiResponse({ status: 200, description: 'Mock prediction result' })
-  async predict(@Req() req: any, @Body() dto: PredictGestureDto) {
+  @ApiOperation({ summary: 'Make a gesture prediction from pose landmarks' })
+  @ApiResponse({ status: 200, description: 'Prediction result', type: PredictionResponse })
+  async predict(@Req() req: any, @Body() dto: PredictionRequest) {
     return this.aiService.predict(req.user.id, dto);
   }
 
