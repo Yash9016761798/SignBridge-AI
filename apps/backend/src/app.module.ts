@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { DictionaryModule } from './dictionary/dictionary.module';
 import { LearningModule } from './learning/learning.module';
 import { AiModule } from './ai/ai.module';
+import { AdminModule } from './admin/admin.module';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 import { RolesGuard } from './common/guards/roles.guard';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
@@ -30,6 +31,7 @@ import { RequestLoggingMiddleware } from './common/middleware/request-logging.mi
     DictionaryModule,
     LearningModule,
     AiModule,
+    AdminModule,
   ],
   controllers: [],
   providers: [
