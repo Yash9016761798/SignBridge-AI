@@ -12,9 +12,9 @@ import torch
 
 logger = logging.getLogger("signbridge.model_loader")
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "ai-training"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "ai-training"))
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "ai-training" / "models"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "ai-training" / "models"))
 
 
 class Vocabulary:

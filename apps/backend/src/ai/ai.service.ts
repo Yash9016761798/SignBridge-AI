@@ -1,4 +1,11 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  BadGatewayException,
+  ServiceUnavailableException,
+} from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
 import { PrismaService } from '../database/prisma.service';
 import { CreateTranslationSessionDto, TranslateTextDto } from './dto/translation.dto';
 import { CreatePracticeSessionDto, SubmitPredictionDto } from './dto/practice.dto';
@@ -13,6 +20,7 @@ export class AiService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
+    private readonly httpService: HttpService,
   ) {
     this.aiServiceUrl = this.configService.get('AI_SERVICE_URL', 'http://localhost:8000');
   }
@@ -216,8 +224,7 @@ export class AiService {
 
   async getAiHealth() {
     try {
-      const response = await fetch(`${this.aiServiceUrl}/health`);
-      const data = await response.json();
+      const data = await this.aiGet('/health');
       return {
         backend: { status: 'up', timestamp: new Date().toISOString() },
         aiService: data,
@@ -233,6 +240,48 @@ export class AiService {
   // ===========================================================================
   // HELPERS
   // ===========================================================================
+
+  private async aiGet<T>(path: string): Promise<T> {
+    return this.aiRequest<T>('get', path);
+  }
+
+  private async aiPost<T>(path: string, data?: unknown): Promise<T> {
+    return this.aiRequest<T>('post', path, data);
+  }
+
+  private async aiRequest<T>(method: 'get' | 'post', path: string, data?: unknown): Promise<T> {
+    try {
+      const response = await this.httpService.axiosRef({ method, url: path, data });
+      return response.data as T;
+    } catch (error) {
+      throw this.handleAiHttpError(error);
+    }
+  }
+
+  private handleAiHttpError(error: any): Error {
+    if (!error.response) {
+      if (error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT') {
+        this.logger.error(`AI service request timed out: ${error.message}`);
+        return new ServiceUnavailableException({
+          message: 'AI service request timed out',
+          error: error.code,
+        });
+      }
+      this.logger.error(`AI service unreachable: ${error.message}`);
+      return new ServiceUnavailableException({
+        message: 'AI service is not responding',
+        error: error.code || 'UNKNOWN_ERROR',
+      });
+    }
+    this.logger.error(
+      `AI service returned error: ${error.response.status} - ${error.response.statusText}`,
+    );
+    return new BadGatewayException({
+      message: error.response?.data?.detail || error.response?.data?.message || 'AI service error',
+      statusCode: error.response.status,
+      error: error.response.statusText,
+    });
+  }
 
   private generateMockTranslation(text: string) {
     // Mock translation - will be replaced with actual ISL translation
