@@ -144,6 +144,19 @@ export class PredictionMeta {
   @ApiProperty({ example: '2024-01-15T10:30:00.000Z', description: 'ISO timestamp' })
   @IsString()
   timestamp!: string;
+
+  @ApiPropertyOptional({ description: 'Session ID from request, if provided' })
+  @IsOptional()
+  @IsString()
+  sessionId?: string;
+
+  @ApiPropertyOptional({
+    enum: INPUT_SOURCE_TYPES,
+    description: 'Input source type from request, if provided',
+  })
+  @IsOptional()
+  @IsEnum(INPUT_SOURCE_TYPES)
+  inputType?: string;
 }
 
 export class PredictionResponse {

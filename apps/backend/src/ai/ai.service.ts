@@ -2,6 +2,7 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  BadRequestException,
   BadGatewayException,
   ServiceUnavailableException,
 } from '@nestjs/common';
@@ -9,7 +10,8 @@ import { HttpService } from '@nestjs/axios';
 import { PrismaService } from '../database/prisma.service';
 import { CreateTranslationSessionDto, TranslateTextDto } from './dto/translation.dto';
 import { CreatePracticeSessionDto, SubmitPredictionDto } from './dto/practice.dto';
-import { PredictionRequest } from './dto/ai.dto';
+import { PredictionRequest, PredictionResponse } from './dto/ai.dto';
+import { FrameLandmarks } from './dto/pose.dto';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -195,31 +197,39 @@ export class AiService {
   }
 
   // ===========================================================================
-  // AI PREDICTION (STUB)
+  // AI PREDICTION
   // ===========================================================================
 
-  async predict(userId: string, dto: PredictionRequest) {
-    // Mock prediction - will be replaced with FastAPI call
-    const mockResult = {
-      gesture: 'Hello',
-      confidence: 0.92,
-      alternatives: [
-        { gesture: 'Thank You', confidence: 0.78 },
-        { gesture: 'Yes', confidence: 0.65 },
-      ],
-      processingTimeMs: 120,
-      modelVersion: 'mock-v1.0.0',
-      predictionType: dto.type,
-    };
+  async predict(userId: string, dto: PredictionRequest): Promise<PredictionResponse> {
+    const payload = this.buildFastApiPayload(dto);
 
-    this.logger.log(`Mock prediction: ${mockResult.gesture} (${mockResult.confidence})`);
+    this.logger.log(
+      `Sending prediction request to AI service: type=${dto.type}, frames=${payload.pose_sequence.length}`,
+    );
 
-    return {
+    const result = await this.aiPost<FastApiPredictionResult>('/predict', payload);
+
+    const response: PredictionResponse = {
       success: true,
-      message: 'Mock prediction (AI model not yet integrated)',
-      data: mockResult,
-      meta: { timestamp: new Date().toISOString() },
+      message: 'Prediction completed successfully',
+      data: {
+        gesture: result.prediction.text,
+        confidence: result.confidence,
+        alternatives: [],
+        processingTimeMs: Math.round(result.processing_time_ms),
+        modelVersion: result.model_version,
+        predictionType: dto.type,
+      },
+      meta: {
+        timestamp: new Date().toISOString(),
+        sessionId: dto.sessionId,
+        inputType: dto.inputType,
+      },
     };
+
+    this.logger.log(`Prediction: ${response.data.gesture} (${response.data.confidence})`);
+
+    return response;
   }
 
   async getAiHealth() {
@@ -283,6 +293,40 @@ export class AiService {
     });
   }
 
+  // ===========================================================================
+  // FASTAPI INTEGRATION HELPERS
+  // ===========================================================================
+
+  private buildFastApiPayload(dto: PredictionRequest): FastApiPredictRequest {
+    let poseSequence: number[][][] | undefined;
+
+    if (dto.pose_sequence) {
+      poseSequence = dto.pose_sequence;
+    } else if (dto.sequence) {
+      poseSequence = dto.sequence.frames.map((frame) => this.frameToFlatArray(frame));
+    } else if (dto.frames) {
+      poseSequence = [this.frameToFlatArray(dto.frames)];
+    }
+
+    if (!poseSequence || poseSequence.length === 0) {
+      throw new BadRequestException({
+        message: 'No pose data provided. Include pose_sequence, frames, or sequence.',
+        error: 'BadRequest',
+      });
+    }
+
+    const payload: FastApiPredictRequest = { pose_sequence: poseSequence };
+
+    if (dto.max_length !== undefined) payload.max_length = dto.max_length;
+    if (dto.temperature !== undefined) payload.temperature = dto.temperature;
+
+    return payload;
+  }
+
+  private frameToFlatArray(frame: FrameLandmarks): number[][] {
+    return frame.pose.map((lm) => [lm.x, lm.y, lm.z, lm.visibility ?? 0, lm.timestamp ?? 0]);
+  }
+
   private generateMockTranslation(text: string) {
     // Mock translation - will be replaced with actual ISL translation
     const wordCount = text.split(' ').length;
@@ -298,4 +342,22 @@ export class AiService {
       totalDuration: wordCount * 2,
     };
   }
+}
+
+interface FastApiPrediction {
+  text: string;
+  tokens: number[];
+}
+
+interface FastApiPredictionResult {
+  prediction: FastApiPrediction;
+  confidence: number;
+  processing_time_ms: number;
+  model_version: string;
+}
+
+interface FastApiPredictRequest {
+  pose_sequence: number[][][];
+  max_length?: number;
+  temperature?: number;
 }
