@@ -1,7 +1,3 @@
-// SignBridge AI - Complete Database Schema
-// Version: 1.0
-// This schema defines the complete database architecture for SignBridge AI.
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,9 +7,486 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// =============================================================================
-// ENUMS
-// =============================================================================
+model Role {
+  id          String   @id @default(uuid())
+  name        UserRole @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  users       User[]
+
+  @@map("roles")
+}
+
+model User {
+  id                  String               @id @default(uuid())
+  email               String               @unique
+  firebaseUid         String               @unique
+  firstName           String
+  lastName            String
+  phone               String?
+  dateOfBirth         DateTime?
+  gender              Gender?
+  profileImage        String?
+  bio                 String?
+  preferredLanguage   String               @default("en")
+  country             String?
+  state               String?
+  city                String?
+  isVerified          Boolean              @default(false)
+  isActive            Boolean              @default(true)
+  lastLoginAt         DateTime?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  deletedAt           DateTime?
+  roleId              String
+  organizationId      String?
+  activityLogs        ActivityLog[]
+  announcements       Announcement[]
+  auditLogs           AuditLog[]
+  certificates        Certificate[]
+  contactMessages     ContactMessage[]
+  enrollments         Enrollment[]
+  favoriteSigns       FavoriteSign[]
+  files               File[]
+  notifications       Notification[]
+  practiceSessions    PracticeSession[]
+  quizAttempts        QuizAttempt[]
+  translationSessions TranslationSession[]
+  progress            UserProgress[]
+  organization        Organization?        @relation(fields: [organizationId], references: [id])
+  role                Role                 @relation(fields: [roleId], references: [id])
+
+  @@index([roleId])
+  @@index([organizationId])
+  @@index([createdAt])
+  @@map("users")
+}
+
+model Organization {
+  id        String           @id @default(uuid())
+  name      String
+  type      OrganizationType
+  email     String?
+  phone     String?
+  address   String?
+  city      String?
+  state     String?
+  country   String?
+  website   String?
+  logo      String?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  users     User[]
+
+  @@index([type])
+  @@index([createdAt])
+  @@map("organizations")
+}
+
+model Course {
+  id                String           @id @default(uuid())
+  title             String
+  slug              String           @unique
+  description       String?
+  difficulty        CourseDifficulty @default(BEGINNER)
+  thumbnail         String?
+  estimatedDuration Int?
+  status            CourseStatus     @default(DRAFT)
+  createdBy         String?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  certificates      Certificate[]
+  enrollments       Enrollment[]
+  modules           Module[]
+  quizzes           Quiz[]
+
+  @@index([slug])
+  @@index([difficulty])
+  @@index([status])
+  @@index([createdAt])
+  @@map("courses")
+}
+
+model Enrollment {
+  id          String    @id @default(uuid())
+  enrolledAt  DateTime  @default(now())
+  completedAt DateTime?
+  status      String    @default("ACTIVE")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  userId      String
+  courseId    String
+  course      Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id])
+
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
+  @@map("enrollments")
+}
+
+model Module {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  order       Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  courseId    String
+  lessons     Lesson[]
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([courseId])
+  @@index([order])
+  @@map("modules")
+}
+
+model Lesson {
+  id               String            @id @default(uuid())
+  title            String
+  description      String?
+  videoUrl         String?
+  thumbnail        String?
+  duration         Int?
+  order            Int
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  moduleId         String
+  module           Module            @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  practiceSessions PracticeSession[]
+  progress         UserProgress[]
+
+  @@index([moduleId])
+  @@index([order])
+  @@map("lessons")
+}
+
+model Quiz {
+  id           String        @id @default(uuid())
+  title        String
+  description  String?
+  timeLimit    Int?
+  passingScore Int           @default(70)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  courseId     String
+  questions    Question[]
+  attempts     QuizAttempt[]
+  course       Course        @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([courseId])
+  @@map("quizzes")
+}
+
+model Question {
+  id            String         @id @default(uuid())
+  text          String
+  order         Int
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  quizId        String
+  answerOptions AnswerOption[]
+  quiz          Quiz           @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  @@index([quizId])
+  @@map("questions")
+}
+
+model AnswerOption {
+  id         String   @id @default(uuid())
+  text       String
+  isCorrect  Boolean  @default(false)
+  order      Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([questionId])
+  @@map("answer_options")
+}
+
+model UserProgress {
+  id             String    @id @default(uuid())
+  completed      Boolean   @default(false)
+  completionDate DateTime?
+  watchTime      Int       @default(0)
+  accuracy       Float?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  userId         String
+  lessonId       String
+  lesson         Lesson    @relation(fields: [lessonId], references: [id])
+  user           User      @relation(fields: [userId], references: [id])
+
+  @@unique([userId, lessonId])
+  @@index([userId])
+  @@index([lessonId])
+  @@map("user_progress")
+}
+
+model QuizAttempt {
+  id             String   @id @default(uuid())
+  score          Float
+  totalQuestions Int
+  correctAnswers Int
+  timeTaken      Int?
+  answers        Json?
+  createdAt      DateTime @default(now())
+  userId         String
+  quizId         String
+  quiz           Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  user           User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([quizId])
+  @@index([createdAt])
+  @@map("quiz_attempts")
+}
+
+model Certificate {
+  id                String   @id @default(uuid())
+  certificateNumber String   @unique
+  issuedDate        DateTime @default(now())
+  verificationCode  String   @unique
+  pdfUrl            String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  userId            String
+  courseId          String
+  course            Course   @relation(fields: [courseId], references: [id])
+  user              User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([courseId])
+  @@index([certificateNumber])
+  @@index([verificationCode])
+  @@map("certificates")
+}
+
+model PracticeSession {
+  id              String              @id @default(uuid())
+  confidenceScore Float?
+  accuracy        Float?
+  feedback        String?
+  duration        Int?
+  createdAt       DateTime            @default(now())
+  userId          String
+  lessonId        String?
+  predictions     GesturePrediction[]
+  lesson          Lesson?             @relation(fields: [lessonId], references: [id])
+  user            User                @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([lessonId])
+  @@index([createdAt])
+  @@map("practice_sessions")
+}
+
+model GesturePrediction {
+  id                String          @id @default(uuid())
+  predictedGesture  String
+  confidence        Float
+  processingTime    Float?
+  modelVersion      String?
+  createdAt         DateTime        @default(now())
+  practiceSessionId String
+  practiceSession   PracticeSession @relation(fields: [practiceSessionId], references: [id], onDelete: Cascade)
+
+  @@index([practiceSessionId])
+  @@index([createdAt])
+  @@map("gesture_predictions")
+}
+
+model TranslationSession {
+  id        String               @id @default(uuid())
+  type      TranslationType
+  status    TranslationStatus    @default(ACTIVE)
+  startedAt DateTime             @default(now())
+  endedAt   DateTime?
+  userId    String
+  messages  TranslationMessage[]
+  user      User                 @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([type])
+  @@index([startedAt])
+  @@map("translation_sessions")
+}
+
+model TranslationMessage {
+  id         String             @id @default(uuid())
+  inputText  String?
+  outputText String?
+  confidence Float?
+  language   String             @default("en")
+  createdAt  DateTime           @default(now())
+  sessionId  String
+  session    TranslationSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@index([createdAt])
+  @@map("translation_messages")
+}
+
+model SignCategory {
+  id          String     @id @default(uuid())
+  name        String     @unique
+  description String?
+  icon        String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  signs       SignWord[]
+
+  @@map("sign_categories")
+}
+
+model SignWord {
+  id         String           @id @default(uuid())
+  word       String
+  meaning    String?
+  videoUrl   String?
+  imageUrl   String?
+  difficulty CourseDifficulty @default(BEGINNER)
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+  categoryId String
+  favorites  FavoriteSign[]
+  category   SignCategory     @relation(fields: [categoryId], references: [id])
+
+  @@index([categoryId])
+  @@index([word])
+  @@index([difficulty])
+  @@map("sign_words")
+}
+
+model FavoriteSign {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  userId    String
+  signId    String
+  sign      SignWord @relation(fields: [signId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, signId])
+  @@index([userId])
+  @@index([signId])
+  @@map("favorite_signs")
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  title     String
+  message   String
+  type      NotificationType @default(COURSE)
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([type])
+  @@index([isRead])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+model Announcement {
+  id          String    @id @default(uuid())
+  title       String
+  content     String
+  isActive    Boolean   @default(true)
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  authorId    String
+  author      User      @relation(fields: [authorId], references: [id])
+
+  @@index([authorId])
+  @@index([isActive])
+  @@index([publishedAt])
+  @@map("announcements")
+}
+
+model ContactMessage {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  subject   String?
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+  @@map("contact_messages")
+}
+
+model File {
+  id         String       @id @default(uuid())
+  fileName   String
+  url        String
+  mimeType   String
+  size       Int
+  provider   FileProvider @default(CLOUDINARY)
+  uploadedAt DateTime     @default(now())
+  ownerId    String
+  owner      User         @relation(fields: [ownerId], references: [id])
+
+  @@index([ownerId])
+  @@index([uploadedAt])
+  @@map("files")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  action     String
+  resource   String
+  resourceId String?
+  ipAddress  String?
+  device     String?
+  details    Json?
+  createdAt  DateTime @default(now())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([action])
+  @@index([resource])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model SystemSetting {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  value       String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("system_settings")
+}
+
+model ActivityLog {
+  id        String   @id @default(uuid())
+  action    String
+  details   Json?
+  ipAddress String?
+  createdAt DateTime @default(now())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("activity_logs")
+}
 
 enum UserRole {
   LEARNER
@@ -75,621 +548,4 @@ enum Gender {
   FEMALE
   OTHER
   PREFER_NOT_TO_SAY
-}
-
-// =============================================================================
-// IDENTITY & ACCESS
-// =============================================================================
-
-model Role {
-  id          String   @id @default(uuid())
-  name        UserRole @unique
-  description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  users User[]
-
-  @@map("roles")
-}
-
-model User {
-  id                String    @id @default(uuid())
-  email             String    @unique
-  firebaseUid       String    @unique
-  firstName         String
-  lastName          String
-  phone             String?
-  dateOfBirth       DateTime?
-  gender            Gender?
-  profileImage      String?
-  bio               String?
-  preferredLanguage String    @default("en")
-  country           String?
-  state             String?
-  city              String?
-  isVerified        Boolean   @default(false)
-  isActive          Boolean   @default(true)
-  lastLoginAt       DateTime?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-  deletedAt         DateTime?
-
-  // Foreign Keys
-  roleId         String
-  organizationId String?
-
-  // Relations
-  role                Role                 @relation(fields: [roleId], references: [id])
-  organization        Organization?        @relation(fields: [organizationId], references: [id])
-  progress            UserProgress[]
-  practiceSessions    PracticeSession[]
-  notifications       Notification[]
-  translationSessions TranslationSession[]
-  certificates        Certificate[]
-  enrollments         Enrollment[]
-  quizAttempts        QuizAttempt[]
-  favoriteSigns       FavoriteSign[]
-  files               File[]
-  auditLogs           AuditLog[]
-  activityLogs        ActivityLog[]
-  announcements       Announcement[]
-  contactMessages     ContactMessage[]
-
-  @@index([roleId])
-  @@index([organizationId])
-  @@index([createdAt])
-  @@map("users")
-}
-
-model Organization {
-  id        String           @id @default(uuid())
-  name      String
-  type      OrganizationType
-  email     String?
-  phone     String?
-  address   String?
-  city      String?
-  state     String?
-  country   String?
-  website   String?
-  logo      String?
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
-
-  // Relations
-  users User[]
-
-  @@index([type])
-  @@index([createdAt])
-  @@map("organizations")
-}
-
-// =============================================================================
-// LEARNING
-// =============================================================================
-
-model Course {
-  id                String           @id @default(uuid())
-  title             String
-  slug              String           @unique
-  description       String?
-  difficulty        CourseDifficulty @default(BEGINNER)
-  thumbnail         String?
-  estimatedDuration Int? // in minutes
-  status            CourseStatus     @default(DRAFT)
-  createdBy         String?
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
-
-  // Relations
-  modules      Module[]
-  quizzes      Quiz[]
-  certificates Certificate[]
-  enrollments  Enrollment[]
-
-  @@index([slug])
-  @@index([difficulty])
-  @@index([status])
-  @@index([createdAt])
-  @@map("courses")
-}
-
-model Enrollment {
-  id          String    @id @default(uuid())
-  enrolledAt  DateTime  @default(now())
-  completedAt DateTime?
-  status      String    @default("ACTIVE") // ACTIVE, COMPLETED, DROPPED
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  // Foreign Keys
-  userId   String
-  courseId String
-
-  // Relations
-  user   User   @relation(fields: [userId], references: [id])
-  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, courseId])
-  @@index([userId])
-  @@index([courseId])
-  @@map("enrollments")
-}
-
-model Module {
-  id          String   @id @default(uuid())
-  title       String
-  description String?
-  order       Int
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Foreign Keys
-  courseId String
-
-  // Relations
-  course  Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  lessons Lesson[]
-
-  @@index([courseId])
-  @@index([order])
-  @@map("modules")
-}
-
-model Lesson {
-  id          String   @id @default(uuid())
-  title       String
-  description String?
-  videoUrl    String?
-  thumbnail   String?
-  duration    Int? // in seconds
-  order       Int
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Foreign Keys
-  moduleId String
-
-  // Relations
-  module           Module            @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  progress         UserProgress[]
-  practiceSessions PracticeSession[]
-
-  @@index([moduleId])
-  @@index([order])
-  @@map("lessons")
-}
-
-// =============================================================================
-// QUIZ SYSTEM
-// =============================================================================
-
-model Quiz {
-  id           String   @id @default(uuid())
-  title        String
-  description  String?
-  timeLimit    Int? // in minutes
-  passingScore Int      @default(70)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  // Foreign Keys
-  courseId String
-
-  // Relations
-  course    Course        @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  questions Question[]
-  attempts  QuizAttempt[]
-
-  @@index([courseId])
-  @@map("quizzes")
-}
-
-model Question {
-  id        String   @id @default(uuid())
-  text      String
-  order     Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Foreign Keys
-  quizId String
-
-  // Relations
-  quiz          Quiz           @relation(fields: [quizId], references: [id], onDelete: Cascade)
-  answerOptions AnswerOption[]
-
-  @@index([quizId])
-  @@map("questions")
-}
-
-model AnswerOption {
-  id        String   @id @default(uuid())
-  text      String
-  isCorrect Boolean  @default(false)
-  order     Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Foreign Keys
-  questionId String
-
-  // Relations
-  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-
-  @@index([questionId])
-  @@map("answer_options")
-}
-
-// =============================================================================
-// PROGRESS & ASSESSMENT
-// =============================================================================
-
-model UserProgress {
-  id             String    @id @default(uuid())
-  completed      Boolean   @default(false)
-  completionDate DateTime?
-  watchTime      Int       @default(0) // in seconds
-  accuracy       Float?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-
-  // Foreign Keys
-  userId   String
-  lessonId String
-
-  // Relations
-  user   User   @relation(fields: [userId], references: [id])
-  lesson Lesson @relation(fields: [lessonId], references: [id])
-
-  @@unique([userId, lessonId])
-  @@index([userId])
-  @@index([lessonId])
-  @@map("user_progress")
-}
-
-model QuizAttempt {
-  id             String   @id @default(uuid())
-  score          Float
-  totalQuestions Int
-  correctAnswers Int
-  timeTaken      Int? // in seconds
-  answers        Json? // store user answers as JSON
-  createdAt      DateTime @default(now())
-
-  // Foreign Keys
-  userId String
-  quizId String
-
-  // Relations
-  user User @relation(fields: [userId], references: [id])
-  quiz Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([quizId])
-  @@index([createdAt])
-  @@map("quiz_attempts")
-}
-
-model Certificate {
-  id                String   @id @default(uuid())
-  certificateNumber String   @unique
-  issuedDate        DateTime @default(now())
-  verificationCode  String   @unique
-  pdfUrl            String?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  // Foreign Keys
-  userId   String
-  courseId String
-
-  // Relations
-  user   User   @relation(fields: [userId], references: [id])
-  course Course @relation(fields: [courseId], references: [id])
-
-  @@index([userId])
-  @@index([courseId])
-  @@index([certificateNumber])
-  @@index([verificationCode])
-  @@map("certificates")
-}
-
-// =============================================================================
-// AI PRACTICE
-// =============================================================================
-
-model PracticeSession {
-  id              String   @id @default(uuid())
-  confidenceScore Float?
-  accuracy        Float?
-  feedback        String?
-  duration        Int? // in seconds
-  createdAt       DateTime @default(now())
-
-  // Foreign Keys
-  userId   String
-  lessonId String?
-
-  // Relations
-  user        User                @relation(fields: [userId], references: [id])
-  lesson      Lesson?             @relation(fields: [lessonId], references: [id])
-  predictions GesturePrediction[]
-
-  @@index([userId])
-  @@index([lessonId])
-  @@index([createdAt])
-  @@map("practice_sessions")
-}
-
-model GesturePrediction {
-  id               String   @id @default(uuid())
-  predictedGesture String
-  confidence       Float
-  processingTime   Float? // in milliseconds
-  modelVersion     String?
-  createdAt        DateTime @default(now())
-
-  // Foreign Keys
-  practiceSessionId String
-
-  // Relations
-  practiceSession PracticeSession @relation(fields: [practiceSessionId], references: [id], onDelete: Cascade)
-
-  @@index([practiceSessionId])
-  @@index([createdAt])
-  @@map("gesture_predictions")
-}
-
-// =============================================================================
-// TRANSLATION
-// =============================================================================
-
-model TranslationSession {
-  id        String            @id @default(uuid())
-  type      TranslationType
-  status    TranslationStatus @default(ACTIVE)
-  startedAt DateTime          @default(now())
-  endedAt   DateTime?
-
-  // Foreign Keys
-  userId String
-
-  // Relations
-  user     User                 @relation(fields: [userId], references: [id])
-  messages TranslationMessage[]
-
-  @@index([userId])
-  @@index([type])
-  @@index([startedAt])
-  @@map("translation_sessions")
-}
-
-model TranslationMessage {
-  id         String   @id @default(uuid())
-  inputText  String?
-  outputText String?
-  confidence Float?
-  language   String   @default("en")
-  createdAt  DateTime @default(now())
-
-  // Foreign Keys
-  sessionId String
-
-  // Relations
-  session TranslationSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-
-  @@index([sessionId])
-  @@index([createdAt])
-  @@map("translation_messages")
-}
-
-// =============================================================================
-// DICTIONARY
-// =============================================================================
-
-model SignCategory {
-  id          String   @id @default(uuid())
-  name        String   @unique
-  description String?
-  icon        String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  signs SignWord[]
-
-  @@map("sign_categories")
-}
-
-model SignWord {
-  id         String           @id @default(uuid())
-  word       String
-  meaning    String?
-  videoUrl   String?
-  imageUrl   String?
-  difficulty CourseDifficulty @default(BEGINNER)
-  createdAt  DateTime         @default(now())
-  updatedAt  DateTime         @updatedAt
-
-  // Foreign Keys
-  categoryId String
-
-  // Relations
-  category  SignCategory   @relation(fields: [categoryId], references: [id])
-  favorites FavoriteSign[]
-
-  @@index([categoryId])
-  @@index([word])
-  @@index([difficulty])
-  @@map("sign_words")
-}
-
-model FavoriteSign {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-
-  // Foreign Keys
-  userId String
-  signId String
-
-  // Relations
-  user User     @relation(fields: [userId], references: [id])
-  sign SignWord @relation(fields: [signId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, signId])
-  @@index([userId])
-  @@index([signId])
-  @@map("favorite_signs")
-}
-
-// =============================================================================
-// COMMUNICATION
-// =============================================================================
-
-model Notification {
-  id        String           @id @default(uuid())
-  title     String
-  message   String
-  type      NotificationType @default(COURSE)
-  isRead    Boolean          @default(false)
-  createdAt DateTime         @default(now())
-
-  // Foreign Keys
-  userId String
-
-  // Relations
-  user User @relation(fields: [userId], references: [id])
-
-  @@index([userId])
-  @@index([type])
-  @@index([isRead])
-  @@index([createdAt])
-  @@map("notifications")
-}
-
-model Announcement {
-  id          String    @id @default(uuid())
-  title       String
-  content     String
-  isActive    Boolean   @default(true)
-  publishedAt DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  // Foreign Keys
-  authorId String
-
-  // Relations
-  author User @relation(fields: [authorId], references: [id])
-
-  @@index([authorId])
-  @@index([isActive])
-  @@index([publishedAt])
-  @@map("announcements")
-}
-
-model ContactMessage {
-  id        String   @id @default(uuid())
-  name      String
-  email     String
-  subject   String?
-  message   String
-  isRead    Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Foreign Keys
-  userId String?
-
-  // Relations
-  user User? @relation(fields: [userId], references: [id])
-
-  @@index([userId])
-  @@index([isRead])
-  @@index([createdAt])
-  @@map("contact_messages")
-}
-
-// =============================================================================
-// FILE STORAGE
-// =============================================================================
-
-model File {
-  id         String       @id @default(uuid())
-  fileName   String
-  url        String
-  mimeType   String
-  size       Int // in bytes
-  provider   FileProvider @default(CLOUDINARY)
-  uploadedAt DateTime     @default(now())
-
-  // Foreign Keys
-  ownerId String
-
-  // Relations
-  owner User @relation(fields: [ownerId], references: [id])
-
-  @@index([ownerId])
-  @@index([uploadedAt])
-  @@map("files")
-}
-
-// =============================================================================
-// ADMINISTRATION
-// =============================================================================
-
-model AuditLog {
-  id         String   @id @default(uuid())
-  action     String
-  resource   String
-  resourceId String?
-  ipAddress  String?
-  device     String?
-  details    Json?
-  createdAt  DateTime @default(now())
-
-  // Foreign Keys
-  userId String
-
-  // Relations
-  user User @relation(fields: [userId], references: [id])
-
-  @@index([userId])
-  @@index([action])
-  @@index([resource])
-  @@index([createdAt])
-  @@map("audit_logs")
-}
-
-model SystemSetting {
-  id          String   @id @default(uuid())
-  key         String   @unique
-  value       String
-  description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@map("system_settings")
-}
-
-model ActivityLog {
-  id        String   @id @default(uuid())
-  action    String
-  details   Json?
-  ipAddress String?
-  createdAt DateTime @default(now())
-
-  // Foreign Keys
-  userId String
-
-  // Relations
-  user User @relation(fields: [userId], references: [id])
-
-  @@index([userId])
-  @@index([action])
-  @@index([createdAt])
-  @@map("activity_logs")
 }

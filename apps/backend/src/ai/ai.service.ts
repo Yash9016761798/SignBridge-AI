@@ -65,6 +65,13 @@ export class AiService {
   }
 
   async translateText(userId: string, dto: TranslateTextDto) {
+    if (!dto.frame || !dto.frame.landmarks || dto.frame.landmarks.length === 0) {
+      throw new BadRequestException({
+        message: 'Pose frame data is required. Provide a frame with landmarks to translate.',
+        error: 'BadRequest',
+      });
+    }
+
     let sessionId = dto.sessionId;
 
     if (!sessionId) {
@@ -74,25 +81,54 @@ export class AiService {
       sessionId = session.id;
     }
 
-    // Mock translation response (will be replaced with FastAPI call)
-    const mockTranslation = this.generateMockTranslation(dto.text);
+    const fastApiPayload: FastApiTranslateRequest = {
+      frame: {
+        landmarks: dto.frame.landmarks,
+      },
+    };
+    if (dto.frame.timestamp !== undefined) {
+      fastApiPayload.frame.timestamp = dto.frame.timestamp;
+    }
+
+    const result = await this.aiPost<FastApiTranslateResult>('/translate', fastApiPayload);
+
+    const words = result.prediction.text.split(/[\s,]+/).filter((w) => w.length > 0);
+
+    const translation = {
+      outputText: result.prediction.text,
+      confidence: result.confidence,
+      signs: words.map((word) => ({
+        word,
+        signVideoUrl: null,
+        signImageUrl: null,
+        duration: 0,
+      })),
+      totalDuration: Math.round(result.processing_time_ms),
+    };
 
     const history = await this.prisma.translationMessage.create({
       data: {
         sessionId,
-        inputText: dto.text,
-        outputText: mockTranslation.outputText,
-        confidence: mockTranslation.confidence,
-        language: dto.targetLanguage || 'isl',
+        inputText: dto.text || null,
+        outputText: translation.outputText,
+        confidence: translation.confidence,
+        language: dto.targetLanguage || 'en',
       },
     });
 
-    this.logger.log(`Translated text in session ${sessionId}: "${dto.text.substring(0, 50)}..."`);
+    this.logger.log(
+      `Translated pose frame in session ${sessionId}: "${translation.outputText.substring(0, 50)}..."`,
+    );
 
     return {
       sessionId,
-      translation: mockTranslation,
+      translation,
       historyId: history.id,
+      metadata: {
+        processingTimeMs: result.processing_time_ms,
+        modelVersion: result.model_version,
+        tokens: result.prediction.tokens,
+      },
     };
   }
 
@@ -326,22 +362,6 @@ export class AiService {
   private frameToFlatArray(frame: FrameLandmarks): number[][] {
     return frame.pose.map((lm) => [lm.x, lm.y, lm.z, lm.visibility ?? 0, lm.timestamp ?? 0]);
   }
-
-  private generateMockTranslation(text: string) {
-    // Mock translation - will be replaced with actual ISL translation
-    const wordCount = text.split(' ').length;
-    return {
-      outputText: `[ISL Translation of: ${text}]`,
-      confidence: 0.85 + Math.random() * 0.15,
-      signs: text.split(' ').map((word) => ({
-        word,
-        signVideoUrl: null,
-        signImageUrl: null,
-        duration: Math.floor(Math.random() * 3) + 1,
-      })),
-      totalDuration: wordCount * 2,
-    };
-  }
 }
 
 interface FastApiPrediction {
@@ -360,4 +380,25 @@ interface FastApiPredictRequest {
   pose_sequence: number[][][];
   max_length?: number;
   temperature?: number;
+}
+
+interface FastApiTranslateFrame {
+  landmarks: number[][];
+  timestamp?: number;
+}
+
+interface FastApiTranslateRequest {
+  frame: FastApiTranslateFrame;
+}
+
+interface FastApiTranslation {
+  text: string;
+  tokens: number[];
+}
+
+interface FastApiTranslateResult {
+  prediction: FastApiTranslation;
+  confidence: number;
+  processing_time_ms: number;
+  model_version: string;
 }

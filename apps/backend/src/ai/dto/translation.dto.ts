@@ -1,4 +1,15 @@
-import { IsString, IsOptional, IsEnum, MaxLength } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsEnum,
+  MaxLength,
+  IsArray,
+  IsNumber,
+  ArrayMinSize,
+  ArrayMaxSize,
+  ValidateNested,
+} from 'class-validator';
+import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateTranslationSessionDto {
@@ -18,6 +29,22 @@ export class CreateTranslationSessionDto {
   @IsOptional()
   @IsString()
   targetLanguage?: string;
+}
+
+export class PoseFrameDto {
+  @ApiProperty({
+    type: [[Number]],
+    description: 'Pose landmarks array of shape (33, 5): [x, y, z, visibility, timestamp]',
+  })
+  @IsArray()
+  @ArrayMinSize(33)
+  @ArrayMaxSize(33)
+  landmarks!: number[][];
+
+  @ApiPropertyOptional({ description: 'Frame timestamp in milliseconds' })
+  @IsOptional()
+  @IsNumber()
+  timestamp?: number;
 }
 
 export class TranslateTextDto {
@@ -40,4 +67,13 @@ export class TranslateTextDto {
   @IsOptional()
   @IsString()
   sessionId?: string;
+
+  @ApiPropertyOptional({
+    type: PoseFrameDto,
+    description: 'Pose frame data for sign-to-text translation',
+  })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => PoseFrameDto)
+  frame?: PoseFrameDto;
 }
