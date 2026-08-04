@@ -25,7 +25,7 @@ export class AiService {
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
   ) {
-    this.aiServiceUrl = this.configService.get('AI_SERVICE_URL', 'http://localhost:8000');
+    this.aiServiceUrl = this.configService.get<string>('AI_SERVICE_URL')!;
   }
 
   // ===========================================================================
@@ -44,25 +44,13 @@ export class AiService {
     return session;
   }
 
-  async getTranslationSession(id: string) {
+  async getTranslationSession(id: string, userId: string) {
     const session = await this.prisma.translationSession.findUnique({
-      where: { id },
+      where: { id, userId },
       include: { messages: { orderBy: { createdAt: 'desc' }, take: 50 } },
     });
     if (!session) throw new NotFoundException('Translation session not found');
     return session;
-  }
-
-  async endTranslationSession(id: string) {
-    const session = await this.prisma.translationSession.findUnique({ where: { id } });
-    if (!session) throw new NotFoundException('Translation session not found');
-
-    const updated = await this.prisma.translationSession.update({
-      where: { id },
-      data: { endedAt: new Date(), status: 'COMPLETED' },
-    });
-    this.logger.log(`Ended translation session: ${id}`);
-    return updated;
   }
 
   async translateText(userId: string, dto: TranslateTextDto) {
@@ -160,9 +148,9 @@ export class AiService {
     return session;
   }
 
-  async getPracticeSession(id: string) {
+  async getPracticeSession(id: string, userId: string) {
     const session = await this.prisma.practiceSession.findUnique({
-      where: { id },
+      where: { id, userId },
       include: { predictions: { orderBy: { createdAt: 'asc' } } },
     });
     if (!session) throw new NotFoundException('Practice session not found');
@@ -170,8 +158,8 @@ export class AiService {
   }
 
   async submitPrediction(userId: string, dto: SubmitPredictionDto) {
-    const session = await this.prisma.practiceSession.findUnique({
-      where: { id: dto.sessionId },
+    const session = await this.prisma.practiceSession.findFirst({
+      where: { id: dto.sessionId, userId },
     });
     if (!session) throw new NotFoundException('Practice session not found');
 
@@ -192,8 +180,8 @@ export class AiService {
     return prediction;
   }
 
-  async endPracticeSession(id: string, accuracy?: number, feedback?: string) {
-    const session = await this.prisma.practiceSession.findUnique({ where: { id } });
+  async endPracticeSession(id: string, userId: string, accuracy?: number, feedback?: string) {
+    const session = await this.prisma.practiceSession.findUnique({ where: { id, userId } });
     if (!session) throw new NotFoundException('Practice session not found');
 
     const predictions = await this.prisma.gesturePrediction.findMany({
@@ -209,7 +197,7 @@ export class AiService {
       where: { id },
       data: {
         confidenceScore: avgConfidence,
-        accuracy: accuracy || avgConfidence,
+        accuracy: accuracy !== undefined ? accuracy : avgConfidence,
         feedback: feedback || `Completed ${predictions.length} predictions`,
       },
     });
@@ -360,7 +348,10 @@ export class AiService {
         backend: { status: 'up', timestamp: new Date().toISOString() },
         aiService: data,
       };
-    } catch {
+    } catch (error) {
+      this.logger.error(
+        `AI service health check failed: ${error instanceof Error ? error.message : String(error)}`,
+      );
       return {
         backend: { status: 'up', timestamp: new Date().toISOString() },
         aiService: { status: 'unreachable', message: 'AI service is not responding' },
@@ -476,13 +467,8 @@ interface FastApiTranslateRequest {
   frame: FastApiTranslateFrame;
 }
 
-interface FastApiTranslation {
-  text: string;
-  tokens: number[];
-}
-
 interface FastApiTranslateResult {
-  prediction: FastApiTranslation;
+  prediction: FastApiPrediction;
   confidence: number;
   processing_time_ms: number;
   model_version: string;
@@ -494,7 +480,7 @@ interface FastApiWebcamRequest {
 }
 
 interface FastApiWebcamResult {
-  prediction: FastApiTranslation;
+  prediction: FastApiPrediction;
   confidence: number;
   processing_time_ms: number;
   model_version: string;

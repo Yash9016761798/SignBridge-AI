@@ -10,7 +10,6 @@ import { DictionaryModule } from './dictionary/dictionary.module';
 import { LearningModule } from './learning/learning.module';
 import { AiModule } from './ai/ai.module';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
-// import { FirebaseAuthGuard } from './common/guards/firebase-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { ResponseTransformInterceptor } from './common/interceptors/response-transform.interceptor';
@@ -38,10 +37,6 @@ import { RequestLoggingMiddleware } from './common/middleware/request-logging.mi
       provide: APP_FILTER,
       useClass: GlobalExceptionFilter,
     },
-    // {
-    // provide: APP_GUARD,
-    // useClass: FirebaseAuthGuard,
-    // },
     {
       provide: APP_GUARD,
       useClass: RolesGuard,

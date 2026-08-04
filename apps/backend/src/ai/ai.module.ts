@@ -15,7 +15,7 @@ import { FirebaseAuthGuard } from '../common/guards/firebase-auth.guard';
       useFactory: (configService: ConfigService) => ({
         timeout: 10000,
         maxRedirects: 5,
-        baseURL: configService.get('AI_SERVICE_URL', 'http://localhost:8000'),
+        baseURL: configService.get<string>('AI_SERVICE_URL')!,
       }),
     }),
     AuthModule,

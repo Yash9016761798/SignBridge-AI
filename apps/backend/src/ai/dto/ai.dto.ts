@@ -16,17 +16,6 @@ import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { FrameLandmarks, PoseSequence } from './pose.dto';
 
-export class PredictGestureDto {
-  @ApiProperty({ enum: ['image', 'video', 'landmarks'], example: 'image' })
-  @IsEnum(['image', 'video', 'landmarks'] as const)
-  type!: string;
-
-  @ApiPropertyOptional({ description: 'Practice session ID' })
-  @IsOptional()
-  @IsString()
-  sessionId?: string;
-}
-
 export const PREDICTION_INPUT_TYPES = ['image', 'video', 'landmarks'] as const;
 export const INPUT_SOURCE_TYPES = ['camera', 'upload', 'demo'] as const;
 
@@ -80,6 +69,8 @@ export class PredictionRequest {
   })
   @IsOptional()
   @IsArray()
+  @ArrayMinSize(1)
+  @ArrayMaxSize(60)
   pose_sequence?: number[][][];
 
   @ApiPropertyOptional({ example: 30, description: 'Maximum sequence length for generation' })
