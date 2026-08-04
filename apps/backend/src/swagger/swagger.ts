@@ -33,6 +33,7 @@ export function setupSwagger(app: INestApplication, configService: ConfigService
     .addTag('notifications', 'Notification endpoints')
     .addTag('dashboard', 'Dashboard endpoints')
     .addTag('analytics', 'Analytics endpoints')
+    .addTag('settings', 'Settings endpoints')
     .addTag('admin', 'Admin endpoints')
     .addBearerAuth(
       {
