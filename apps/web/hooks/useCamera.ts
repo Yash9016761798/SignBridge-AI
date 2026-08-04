@@ -121,11 +121,16 @@ export function useCamera(options: UseCameraOptions = {}): UseCameraReturn {
     return canvas.toDataURL('image/jpeg', 0.8);
   }, []);
 
-  // Cleanup on unmount
+  // Cleanup on unmount — stop tracks AND clear srcObject
   useEffect(() => {
+    const videoEl = videoRef.current;
     return () => {
       if (streamRef.current) {
         streamRef.current.getTracks().forEach((t) => t.stop());
+        streamRef.current = null;
+      }
+      if (videoEl) {
+        videoEl.srcObject = null;
       }
     };
   }, []);

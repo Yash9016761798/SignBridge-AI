@@ -216,7 +216,7 @@ export class AiService {
 
   async getAiHealth() {
     try {
-      const response = await fetch(`${this.aiServiceUrl}/api/v1/health/`);
+      const response = await fetch(`${this.aiServiceUrl}/health`);
       const data = await response.json();
       return {
         backend: { status: 'up', timestamp: new Date().toISOString() },

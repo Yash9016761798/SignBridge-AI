@@ -18,6 +18,19 @@ async function bootstrap() {
   const apiPrefix = configService.get<string>('app.apiPrefix', 'api/v1');
   const corsOrigin = configService.get<string>('app.corsOrigin', 'http://localhost:3000');
 
+  const aiServiceUrl = configService.get<string>('AI_SERVICE_URL');
+  if (!aiServiceUrl) {
+    logger.error(
+      'AI_SERVICE_URL environment variable is not configured. ' +
+        'The backend cannot communicate with the AI service. ' +
+        'Set AI_SERVICE_URL in your .env file ' +
+        '(e.g., http://localhost:8000 for local development or http://ai-service:8000 for Docker).',
+    );
+    await app.close();
+    process.exit(1);
+  }
+  logger.log(`AI service URL: ${aiServiceUrl}`);
+
   app.setGlobalPrefix(apiPrefix);
 
   app.use(helmet());

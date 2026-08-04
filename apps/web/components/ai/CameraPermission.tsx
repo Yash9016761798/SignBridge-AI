@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Camera, CameraOff, AlertTriangle } from 'lucide-react';
 
 interface CameraPermissionProps {
@@ -13,6 +13,8 @@ export default function CameraPermission({ onGranted, onDenied }: CameraPermissi
     'idle',
   );
   const [error, setError] = useState<string | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const handedOffRef = useRef(false);
 
   const requestCamera = async () => {
     setStatus('requesting');
@@ -22,7 +24,10 @@ export default function CameraPermission({ onGranted, onDenied }: CameraPermissi
         video: { facingMode: 'user' },
         audio: false,
       });
+      streamRef.current = stream;
+      handedOffRef.current = false;
       setStatus('granted');
+      handedOffRef.current = true;
       onGranted(stream);
     } catch (err) {
       setStatus('denied');
@@ -34,6 +39,16 @@ export default function CameraPermission({ onGranted, onDenied }: CameraPermissi
       onDenied?.();
     }
   };
+
+  // Cleanup: if stream was obtained but never handed off (e.g. parent unmounted mid-request), stop tracks
+  useEffect(() => {
+    return () => {
+      if (streamRef.current && !handedOffRef.current) {
+        streamRef.current.getTracks().forEach((t) => t.stop());
+        streamRef.current = null;
+      }
+    };
+  }, []);
 
   if (status === 'granted') {
     return (

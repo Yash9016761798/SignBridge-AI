@@ -36,6 +36,19 @@ export default function PracticePage() {
     }
   }, [cameraStream]);
 
+  // Cleanup camera stream on unmount — stop all tracks and clear srcObject
+  useEffect(() => {
+    const videoEl = videoRef.current;
+    return () => {
+      if (cameraStream) {
+        cameraStream.getTracks().forEach((t) => t.stop());
+      }
+      if (videoEl) {
+        videoEl.srcObject = null;
+      }
+    };
+  }, [cameraStream]);
+
   const startSession = async () => {
     setLoading(true);
     try {
