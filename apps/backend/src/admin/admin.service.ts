@@ -1,15 +1,14 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
-import { ConfigService } from '@nestjs/config';
+import { Prisma, UserRole } from '@prisma/client';
+import { QueryUserDto } from './dto/query-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class AdminService {
   private readonly logger = new Logger(AdminService.name);
 
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly configService: ConfigService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async getDashboardStats() {
     const [
@@ -59,7 +58,7 @@ export class AdminService {
       backendStatus = 'degraded';
     }
 
-    const aiServiceUrl = this.configService.get<string>('AI_SERVICE_URL');
+    const aiServiceUrl = process.env.AI_SERVICE_URL;
     if (aiServiceUrl) {
       try {
         const response = await fetch(`${aiServiceUrl}/health`, {
@@ -272,5 +271,450 @@ export class AdminService {
         createdAt: d.createdAt.toISOString(),
       })),
     };
+  }
+
+  async getUsers(query: QueryUserDto) {
+    const page = query.page || 1;
+    const limit = query.limit || 20;
+    const sortBy = query.sortBy || 'createdAt';
+    const sortOrder = query.sortOrder === 'asc' ? 'asc' : 'desc';
+
+    const where: Prisma.UserWhereInput = {};
+
+    if (query.search) {
+      where.OR = [
+        { firstName: { contains: query.search, mode: 'insensitive' } },
+        { lastName: { contains: query.search, mode: 'insensitive' } },
+        { email: { contains: query.search, mode: 'insensitive' } },
+      ];
+    }
+
+    if (query.role) {
+      where.role = { name: query.role as UserRole };
+    }
+
+    if (query.status) {
+      if (query.status === 'active') {
+        where.isActive = true;
+      } else if (query.status === 'inactive') {
+        where.isActive = false;
+      } else if (query.status === 'suspended') {
+        where.isActive = false;
+      }
+    }
+
+    const [users, total] = await Promise.all([
+      this.prisma.user.findMany({
+        where,
+        include: {
+          role: true,
+          organization: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+        orderBy: { [sortBy]: sortOrder },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      this.prisma.user.count({ where }),
+    ]);
+
+    const userIds = users.map((u) => u.id);
+
+    const [enrollments, completedEnrollments] = await Promise.all([
+      this.prisma.enrollment.groupBy({
+        by: ['userId'],
+        where: { userId: { in: userIds } },
+        _count: { userId: true },
+      }),
+      this.prisma.enrollment.groupBy({
+        by: ['userId'],
+        where: { userId: { in: userIds }, completedAt: { not: null } },
+        _count: { userId: true },
+      }),
+    ]);
+
+    const enrollmentMap = new Map(enrollments.map((e) => [e.userId, e._count.userId]));
+    const completedEnrollmentMap = new Map(
+      completedEnrollments.map((e) => [e.userId, e._count.userId]),
+    );
+
+    const data = users.map((u) => ({
+      id: u.id,
+      name: `${u.firstName} ${u.lastName}`,
+      email: u.email,
+      role: u.role.name,
+      status: u.isActive ? 'active' : 'inactive',
+      profileImage: u.profileImage,
+      isVerified: u.isVerified,
+      organizationId: u.organizationId,
+      organizationName: u.organization?.name || null,
+      lastLoginAt: u.lastLoginAt?.toISOString() || null,
+      createdAt: u.createdAt.toISOString(),
+      updatedAt: u.updatedAt.toISOString(),
+      enrolledCourses: enrollmentMap.get(u.id) || 0,
+      completedCourses: completedEnrollmentMap.get(u.id) || 0,
+    }));
+
+    return {
+      data,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  async getUserById(id: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      include: {
+        role: true,
+        organization: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const [
+      enrolledCoursesCount,
+      completedCoursesCount,
+      certificatesCount,
+      practiceSessionsCount,
+      translationsCount,
+      enrollments,
+      certificates,
+      practiceSessions,
+      translationSessions,
+      gesturePredictions,
+      recentActivity,
+    ] = await Promise.all([
+      this.prisma.enrollment.count({ where: { userId: id } }),
+      this.prisma.enrollment.count({ where: { userId: id, completedAt: { not: null } } }),
+      this.prisma.certificate.count({ where: { userId: id } }),
+      this.prisma.practiceSession.count({ where: { userId: id } }),
+      this.prisma.translationSession.count({ where: { userId: id } }),
+      this.prisma.enrollment.findMany({
+        where: { userId: id },
+        include: {
+          course: {
+            select: {
+              id: true,
+              title: true,
+              difficulty: true,
+              status: true,
+            },
+          },
+        },
+        orderBy: { enrolledAt: 'desc' },
+        take: 10,
+      }),
+      this.prisma.certificate.findMany({
+        where: { userId: id },
+        include: {
+          course: {
+            select: {
+              id: true,
+              title: true,
+            },
+          },
+        },
+        orderBy: { issuedDate: 'desc' },
+        take: 10,
+      }),
+      this.prisma.practiceSession.findMany({
+        where: { userId: id },
+        include: {
+          lesson: {
+            select: {
+              id: true,
+              title: true,
+            },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 10,
+      }),
+      this.prisma.translationSession.findMany({
+        where: { userId: id },
+        orderBy: { startedAt: 'desc' },
+        take: 10,
+      }),
+      this.prisma.gesturePrediction.findMany({
+        where: {
+          practiceSession: { userId: id },
+        },
+        select: {
+          id: true,
+          confidence: true,
+          predictedGesture: true,
+          createdAt: true,
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 10,
+      }),
+      this.prisma.activityLog.findMany({
+        where: { userId: id },
+        orderBy: { createdAt: 'desc' },
+        take: 10,
+      }),
+    ]);
+
+    const totalPredictions = gesturePredictions.length;
+    const avgConfidence =
+      totalPredictions > 0
+        ? gesturePredictions.reduce((sum, p) => sum + p.confidence, 0) / totalPredictions
+        : 0;
+
+    return {
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      role: user.role.name,
+      status: user.isActive ? 'active' : 'inactive',
+      profileImage: user.profileImage,
+      isVerified: user.isVerified,
+      organizationId: user.organizationId,
+      organizationName: user.organization?.name || null,
+      lastLoginAt: user.lastLoginAt?.toISOString() || null,
+      createdAt: user.createdAt.toISOString(),
+      updatedAt: user.updatedAt.toISOString(),
+      phone: user.phone,
+      dateOfBirth: user.dateOfBirth?.toISOString() || null,
+      bio: user.bio,
+      country: user.country,
+      state: user.state,
+      city: user.city,
+      enrolledCourses: enrolledCoursesCount,
+      completedCourses: completedCoursesCount,
+      certificates: certificatesCount,
+      practiceSessions: practiceSessionsCount,
+      translations: translationsCount,
+      courses: enrollments.map((e) => ({
+        id: e.course.id,
+        title: e.course.title,
+        difficulty: e.course.difficulty,
+        status: e.course.status,
+        enrolledAt: e.enrolledAt.toISOString(),
+        completedAt: e.completedAt?.toISOString() || null,
+      })),
+      certificateList: certificates.map((c) => ({
+        id: c.id,
+        certificateNumber: c.certificateNumber,
+        verificationCode: c.verificationCode,
+        issuedDate: c.issuedDate.toISOString(),
+        course: {
+          title: c.course.title,
+        },
+      })),
+      practiceHistory: practiceSessions.map((ps) => ({
+        id: ps.id,
+        lesson: ps.lesson ? { title: ps.lesson.title } : null,
+        confidenceScore: ps.confidenceScore,
+        accuracy: ps.accuracy,
+        duration: ps.duration,
+        createdAt: ps.createdAt.toISOString(),
+      })),
+      translationHistory: translationSessions.map((ts) => ({
+        id: ts.id,
+        type: ts.type,
+        status: ts.status,
+        startedAt: ts.startedAt.toISOString(),
+        endedAt: ts.endedAt?.toISOString() || null,
+      })),
+      aiStatistics: {
+        totalPredictions,
+        averageConfidence: Math.round(avgConfidence * 100) / 100,
+        recentPredictions: gesturePredictions.map((p) => ({
+          id: p.id,
+          gesture: p.predictedGesture,
+          confidence: p.confidence,
+          createdAt: p.createdAt.toISOString(),
+        })),
+      },
+      recentActivity: recentActivity.map((a) => ({
+        id: a.id,
+        action: a.action,
+        details: a.details,
+        createdAt: a.createdAt.toISOString(),
+      })),
+    };
+  }
+
+  async updateUser(id: string, updateUserDto: UpdateUserDto) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      include: { role: true },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const data: Prisma.UserUpdateInput = {};
+
+    if (updateUserDto.firstName !== undefined) {
+      data.firstName = updateUserDto.firstName;
+    }
+    if (updateUserDto.lastName !== undefined) {
+      data.lastName = updateUserDto.lastName;
+    }
+    if (updateUserDto.email !== undefined) {
+      data.email = updateUserDto.email;
+    }
+    if (updateUserDto.role !== undefined) {
+      const roleRecord = await this.prisma.role.findUnique({
+        where: { name: updateUserDto.role as UserRole },
+      });
+      if (!roleRecord) {
+        throw new NotFoundException(`Role ${updateUserDto.role} not found`);
+      }
+      data.role = { connect: { id: roleRecord.id } };
+    }
+    if (updateUserDto.status !== undefined) {
+      data.isActive = updateUserDto.status === 'active';
+    }
+
+    const updatedUser = await this.prisma.user.update({
+      where: { id },
+      data,
+      include: {
+        role: true,
+        organization: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    return {
+      id: updatedUser.id,
+      email: updatedUser.email,
+      firstName: updatedUser.firstName,
+      lastName: updatedUser.lastName,
+      role: updatedUser.role.name,
+      status: updatedUser.isActive ? 'active' : 'inactive',
+      profileImage: updatedUser.profileImage,
+      isVerified: updatedUser.isVerified,
+      organizationId: updatedUser.organizationId,
+      organizationName: updatedUser.organization?.name || null,
+      lastLoginAt: updatedUser.lastLoginAt?.toISOString() || null,
+      createdAt: updatedUser.createdAt.toISOString(),
+      updatedAt: updatedUser.updatedAt.toISOString(),
+    };
+  }
+
+  async suspendUser(id: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      include: { role: true },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const updatedUser = await this.prisma.user.update({
+      where: { id },
+      data: { isActive: false },
+      include: {
+        role: true,
+        organization: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    return {
+      id: updatedUser.id,
+      email: updatedUser.email,
+      firstName: updatedUser.firstName,
+      lastName: updatedUser.lastName,
+      role: updatedUser.role.name,
+      status: 'inactive',
+      profileImage: updatedUser.profileImage,
+      isVerified: updatedUser.isVerified,
+      organizationId: updatedUser.organizationId,
+      organizationName: updatedUser.organization?.name || null,
+      lastLoginAt: updatedUser.lastLoginAt?.toISOString() || null,
+      createdAt: updatedUser.createdAt.toISOString(),
+      updatedAt: updatedUser.updatedAt.toISOString(),
+    };
+  }
+
+  async activateUser(id: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      include: { role: true },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const updatedUser = await this.prisma.user.update({
+      where: { id },
+      data: { isActive: true },
+      include: {
+        role: true,
+        organization: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    return {
+      id: updatedUser.id,
+      email: updatedUser.email,
+      firstName: updatedUser.firstName,
+      lastName: updatedUser.lastName,
+      role: updatedUser.role.name,
+      status: 'active',
+      profileImage: updatedUser.profileImage,
+      isVerified: updatedUser.isVerified,
+      organizationId: updatedUser.organizationId,
+      organizationName: updatedUser.organization?.name || null,
+      lastLoginAt: updatedUser.lastLoginAt?.toISOString() || null,
+      createdAt: updatedUser.createdAt.toISOString(),
+      updatedAt: updatedUser.updatedAt.toISOString(),
+    };
+  }
+
+  async deleteUser(id: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    await this.prisma.user.update({
+      where: { id },
+      data: { deletedAt: new Date(), isActive: false },
+    });
+
+    return { success: true, message: 'User soft deleted successfully' };
   }
 }
