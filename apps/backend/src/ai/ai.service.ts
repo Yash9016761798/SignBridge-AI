@@ -11,6 +11,7 @@ import { PrismaService } from '../database/prisma.service';
 import { CreateTranslationSessionDto, TranslateTextDto } from './dto/translation.dto';
 import { CreatePracticeSessionDto, SubmitPredictionDto } from './dto/practice.dto';
 import { PredictionRequest, PredictionResponse } from './dto/ai.dto';
+import { WebcamFrameDto } from './dto/webcam.dto';
 import { FrameLandmarks } from './dto/pose.dto';
 import { ConfigService } from '@nestjs/config';
 
@@ -268,6 +269,48 @@ export class AiService {
     return response;
   }
 
+  // ===========================================================================
+  // WEBCAM STREAMING
+  // ===========================================================================
+
+  async webcamFrame(userId: string, dto: WebcamFrameDto) {
+    if (!dto.frameData || dto.frameData.length === 0) {
+      throw new BadRequestException({
+        message: 'Frame data is required. Provide at least one pose frame.',
+        error: 'BadRequest',
+      });
+    }
+
+    const payload: FastApiWebcamRequest = {
+      frame_data: dto.frameData,
+    };
+    if (dto.sessionId) {
+      payload.session_id = dto.sessionId;
+    }
+
+    this.logger.log(
+      `Sending webcam frame to AI service: frames=${dto.frameData.length}, sessionId=${dto.sessionId || 'auto'}`,
+    );
+
+    const result = await this.aiPost<FastApiWebcamResult>('/webcam/frame', payload);
+
+    const timestamp = new Date().toISOString();
+
+    this.logger.log(`Webcam translation: "${result.prediction.text}" (${result.confidence})`);
+
+    return {
+      sessionId: result.session_id || dto.sessionId,
+      prediction: {
+        text: result.prediction.text,
+        tokens: result.prediction.tokens,
+      },
+      confidence: result.confidence,
+      processingTimeMs: Math.round(result.processing_time_ms),
+      modelVersion: result.model_version,
+      timestamp,
+    };
+  }
+
   async getAiHealth() {
     try {
       const data = await this.aiGet('/health');
@@ -401,4 +444,17 @@ interface FastApiTranslateResult {
   confidence: number;
   processing_time_ms: number;
   model_version: string;
+}
+
+interface FastApiWebcamRequest {
+  frame_data: number[][][];
+  session_id?: string;
+}
+
+interface FastApiWebcamResult {
+  prediction: FastApiTranslation;
+  confidence: number;
+  processing_time_ms: number;
+  model_version: string;
+  session_id?: string | null;
 }

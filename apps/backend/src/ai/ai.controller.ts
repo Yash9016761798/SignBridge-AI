@@ -4,6 +4,7 @@ import { AiService } from './ai.service';
 import { CreateTranslationSessionDto, TranslateTextDto } from './dto/translation.dto';
 import { CreatePracticeSessionDto, SubmitPredictionDto } from './dto/practice.dto';
 import { PredictionRequest, PredictionResponse } from './dto/ai.dto';
+import { WebcamFrameDto } from './dto/webcam.dto';
 import { FirebaseAuthGuard } from '../common/guards/firebase-auth.guard';
 import { UseGuards } from '@nestjs/common';
 
@@ -117,5 +118,21 @@ export class AiController {
   @ApiOperation({ summary: 'Check AI service health' })
   async getAiHealth() {
     return this.aiService.getAiHealth();
+  }
+
+  // ===========================================================================
+  // WEBCAM
+  // ===========================================================================
+
+  @Post('webcam/frame')
+  @UseGuards(FirebaseAuthGuard)
+  @ApiBearerAuth('firebase-auth')
+  @ApiOperation({ summary: 'Process a webcam frame for real-time sign-to-text translation' })
+  @ApiResponse({ status: 201, description: 'Webcam translation result' })
+  @ApiResponse({ status: 400, description: 'Invalid frame data' })
+  @ApiResponse({ status: 502, description: 'AI service error (BadGateway)' })
+  @ApiResponse({ status: 503, description: 'AI service unreachable (ServiceUnavailable)' })
+  async webcamFrame(@Req() req: any, @Body() dto: WebcamFrameDto) {
+    return this.aiService.webcamFrame(req.user.id, dto);
   }
 }
