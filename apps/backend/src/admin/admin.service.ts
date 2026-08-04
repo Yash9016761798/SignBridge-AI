@@ -344,7 +344,8 @@ export class AdminService {
 
     const data = users.map((u) => ({
       id: u.id,
-      name: `${u.firstName} ${u.lastName}`,
+      firstName: u.firstName,
+      lastName: u.lastName,
       email: u.email,
       role: u.role.name,
       status: u.isActive ? 'active' : 'inactive',
@@ -649,7 +650,7 @@ export class AdminService {
       firstName: updatedUser.firstName,
       lastName: updatedUser.lastName,
       role: updatedUser.role.name,
-      status: 'inactive',
+      status: 'suspended',
       profileImage: updatedUser.profileImage,
       isVerified: updatedUser.isVerified,
       organizationId: updatedUser.organizationId,
