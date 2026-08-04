@@ -246,6 +246,24 @@ export class AiService {
 
     const result = await this.aiPost<FastApiPredictionResult>('/predict', payload);
 
+    let sessionId = dto.sessionId;
+    if (!sessionId) {
+      const session = await this.prisma.practiceSession.create({
+        data: { userId },
+      });
+      sessionId = session.id;
+    }
+
+    const prediction = await this.prisma.gesturePrediction.create({
+      data: {
+        practiceSessionId: sessionId,
+        predictedGesture: result.prediction.text,
+        confidence: result.confidence,
+        processingTime: result.processing_time_ms,
+        modelVersion: result.model_version,
+      },
+    });
+
     const response: PredictionResponse = {
       success: true,
       message: 'Prediction completed successfully',
@@ -259,8 +277,9 @@ export class AiService {
       },
       meta: {
         timestamp: new Date().toISOString(),
-        sessionId: dto.sessionId,
+        sessionId,
         inputType: dto.inputType,
+        predictionId: prediction.id,
       },
     };
 
@@ -284,6 +303,7 @@ export class AiService {
     const payload: FastApiWebcamRequest = {
       frame_data: dto.frameData,
     };
+    let sessionId = dto.sessionId;
     if (dto.sessionId) {
       payload.session_id = dto.sessionId;
     }
@@ -294,12 +314,34 @@ export class AiService {
 
     const result = await this.aiPost<FastApiWebcamResult>('/webcam/frame', payload);
 
+    if (result.session_id && !sessionId) {
+      sessionId = result.session_id;
+    }
+
+    if (!sessionId) {
+      const session = await this.prisma.practiceSession.create({
+        data: { userId },
+      });
+      sessionId = session.id;
+    }
+
+    const prediction = await this.prisma.gesturePrediction.create({
+      data: {
+        practiceSessionId: sessionId,
+        predictedGesture: result.prediction.text,
+        confidence: result.confidence,
+        processingTime: result.processing_time_ms,
+        modelVersion: result.model_version,
+      },
+    });
+
     const timestamp = new Date().toISOString();
 
     this.logger.log(`Webcam translation: "${result.prediction.text}" (${result.confidence})`);
 
     return {
-      sessionId: result.session_id || dto.sessionId,
+      sessionId,
+      predictionId: prediction.id,
       prediction: {
         text: result.prediction.text,
         tokens: result.prediction.tokens,

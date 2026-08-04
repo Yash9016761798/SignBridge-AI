@@ -150,6 +150,11 @@ export class PredictionMeta {
   @IsString()
   sessionId?: string;
 
+  @ApiPropertyOptional({ description: 'Prediction ID from database persistence' })
+  @IsOptional()
+  @IsString()
+  predictionId?: string;
+
   @ApiPropertyOptional({
     enum: INPUT_SOURCE_TYPES,
     description: 'Input source type from request, if provided',
