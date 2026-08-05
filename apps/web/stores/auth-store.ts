@@ -68,11 +68,8 @@ export const useAuthStore = create<AuthStoreState>()(
             const token = await userCredential.user.getIdToken();
             const apiUrl = process.env.NEXT_PUBLIC_API_URL;
             if (apiUrl) {
-              const response = (await apiClient.post('/auth/login', { idToken: token })) as {
-                success: boolean;
-                data: User;
-              };
-              set({ user: response.data, isLoading: false, isAuthenticated: true });
+              const user = (await apiClient.post('/auth/login', { idToken: token })) as User;
+              set({ user, isLoading: false, isAuthenticated: true });
             } else {
               const user = generateDemoUser(data);
               set({ user, isLoading: false, isAuthenticated: true });
@@ -100,11 +97,8 @@ export const useAuthStore = create<AuthStoreState>()(
             const token = await userCredential.user.getIdToken();
             const apiUrl = process.env.NEXT_PUBLIC_API_URL;
             if (apiUrl) {
-              const response = (await apiClient.post('/auth/login', { idToken: token })) as {
-                success: boolean;
-                data: User;
-              };
-              set({ user: response.data, isLoading: false, isAuthenticated: true });
+              const user = (await apiClient.post('/auth/login', { idToken: token })) as User;
+              set({ user, isLoading: false, isAuthenticated: true });
             } else {
               const user = generateDemoUser(data);
               set({ user, isLoading: false, isAuthenticated: true });

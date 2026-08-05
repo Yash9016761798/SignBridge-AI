@@ -28,7 +28,13 @@ apiClient.interceptors.request.use(async (config) => {
 });
 
 apiClient.interceptors.response.use(
-  (response) => response.data,
+  (response) => {
+    const data = response.data;
+    if (data && typeof data === 'object' && 'success' in data && 'data' in data) {
+      return (data as any).data;
+    }
+    return data;
+  },
   (error) => {
     if (error.response?.status === 401) {
       if (typeof window !== 'undefined') {
@@ -36,7 +42,7 @@ apiClient.interceptors.response.use(
       }
     }
     return Promise.reject(error.response?.data || error);
-  }
+  },
 );
 
 export default apiClient;

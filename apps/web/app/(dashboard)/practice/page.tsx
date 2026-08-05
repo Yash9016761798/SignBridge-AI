@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import PageHeader from '@/components/dashboard/PageHeader';
 import { CameraPermission, PredictionResultDisplay } from '@/components/ai';
 import { aiApi } from '@/lib/ai-api';
+import { extractPoseFromVideo } from '@/lib/pose-extraction';
 import type { PracticeSession, PredictionResult } from '@/types/ai';
 import { Video, Square, Clock, Target, BarChart, Sparkles } from 'lucide-react';
 
@@ -55,8 +56,8 @@ export default function PracticePage() {
       const newSession = await aiApi.createPracticeSession();
       setSession(newSession);
       setPredictionCount(0);
-    } catch {
-      // ignore
+    } catch (error) {
+      console.error('Failed to start session:', error);
     } finally {
       setLoading(false);
     }
@@ -65,19 +66,31 @@ export default function PracticePage() {
   const captureAndPredict = async () => {
     if (!session) return;
     try {
-      const result = await aiApi.predict('image');
-      setPrediction(result.data);
+      const video = videoRef.current;
+      if (!video) {
+        console.error('Video element not available');
+        return;
+      }
+
+      const landmarks = await extractPoseFromVideo(video, performance.now());
+      if (!landmarks) {
+        console.error('Failed to extract pose landmarks from video frame');
+        return;
+      }
+
+      const result = await aiApi.predict('landmarks', [landmarks]);
+      setPrediction(result);
       setPredictionCount((c) => c + 1);
 
       await aiApi.submitPrediction({
         sessionId: session.id,
-        predictedGesture: result.data.gesture,
-        confidence: result.data.confidence,
-        processingTimeMs: result.data.processingTimeMs,
-        modelVersion: result.data.modelVersion,
+        predictedGesture: result.gesture,
+        confidence: result.confidence,
+        processingTimeMs: result.processingTimeMs,
+        modelVersion: result.modelVersion,
       });
-    } catch {
-      // ignore
+    } catch (error) {
+      console.error('Prediction failed:', error);
     }
   };
 
@@ -87,8 +100,8 @@ export default function PracticePage() {
       await aiApi.endPracticeSession(session.id);
       setSession(null);
       setPrediction(null);
-    } catch {
-      // ignore
+    } catch (error) {
+      console.error('Failed to end session:', error);
     }
   };
 

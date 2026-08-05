@@ -52,7 +52,11 @@ export const aiApi = {
     return apiClient.post('/practice/predict', data);
   },
 
-  async endPracticeSession(id: string, accuracy?: number, feedback?: string): Promise<PracticeSession> {
+  async endPracticeSession(
+    id: string,
+    accuracy?: number,
+    feedback?: string,
+  ): Promise<PracticeSession> {
     return apiClient.post(`/practice/session/${id}/end`, { accuracy, feedback });
   },
 
@@ -64,8 +68,12 @@ export const aiApi = {
   // AI
   // ===========================================================================
 
-  async predict(type: string): Promise<{ data: PredictionResult }> {
-    return apiClient.post('/ai/predict', { type });
+  async predict(type: string, pose_sequence?: number[][][]): Promise<PredictionResult> {
+    const payload: any = { type };
+    if (pose_sequence) {
+      payload.pose_sequence = pose_sequence;
+    }
+    return apiClient.post('/ai/predict', payload);
   },
 
   async getAiHealth(): Promise<AiHealthStatus> {
@@ -73,6 +81,8 @@ export const aiApi = {
   },
 
   async getModelInfo(): Promise<ModelInfo> {
-    return apiClient.get('/ai/model/info', { baseURL: process.env.NEXT_PUBLIC_AI_SERVICE_URL || 'http://localhost:8000' });
+    return apiClient.get('/ai/model/info', {
+      baseURL: process.env.NEXT_PUBLIC_AI_SERVICE_URL || 'http://localhost:8000',
+    });
   },
 };

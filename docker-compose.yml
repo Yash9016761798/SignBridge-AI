@@ -29,10 +29,12 @@ services:
       - SIGNBRIDGE_MAX_SEQ_LENGTH=30
       - SIGNBRIDGE_DEMO_MODE=${DEMO_MODE:-false}
     volumes:
-      - ./apps/ai-training/experiments:/app/ai-training/experiments:ro
-      - ./apps/ai-training/checkpoints:/app/ai-training/checkpoints:ro
-      - ./apps/ai-training/tokenizer:/app/ai-training/tokenizer:ro
-      - ./apps/ai-training/models:/app/ai-training/models:ro
+      - ./ai-training/experiments:/app/ai-training/experiments:ro
+      - ./ai-training/checkpoints:/app/ai-training/checkpoints:ro
+      - ./ai-training/tokenizer:/app/ai-training/tokenizer:ro
+      - ./ai-training/models:/app/ai-training/models:ro
+      - ./ai-training/training:/app/ai-training/training:ro
+      - ./ai-training/pose:/app/ai-training/pose:ro
       - ./tools/logs/ai-service:/app/logs
     healthcheck:
       test:

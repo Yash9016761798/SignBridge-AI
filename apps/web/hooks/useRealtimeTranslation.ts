@@ -62,7 +62,7 @@ export interface UseRealtimeTranslationReturn {
 
 const DEFAULT_SETTINGS: TranslationSettings = {
   inferenceFps: 5,
-  confidenceThreshold: 0.70,
+  confidenceThreshold: 0.7,
   bufferSize: 30,
   smoothingWindow: 5,
   autoStart: false,
@@ -127,7 +127,7 @@ export function useRealtimeTranslation(
     const startTime = performance.now();
 
     try {
-      const landmarks = extractPoseFromVideo(video, performance.now());
+      const landmarks = await extractPoseFromVideo(video, performance.now());
       if (!landmarks) {
         perfMetrics.recordFrame();
         inferenceBusyRef.current = false;
