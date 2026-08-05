@@ -15,6 +15,8 @@ from typing import List, Dict
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+from tokenizer.vocabulary import Vocabulary
+
 
 def compute_bleu_simple(ref: str, hyp: str) -> float:
     ref_t = ref.lower().split()
@@ -127,7 +129,6 @@ class PredictionGenerator:
         return model, vocab_dict
 
     def load_vocabulary(self, vocab_dict: Dict) -> 'Vocabulary':
-        from scripts.run_representative_training import Vocabulary
         return Vocabulary.from_dict(vocab_dict)
 
     def load_test_data(self, dataset_cfg_path: str = 'configs/representative_dataset.yaml') -> List[Dict]:

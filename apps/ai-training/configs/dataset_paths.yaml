@@ -46,19 +46,19 @@ huggingface:
 # LOCAL PATHS (after download)
 # =============================================================================
 local:
-  csv_path: /content/drive/MyDrive/SignBridgeAI/dataset/iSign_v1.1.csv
-  video_dir: /content/drive/MyDrive/SignBridgeAI/dataset/videos
-  pose_dir: /content/drive/MyDrive/SignBridgeAI/dataset/poses
-  cache_dir: /content/drive/MyDrive/SignBridgeAI/dataset/cache
-  index_path: /content/drive/MyDrive/SignBridgeAI/dataset/cache/dataset_index.json
+  csv_path: './datasets/iSign_v1.1.csv'
+  video_dir: './datasets/videos'
+  pose_dir: './datasets/poses'
+  cache_dir: './datasets/cache'
+  index_path: './datasets/cache/dataset_index.json'
 
 # =============================================================================
 # ARCHIVE EXTRACTION
 # =============================================================================
 extraction:
-  video_output: /content/drive/MyDrive/SignBridgeAI/dataset/videos
-  pose_output: /content/drive/MyDrive/SignBridgeAI/dataset/poses
-  temp_dir: /tmp/isign_extract
+  video_output: './datasets/videos'
+  pose_output: './datasets/poses'
+  temp_dir: './datasets/tmp'
   chunk_size: 8192
 
 # =============================================================================

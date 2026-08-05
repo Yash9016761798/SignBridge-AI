@@ -15,7 +15,8 @@ def generate_report(experiment_dir: str):
         history = list(csv.DictReader(f))
     with open(exp / 'predictions.csv') as f:
         predictions = list(csv.DictReader(f))
-    with open('datasets/representative/metadata.json') as f:
+    ds_meta_path = exp.parent / 'representative' / 'metadata.json'
+    with open(ds_meta_path) as f:
         ds_meta = json.load(f)
 
     config = metrics.get('config', {})

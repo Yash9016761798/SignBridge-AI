@@ -264,7 +264,33 @@ class Vocabulary:
         
         logger.info(f"Vocabulary loaded from {path} (size: {len(vocab)})")
         return vocab
-    
+
+    def to_dict(self) -> dict:
+        return {
+            'config': {
+                'min_freq': self.config.min_freq,
+                'max_size': self.config.max_size,
+                'special_tokens': self.config.special_tokens,
+            },
+            'word2idx': dict(self.word2idx),
+            'idx2word': {str(k): v for k, v in self.idx2word.items()},
+            'word_freq': dict(self.word_freq.most_common(10000)),
+            'vocab_size': len(self),
+        }
+
+    @classmethod
+    def from_dict(cls, d: dict) -> 'Vocabulary':
+        config = VocabularyConfig(
+            min_freq=d.get('config', {}).get('min_freq', 2),
+            max_size=d.get('config', {}).get('max_size', 50000),
+            special_tokens=d.get('config', {}).get('special_tokens', SPECIAL_TOKENS.copy()),
+        )
+        vocab = cls(config)
+        vocab.word2idx = d.get('word2idx', {})
+        vocab.idx2word = {int(k): v for k, v in d.get('idx2word', {}).items()}
+        vocab.word_freq = Counter(d.get('word_freq', {}))
+        return vocab
+
     def get_stats(self) -> dict:
         """
         Get vocabulary statistics.

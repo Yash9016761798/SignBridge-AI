@@ -25,62 +25,8 @@ from training.scheduler import SchedulerFactory
 from training.checkpoint import CheckpointManager
 from training.early_stopping import EarlyStopping
 from training.config import TrainingConfig
-
-
-class Vocabulary:
-    """Simple vocabulary for the representative training pipeline."""
-
-    def __init__(self):
-        self.word2idx = {'<pad>': 0, '<sos>': 1, '<eos>': 2, '<unk>': 3}
-        self.idx2word = {v: k for k, v in self.word2idx.items()}
-        self.word_freq = {}
-        self._next_idx = 4
-
-    def build_from_texts(self, texts: List[str], min_freq: int = 1):
-        freq = {}
-        for text in texts:
-            for word in text.lower().split():
-                freq[word] = freq.get(word, 0) + 1
-        for word, count in sorted(freq.items()):
-            if count >= min_freq and word not in self.word2idx:
-                self.word2idx[word] = self._next_idx
-                self.idx2word[self._next_idx] = word
-                self.word_freq[word] = count
-                self._next_idx += 1
-
-    def encode(self, text: str, max_length: int = 50) -> List[int]:
-        tokens = [self.word2idx.get(w, self.word2idx['<unk>'])
-                  for w in text.lower().split()[:max_length - 2]]
-        return [self.word2idx['<sos>']] + tokens + [self.word2idx['<eos>']]
-
-    def decode(self, indices: List[int], skip_special: bool = True) -> str:
-        special = {self.word2idx['<pad>'], self.word2idx['<sos>'], self.word2idx['<eos>']}
-        words = []
-        for idx in indices:
-            if skip_special and idx in special:
-                continue
-            words.append(self.idx2word.get(idx, '<unk>'))
-        return ' '.join(words)
-
-    def __len__(self):
-        return len(self.word2idx)
-
-    def to_dict(self):
-        return {
-            'word2idx': self.word2idx,
-            'idx2word': {str(k): v for k, v in self.idx2word.items()},
-            'word_freq': self.word_freq,
-            'vocab_size': len(self.word2idx),
-        }
-
-    @classmethod
-    def from_dict(cls, d: Dict) -> 'Vocabulary':
-        v = cls()
-        v.word2idx = d['word2idx']
-        v.idx2word = {int(k): val for k, val in d['idx2word'].items()}
-        v.word_freq = d.get('word_freq', {})
-        v._next_idx = max(int(k) for k in v.idx2word.keys()) + 1
-        return v
+from tokenizer.vocabulary import Vocabulary
+from tokenizer.tokenizer import Tokenizer
 
 
 class MockPoseDataset:
@@ -89,13 +35,13 @@ class MockPoseDataset:
     Generates (B, T, L, F) pose tensors matching PoseTransformer input.
     """
 
-    def __init__(self, csv_path: str, vocab: Vocabulary,
+    def __init__(self, csv_path: str, tokenizer: Tokenizer,
                  max_length: int = 50, num_landmarks: int = 33,
                  num_features: int = 5):
         self.max_length = max_length
         self.num_landmarks = num_landmarks
         self.num_features = num_features
-        self.vocab = vocab
+        self.tokenizer = tokenizer
         self.samples = []
 
         with open(csv_path, 'r', encoding='utf-8') as f:
@@ -110,7 +56,7 @@ class MockPoseDataset:
     def __getitem__(self, idx):
         row = self.samples[idx]
         text = row['text']
-        tokens = self.vocab.encode(text, self.max_length)
+        tokens = self.tokenizer.encode(text, max_length=self.max_length)
 
         seq_len = min(len(tokens), self.max_length)
         T = seq_len
@@ -238,7 +184,7 @@ class RepresentativeTrainer:
 
         csv_dir = Path(dcfg.get('output_dir', 'datasets/representative'))
 
-        self.vocab = Vocabulary()
+        self.tokenizer = Tokenizer()
         train_csv = csv_dir / 'train.csv'
         texts = []
         if train_csv.exists():
@@ -246,10 +192,10 @@ class RepresentativeTrainer:
                 for row in csv.DictReader(f):
                     if row.get('text', '').strip():
                         texts.append(row['text'])
-            self.vocab.build_from_texts(texts)
+            self.tokenizer.vocab.build_from_texts(texts)
 
         model_cfg = self.config['model']
-        model_cfg['vocab_size'] = len(self.vocab)
+        model_cfg['vocab_size'] = len(self.tokenizer.vocab)
         self.config['model'] = model_cfg
 
         num_landmarks = 33
@@ -265,12 +211,12 @@ class RepresentativeTrainer:
         print(f"Train: {len(self.train_loader.dataset)} samples")
         print(f"Val: {len(self.val_loader.dataset)} samples")
         print(f"Test: {len(self.test_loader.dataset)} samples")
-        print(f"Vocab size: {len(self.vocab)}")
+        print(f"Vocab size: {len(self.tokenizer.vocab)}")
 
     def _make_loader(self, csv_path, num_landmarks, num_features):
         from torch.utils.data import DataLoader
         ds = MockPoseDataset(
-            str(csv_path), self.vocab,
+            str(csv_path), self.tokenizer,
             max_length=self.config['model']['max_seq_length'],
             num_landmarks=num_landmarks,
             num_features=num_features,
@@ -342,8 +288,8 @@ class RepresentativeTrainer:
             total += mask.sum().item()
 
             for p, t in zip(preds.cpu().tolist(), target_ids.cpu().tolist()):
-                all_preds.append(self.vocab.decode(p))
-                all_targets.append(self.vocab.decode(t))
+                all_preds.append(self.tokenizer.decode(p))
+                all_targets.append(self.tokenizer.decode(t))
 
         n_batches = max(len(loader), 1)
         avg_loss = total_loss / n_batches
@@ -402,7 +348,7 @@ class RepresentativeTrainer:
                     'val_accuracy': val_metrics['accuracy'],
                     'val_perplexity': val_metrics['perplexity'],
                     'config': self.config,
-                    'vocab': self.vocab.to_dict(),
+                    'vocab': self.tokenizer.vocab.to_dict(),
                 }, filename='best.pt', is_best=True)
 
             self.checkpoint_mgr.save({
@@ -461,7 +407,7 @@ class RepresentativeTrainer:
     def _save_vocab(self):
         path = self.experiment_dir / 'vocabulary.json'
         with open(path, 'w', encoding='utf-8') as f:
-            json.dump(self.vocab.to_dict(), f, indent=2)
+            json.dump(self.tokenizer.vocab.to_dict(), f, indent=2)
         print(f"Saved vocabulary to {path}")
 
 

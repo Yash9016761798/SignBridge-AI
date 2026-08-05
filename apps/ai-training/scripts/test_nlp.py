@@ -1,11 +1,11 @@
 """Quick test of NLP pipeline."""
 import sys
-sys.path.insert(0, r'C:\Users\Gaurav Gopal Gosavi\OneDrive\Desktop\Sign languageproject\ai-training')
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from tokenizer.vocabulary import Vocabulary, VocabularyConfig
 from tokenizer.tokenizer import Tokenizer, TokenizerConfig
 
-csv_path = r'C:\Users\Gaurav Gopal Gosavi\.cache\huggingface\hub\datasets--Exploration-Lab--iSign\snapshots\e4ee6c5f0d9dfcbc74205e3f1388ce94da26c298\iSign_v1.1.csv'
+csv_path = str(Path.home() / '.cache' / 'huggingface' / 'hub' / 'datasets--Exploration-Lab--iSign' / 'snapshots' / 'e4ee6c5f0d9dfcbc74205e3f1388ce94da26c298' / 'iSign_v1.1.csv')
 
 # Build vocabulary from CSV
 config = VocabularyConfig(min_freq=2, max_size=35000)

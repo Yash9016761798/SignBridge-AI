@@ -5,7 +5,7 @@
 # DATA SOURCE
 # =============================================================================
 data:
-  csv_path: 'C:/Users/Gaurav Gopal Gosavi/.cache/huggingface/hub/datasets--Exploration-Lab--iSign/snapshots/e4ee6c5f0d9dfcbc74205e3f1388ce94da26c298/iSign_v1.1.csv'
+  csv_path: '${HF_CACHE:-~/.cache/huggingface}/hub/datasets--Exploration-Lab--iSign/snapshots/e4ee6c5f0d9dfcbc74205e3f1388ce94da26c298/iSign_v1.1.csv'
   pose_dir: './datasets/dev/poses'
   text_column: 'text'
   uid_column: 'uid'

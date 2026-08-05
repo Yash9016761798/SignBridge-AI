@@ -3,7 +3,7 @@ Compare Experiments for SignBridge AI.
 Generates comparison report and leaderboard.
 """
 import sys
-sys.path.insert(0, r'C:\Users\Gaurav Gopal Gosavi\OneDrive\Desktop\Sign languageproject\ai-training')
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from experiments.comparator import ExperimentComparator
 from experiments.analyzer import ExperimentAnalyzer

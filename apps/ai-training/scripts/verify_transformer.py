@@ -5,7 +5,7 @@ Tests shapes, forward pass, generation, and loss.
 import sys
 import torch
 
-sys.path.insert(0, r'C:\Users\Gaurav Gopal Gosavi\OneDrive\Desktop\Sign languageproject\ai-training')
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from models.transformer import PoseTransformer
 from models.loss import SignBridgeLoss

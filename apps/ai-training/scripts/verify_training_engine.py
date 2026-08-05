@@ -9,7 +9,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
 
-sys.path.insert(0, r'C:\Users\Gaurav Gopal Gosavi\OneDrive\Desktop\Sign languageproject\ai-training')
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from training.seed import SeedManager
 from training.optimizer import OptimizerFactory

@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 import numpy as np
+import torch
 
 sys.path.insert(0, str(Path(__file__).parent))
 

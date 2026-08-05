@@ -14,7 +14,7 @@ from torch.utils.data import Dataset, DataLoader
 from pathlib import Path
 import random
 
-sys.path.insert(0, r'C:\Users\Gaurav Gopal Gosavi\OneDrive\Desktop\Sign languageproject\ai-training')
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from training.seed import SeedManager
 from training.optimizer import OptimizerFactory

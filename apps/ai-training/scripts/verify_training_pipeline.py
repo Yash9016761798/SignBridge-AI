@@ -14,7 +14,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader as TorchDataLoader
 
-sys.path.insert(0, r'C:\Users\Gaurav Gopal Gosavi\OneDrive\Desktop\Sign languageproject\ai-training')
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from training.sample import TrainingSample
 from training.collate import CollateFn

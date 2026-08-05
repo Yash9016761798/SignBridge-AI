@@ -45,8 +45,8 @@ logger = logging.getLogger(__name__)
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_CONFIG = PROJECT_ROOT / "configs" / "dev_dataset.yaml"
 
-# HuggingFace cache path
-HF_CACHE = Path(r"C:\Users\Gaurav Gopal Gosavi\.cache\huggingface\hub")
+# HuggingFace cache path (portable)
+HF_CACHE = Path.home() / ".cache" / "huggingface" / "hub"
 HF_SNAPSHOT = HF_CACHE / "datasets--Exploration-Lab--iSign" / "snapshots" / "e4ee6c5f0d9dfcbc74205e3f1388ce94da26c298"
 
 

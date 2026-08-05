@@ -5,7 +5,7 @@ Tests all components end-to-end.
 import sys
 import numpy as np
 
-sys.path.insert(0, r'C:\Users\Gaurav Gopal Gosavi\OneDrive\Desktop\Sign languageproject\ai-training')
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from pose import MockPoseGenerator, PoseReader, PoseValidator, PoseNormalizer, SequenceBuilder, PoseAugmentor
 

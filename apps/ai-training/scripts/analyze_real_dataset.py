@@ -39,11 +39,7 @@ EXPERIMENTS_DIR.mkdir(parents=True, exist_ok=True)
 PLOTS_DIR.mkdir(parents=True, exist_ok=True)
 
 # CSV path in HuggingFace cache
-CSV_PATH = Path(
-    r"C:\Users\Gaurav Gopal Gosavi\.cache\huggingface\hub"
-    r"\datasets--Exploration-Lab--iSign\snapshots"
-    r"\e4ee6c5f0d9dfcbc74205e3f1388ce94da26c298\iSign_v1.1.csv"
-)
+CSV_PATH = Path.home() / ".cache" / "huggingface" / "hub" / "datasets--Exploration-Lab--iSign" / "snapshots" / "e4ee6c5f0d9dfcbc74205e3f1388ce94da26c298" / "iSign_v1.1.csv"
 
 # ---------------------------------------------------------------------------
 # 1. Load dataset
