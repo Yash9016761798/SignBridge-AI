@@ -35,15 +35,15 @@ WORKDIR /app
 COPY --from=builder /install /usr/local
 
 # Copy AI service application code
-COPY apps/ai-service/*.py ./app/
+COPY apps/ai-service/*.py ./
 
 # Copy AI training code needed for model loading
 # (transformer model architecture, tokenizer, etc.)
-COPY ai-training/models/ ./ai-training/models/
-COPY ai-training/tokenizer/ ./ai-training/tokenizer/
-COPY ai-training/training/ ./ai-training/training/
-COPY ai-training/pose/ ./ai-training/pose/
-COPY ai-training/preprocessing/ ./ai-training/preprocessing/
+COPY apps/ai-training/models/ ./ai-training/models/
+COPY apps/ai-training/tokenizer/ ./ai-training/tokenizer/
+COPY apps/ai-training/training/ ./ai-training/training/
+COPY apps/ai-training/pose/ ./ai-training/pose/
+COPY apps/ai-training/preprocessing/ ./ai-training/preprocessing/
 
 # Model files are mounted as volumes, but create directories
 RUN mkdir -p /app/ai-training/experiments/representative/checkpoints \
